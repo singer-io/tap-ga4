@@ -94,16 +94,18 @@ def generate_metadata(schema, dimensions, metrics):
     return mdata
 
 
-def generate_catalog_entry(dimensions, metrics):
+
+def generate_schema_and_metadata(dimensions, metrics):
     schema = generate_base_schema()
     add_dimension_to_schema(schema, dimensions)
     add_metrics_to_schema(schema, metrics)
     mdata = generate_metadata(schema, dimensions, metrics)
+    return schema, mdata
 
 def discover(client, config, property_id):
-    # TODO: generate catalog from custom reports once front end is implemented
     request = GetMetadataRequest(
         name=f"properties/{property_id}/metadata",
     )
     response = client.get_metadata(request)
-    generate_catalog_entry(response.dimensions, response.metrics)
+    generate_schema_and_metadata(response.dimensions, response.metrics)
+    # TODO: generate catalog from custom reports once front end is implemented
