@@ -17,11 +17,12 @@ setup(
     ],
     extras_require={
         'test': [
-            'pylint==2.10.2',
+            'pylint',
             'nose'
         ],
         'dev': [
             'ipdb',
+            'pylint'
         ]
     },
     entry_points="""
