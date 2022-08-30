@@ -94,7 +94,6 @@ def generate_metadata(schema, dimensions, metrics):
     return mdata
 
 
-
 def generate_schema_and_metadata(dimensions, metrics):
     schema = generate_base_schema()
     add_dimension_to_schema(schema, dimensions)
