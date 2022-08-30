@@ -16,13 +16,10 @@ setup(
         "backoff==1.8.0",
     ],
     extras_require={
-        'test': [
-            'pylint',
-            'nose'
-        ],
         'dev': [
             'ipdb',
-            'pylint'
+            'pylint',
+            'nose'
         ]
     },
     entry_points="""
