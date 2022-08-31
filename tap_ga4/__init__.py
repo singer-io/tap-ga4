@@ -37,7 +37,7 @@ def main_impl():
         discover(client, config["report_definitions"], config["property_id"])
         LOGGER.info("Discovery complete")
     elif args.catalog:
-        TODO: write sync
+        # TODO: write sync
         #do_sync(args.config, args.catalog.to_dict(), resource_schema, state)
         LOGGER.info("Sync Completed")
     else:
