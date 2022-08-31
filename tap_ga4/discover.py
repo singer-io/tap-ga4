@@ -1,9 +1,9 @@
 import singer
 from singer import metadata, Schema, CatalogEntry, Catalog
+from singer.catalog import write_catalog
 from functools import reduce
-from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import GetMetadataRequest
-import google.oauth2.credentials
+
 
 LOGGER = singer.get_logger()
 
@@ -101,10 +101,29 @@ def generate_schema_and_metadata(dimensions, metrics):
     mdata = generate_metadata(schema, dimensions, metrics)
     return schema, mdata
 
-def discover(client, config, property_id):
+
+def generate_catalog(reports, dimensions, metrics):
+    schema, mdata = generate_schema_and_metadata(dimensions, metrics)
+    catalog_entries = []
+    for report in reports:
+        catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
+                                            key_properties=['_sdc_record_hash'],
+                                            stream=report['name'],
+                                            tap_stream_id=report['id'],
+                                            metadata=metadata.to_list(mdata)))
+
+    return Catalog(catalog_entries)
+
+
+def get_dimensions_and_metrics(client, property_id):
     request = GetMetadataRequest(
         name=f"properties/{property_id}/metadata",
     )
     response = client.get_metadata(request)
-    generate_schema_and_metadata(response.dimensions, response.metrics)
-    # TODO: generate catalog from custom reports once front end is implemented
+    return response.dimensions, response.metrics
+
+
+def discover(client, reports, property_id):
+    dimensions, metrics = get_dimensions_and_metrics(client, property_id)
+    catalog = generate_catalog(reports, dimensions, metrics)
+    write_catalog(catalog)
