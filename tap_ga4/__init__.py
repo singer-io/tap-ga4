@@ -1,9 +1,11 @@
 import logging
 import singer
 from singer import utils
+from singer.catalog import Catalog
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.oauth2.credentials import Credentials
 from tap_ga4.discover import discover
+from tap_ga4.sync import sync
 
 LOGGER = singer.get_logger()
 
@@ -20,6 +22,7 @@ REQUIRED_CONFIG_KEYS = [
 def main_impl():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
     config = args.config
+    catalog = args.catalog or Catalog([])
     state = {}
 
     # access_token (1st param) can be None when refresh_token is supplied
@@ -37,7 +40,7 @@ def main_impl():
         discover(client, config["report_definitions"], config["property_id"])
         LOGGER.info("Discovery complete")
     elif args.catalog:
-        # TODO: write sync
+        sync(client, config, catalog, state)
         LOGGER.info("Sync Completed")
     else:
         LOGGER.info("No properties were selected")
