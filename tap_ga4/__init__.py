@@ -1,10 +1,9 @@
 import logging
 import singer
 from singer import utils
-from tap_ga4.discover import discover
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.oauth2.credentials import Credentials
-
+from tap_ga4.discover import discover
 
 LOGGER = singer.get_logger()
 

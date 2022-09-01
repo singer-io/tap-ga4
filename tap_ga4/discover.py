@@ -1,7 +1,7 @@
+from functools import reduce
 import singer
 from singer import metadata, Schema, CatalogEntry, Catalog
 from singer.catalog import write_catalog
-from functools import reduce
 from google.analytics.data_v1beta.types import GetMetadataRequest
 
 
@@ -51,7 +51,7 @@ def add_metrics_to_schema(schema, metrics):
         elif metric_type in FLOAT_TYPES:
             schema["properties"][metric.api_name] = {"type": ["number", "null"]}
         else:
-            raise Exception("Unknown Google Analytics 4 type: {}".format(metric_type))
+            raise Exception(f"Unknown Google Analytics 4 type: {metric_type}")
 
 
 def add_dimension_to_schema(schema, dimensions):
