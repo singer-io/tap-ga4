@@ -8,7 +8,6 @@ from google.oauth2.credentials import Credentials
 
 LOGGER = singer.get_logger()
 
-
 REQUIRED_CONFIG_KEYS = [
     "start_date",
     "oauth_client_id",
@@ -16,14 +15,16 @@ REQUIRED_CONFIG_KEYS = [
     "refresh_token",
     "property_id",
     "report_definitions",
-    "access_token"
 ]
+
 
 def main_impl():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
     config = args.config
     state = {}
-    credentials = Credentials(config["access_token"],
+
+    # access_token (1st param) can be None when refresh_token is supplied
+    credentials = Credentials(None,
                               refresh_token=config["refresh_token"],
                               token_uri='https://www.googleapis.com/oauth2/v4/token',
                               client_id=config["oauth_client_id"],
@@ -38,13 +39,14 @@ def main_impl():
         LOGGER.info("Discovery complete")
     elif args.catalog:
         # TODO: write sync
-        #do_sync(args.config, args.catalog.to_dict(), resource_schema, state)
         LOGGER.info("Sync Completed")
     else:
         LOGGER.info("No properties were selected")
 
+
 def main():
     main_impl()
+
 
 if __name__ == "__main__":
     main()

@@ -51,7 +51,7 @@ def add_metrics_to_schema(schema, metrics):
         elif metric_type in FLOAT_TYPES:
             schema["properties"][metric.api_name] = {"type": ["number", "null"]}
         else:
-            raise Exception("Unknown Google Analytics type: {}".format(metric_type))
+            raise Exception("Unknown Google Analytics 4 type: {}".format(metric_type))
 
 
 def add_dimension_to_schema(schema, dimensions):
@@ -69,6 +69,7 @@ def add_dimension_to_schema(schema, dimensions):
         else:
             schema["properties"][dimension.api_name] = {"type": ["string", "null"]}
 
+
 def generate_base_schema():
     return {"type": "object", "properties": {"_sdc_record_hash": {"type": "string"},
                                              "start_date": {"type": "string",
@@ -77,6 +78,7 @@ def generate_base_schema():
                                                           "format": "date-time"},
                                              "property_id": {"type": "string"}}}
 
+
 def generate_metadata(schema, dimensions, metrics):
     # TODO: add field exclusion metadata once google adds it
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"])
@@ -84,17 +86,20 @@ def generate_metadata(schema, dimensions, metrics):
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
                    ["_sdc_record_hash", "start_date", "end_date", "property_id"],
                    mdata)
-    mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Fields"),
+    mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Field"),
                    ["_sdc_record_hash", "start_date", "end_date", "property_id"],
                    mdata)
     for dimension in dimensions:
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "tap_ga4.group", dimension.category)
+        mdata = metadata.write(mdata, ("properties", dimension.api_name), "behavior", "DIMENSION")
     for metric in metrics:
         mdata = metadata.write(mdata, ("properties", metric.api_name), "tap_ga4.group", metric.category)
+        mdata = metadata.write(mdata, ("properties", metric.api_name), "behavior", "METRIC")
     return mdata
 
 
 def generate_schema_and_metadata(dimensions, metrics):
+    LOGGER.info("Discovering fields")
     schema = generate_base_schema()
     add_dimension_to_schema(schema, dimensions)
     add_metrics_to_schema(schema, metrics)
@@ -105,6 +110,7 @@ def generate_schema_and_metadata(dimensions, metrics):
 def generate_catalog(reports, dimensions, metrics):
     schema, mdata = generate_schema_and_metadata(dimensions, metrics)
     catalog_entries = []
+    LOGGER.info("Generating catalog")
     for report in reports:
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=['_sdc_record_hash'],
@@ -119,6 +125,7 @@ def get_dimensions_and_metrics(client, property_id):
     request = GetMetadataRequest(
         name=f"properties/{property_id}/metadata",
     )
+
     response = client.get_metadata(request)
     return response.dimensions, response.metrics
 
