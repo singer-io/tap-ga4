@@ -18,7 +18,7 @@ class GA4DiscoveryTest(GA4Base, DiscoveryTest):
         return set(self.expected_metadata().keys())
 
     @unittest.skip("Does Not Apply")
-    def test_3_stream_naming(self):
+    def test_2_stream_naming(self):
         """
         This tap accepts user provided stream names in the config via the report_definitions
         field and does not conform to the expaction that a stream's name must satisfy the condition:
