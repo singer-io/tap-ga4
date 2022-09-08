@@ -1,8 +1,9 @@
+from collections import defaultdict
 from functools import reduce
 import singer
 from singer import metadata, Schema, CatalogEntry, Catalog
 from singer.catalog import write_catalog
-from google.analytics.data_v1beta.types import GetMetadataRequest
+from google.analytics.data_v1beta.types import CheckCompatibilityRequest, GetMetadataRequest, Dimension, Metric
 
 
 LOGGER = singer.get_logger()
@@ -54,7 +55,7 @@ def add_metrics_to_schema(schema, metrics):
             raise Exception(f"Unknown Google Analytics 4 type: {metric_type}")
 
 
-def add_dimension_to_schema(schema, dimensions):
+def add_dimensions_to_schema(schema, dimensions):
     for dimension in dimensions:
         if dimension.api_name in dimension_integer_field_overrides:
             schema["properties"][dimension.api_name] = {"type": ["integer", "null"]}
@@ -79,8 +80,7 @@ def generate_base_schema():
                                              "property_id": {"type": "string"}}}
 
 
-def generate_metadata(schema, dimensions, metrics):
-    # TODO: add field exclusion metadata once google adds it
+def generate_metadata(schema, dimensions, metrics, field_exclusions):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"])
     mdata = metadata.to_map(mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
@@ -92,23 +92,25 @@ def generate_metadata(schema, dimensions, metrics):
     for dimension in dimensions:
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "tap_ga4.group", dimension.category)
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "behavior", "DIMENSION")
+        mdata = metadata.write(mdata, ("properties", dimension.api_name), "fieldExclusions", field_exclusions[dimension.api_name])
     for metric in metrics:
         mdata = metadata.write(mdata, ("properties", metric.api_name), "tap_ga4.group", metric.category)
         mdata = metadata.write(mdata, ("properties", metric.api_name), "behavior", "METRIC")
+        mdata = metadata.write(mdata, ("properties", metric.api_name), "fieldExclusions", field_exclusions[metric.api_name])
     return mdata
 
 
-def generate_schema_and_metadata(dimensions, metrics):
+def generate_schema_and_metadata(dimensions, metrics, field_exclusions):
     LOGGER.info("Discovering fields")
     schema = generate_base_schema()
-    add_dimension_to_schema(schema, dimensions)
+    add_dimensions_to_schema(schema, dimensions)
     add_metrics_to_schema(schema, metrics)
-    mdata = generate_metadata(schema, dimensions, metrics)
+    mdata = generate_metadata(schema, dimensions, metrics, field_exclusions)
     return schema, mdata
 
 
-def generate_catalog(reports, dimensions, metrics):
-    schema, mdata = generate_schema_and_metadata(dimensions, metrics)
+def generate_catalog(reports, dimensions, metrics, field_exclusions):
+    schema, mdata = generate_schema_and_metadata(dimensions, metrics, field_exclusions)
     catalog_entries = []
     LOGGER.info("Generating catalog")
     for report in reports:
@@ -119,6 +121,38 @@ def generate_catalog(reports, dimensions, metrics):
                                             metadata=metadata.to_list(mdata)))
 
     return Catalog(catalog_entries)
+
+
+def get_field_exclusions(client, property_id, dimensions, metrics):
+    field_exclusions = defaultdict(list)
+    LOGGER.info("Discovering dimension field exclusions")
+    # TODO: Get the exclusions for `Cohort` fields
+    for dimension in dimensions:
+        if dimension.category != 'Cohort':
+            res = client.check_compatibility(CheckCompatibilityRequest(
+                property=f'properties/{property_id}',
+                dimensions=[Dimension(name=dimension.api_name)],
+                compatibility_filter='INCOMPATIBLE'
+            ))
+            for field in res.dimension_compatibilities:
+                field_exclusions[dimension.api_name].append(field.dimension_metadata.api_name)
+            for field in res.metric_compatibilities:
+                field_exclusions[dimension.api_name].append(field.metric_metadata.api_name)
+
+    LOGGER.info("Discovering metric field exclusions")
+    for metric in metrics:
+        if metric.category != 'Cohort':
+            res = client.check_compatibility(CheckCompatibilityRequest(
+                property=f'properties/{property_id}',
+                metrics=[Metric(name=metric.api_name)],
+                compatibility_filter='INCOMPATIBLE'
+            ))
+            for field in res.dimension_compatibilities:
+                field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
+            for field in res.metric_compatibilities:
+                field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
+
+    return field_exclusions
 
 
 def get_dimensions_and_metrics(client, property_id):
@@ -132,5 +166,6 @@ def get_dimensions_and_metrics(client, property_id):
 
 def discover(client, reports, property_id):
     dimensions, metrics = get_dimensions_and_metrics(client, property_id)
-    catalog = generate_catalog(reports, dimensions, metrics)
+    field_exclusions = get_field_exclusions(client, property_id, dimensions, metrics)
+    catalog = generate_catalog(reports, dimensions, metrics, field_exclusions)
     write_catalog(catalog)
