@@ -61,15 +61,13 @@ class GA4Base(BaseCase):
 
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
-
         default_expectations = {
             self.PRIMARY_KEYS: {"_sdc_record_hash"},
             self.REPLICATION_METHOD: self.INCREMENTAL,
             self.REPLICATION_KEYS: {"start_date"},
             self.HASHED_KEYS: {
-                'web_property_id',
+                'property_id',
                 'account_id',
-                'profile_id',
                 'end_date',
             },
         }
