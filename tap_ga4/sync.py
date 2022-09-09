@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timedelta
 
 import singer
-from singer import Transformer, get_bookmark, metadata, strftime, utils
+from singer import Transformer, get_bookmark, metadata, utils
 
 from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
 
@@ -65,7 +65,6 @@ def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     record["end_date"] = report_date_string
     record["property_id"] = report["property_id"]
     record["_sdc_record_hash"] = generate_sdc_record_hash(record, dimension_pairs)
-    
     return record
 
 
@@ -73,7 +72,7 @@ DATETIME_FORMATS = {
     "dateHour": '%Y%m%d%H',
     "dateHourMinute": '%Y%m%d%H%M',
     "date": "%Y%m%d",
-    "firstSessionDate": "%Y%m%d" 
+    "firstSessionDate": "%Y%m%d"
 }
 
 
@@ -103,7 +102,7 @@ def transform_datetimes(report_name, rec):
             rec[field_name], is_valid_datetime = parse_datetime(field_name, value)
             row_limit_reached = row_limit_reached or (not is_valid_datetime and value == "(other)")
     if row_limit_reached:
-        LOGGER.warning(f"Row limit reached for report: {report_name}. See https://support.google.com/analytics/answer/9309767 for more info.")
+        LOGGER.warning("Row limit reached for report: %. See https://support.google.com/analytics/answer/9309767 for more info.", report_name)
     return rec
 
 
@@ -151,7 +150,6 @@ def get_report(client, property_id, report_date, dimensions, metrics):
     Calls run_report and paginates over the request if the
     response.row_count is greater than 100,000.
     """
-    report_date_string = report_date.strftime("%Y-%m-%d")
     offset = 0
     has_more_rows = True
     while has_more_rows:
@@ -189,16 +187,16 @@ def sync_report(client, schema, report, start_date, end_date, state):
             dimension_headers = [dimension.name for dimension in response.dimension_headers]
             metric_headers = [metric.name for metric in response.metric_headers]
             with singer.metrics.record_counter(report['name']) as counter:
-                    with Transformer() as transformer:
-                        for row in response.rows:
-                            time_extracted = singer.utils.now()
-                            rec = row_to_record(report, report_date, row, dimension_headers, metric_headers)
-                            singer.write_record(report["name"],
-                                                transformer.transform(
-                                                    transform_datetimes(report["name"], rec),
-                                                    schema),
-                                                time_extracted=time_extracted)
-                            counter.increment()
+                with Transformer() as transformer:
+                    for row in response.rows:
+                        time_extracted = singer.utils.now()
+                        rec = row_to_record(report, report_date, row, dimension_headers, metric_headers)
+                        singer.write_record(report["name"],
+                                            transformer.transform(
+                                                transform_datetimes(report["name"], rec),
+                                                schema),
+                                            time_extracted=time_extracted)
+                        counter.increment()
             singer.write_bookmark(state,
                                   report["id"],
                                   report['property_id'],
@@ -246,6 +244,6 @@ def sync(client, config, catalog, state):
         start_date = get_report_start_date(config, report['property_id'], state, report['id'])
         sync_report(client, schema, report, start_date, end_date, state)
         singer.write_state(state)
-        
+
     state = singer.set_currently_syncing(state, None)
     singer.write_state(state)
