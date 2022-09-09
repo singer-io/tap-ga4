@@ -1,8 +1,9 @@
 from functools import reduce
+
 import singer
-from singer import metadata, Schema, CatalogEntry, Catalog
-from singer.catalog import write_catalog
 from google.analytics.data_v1beta.types import GetMetadataRequest
+from singer import Catalog, CatalogEntry, Schema, metadata
+from singer.catalog import write_catalog
 
 
 LOGGER = singer.get_logger()

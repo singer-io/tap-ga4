@@ -1,9 +1,10 @@
 import unittest
-from datetime import timedelta, datetime, timezone
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
+
 from singer import utils
-import tap_ga4.sync
-from tap_ga4.sync import generate_sdc_record_hash, get_report_start_date, CONVERSION_WINDOW
+from tap_ga4.sync import (CONVERSION_WINDOW, generate_sdc_record_hash,
+                          get_report_start_date)
 
 
 class TestRecordHashing(unittest.TestCase):
@@ -26,7 +27,6 @@ class TestRecordHashing(unittest.TestCase):
 
         expected_hash = "a36ae7fa8d7da9ad5403e10375f4aced9a90ee8a0f9a7f7e747e59052c302af4"
         self.assertEqual(expected_hash, generate_sdc_record_hash(test_record, dimension_pairs))
-
 
 
 class TestConversionWindow(unittest.TestCase):
