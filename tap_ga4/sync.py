@@ -102,7 +102,7 @@ def transform_datetimes(report_name, rec):
             rec[field_name], is_valid_datetime = parse_datetime(field_name, value)
             row_limit_reached = row_limit_reached or (not is_valid_datetime and value == "(other)")
     if row_limit_reached:
-        LOGGER.warning("Row limit reached for report: %. See https://support.google.com/analytics/answer/9309767 for more info.", report_name)
+        LOGGER.warning("Row limit reached for report: %s. See https://support.google.com/analytics/answer/9309767 for more info.", report_name)
     return rec
 
 
@@ -157,7 +157,7 @@ def get_report(client, property_id, report_date, dimensions, metrics):
             property=f'properties/{property_id}',
             dimensions=dimensions,
             metrics=metrics,
-            date_ranges=[DateRange(start_date='2022-09-06', end_date='2022-09-06')],
+            date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
             limit=REPORT_LIMIT,
             offset=offset,
             return_property_quota=True
