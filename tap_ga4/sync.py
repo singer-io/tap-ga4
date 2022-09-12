@@ -53,8 +53,6 @@ def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     """
     Parse a RunReportResponse row into a single Singer record, with added runtime info and PK.
     """
-    # TODO: Handle data sampling keys and values, either in the records or as a separate stream? They look like arrays.
-    # - https://developers.google.com/analytics/devguides/reporting/core/v4/rest/v4/reports/batchGet#ReportData
     record = {}
     dimension_pairs = list(zip(dimension_headers, [dimension.value for dimension in row.dimension_values]))
     record.update(dimension_pairs)
