@@ -1,5 +1,6 @@
 from collections import defaultdict
 from functools import reduce
+
 import singer
 from singer import metadata, Schema, CatalogEntry, Catalog
 from singer.catalog import write_catalog

@@ -1,9 +1,10 @@
 import unittest
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock
 
 from singer import utils
-import tap_ga4.sync
-from tap_ga4.sync import generate_sdc_record_hash, get_report_start_date, CONVERSION_WINDOW
+from tap_ga4.sync import (CONVERSION_WINDOW, generate_sdc_record_hash,
+                          get_report_start_date)
 
 
 class TestRecordHashing(unittest.TestCase):
@@ -28,7 +29,6 @@ class TestRecordHashing(unittest.TestCase):
         self.assertEqual(expected_hash, generate_sdc_record_hash(test_record, dimension_pairs))
 
 
-
 class TestConversionWindow(unittest.TestCase):
     """
     Test the correct report start date is chosen, between start_date,
@@ -45,11 +45,13 @@ class TestConversionWindow(unittest.TestCase):
     """
     config = {"start_date": "2022-01-01"}
     property_id = "123456789"
-    # TODO: mock utils.now, to clean up future-proofing
+
+    # Pin now to 9-9-2022 to future-proof tests
+    fake_now = datetime(2022, 9, 9, 14, 7, 49, 340301, tzinfo=timezone.utc)
+    utils.now = MagicMock(return_value=fake_now)
+
     def test_conversion_day_is_first_report_date(self):
         state = {"currently_syncing": None, "bookmarks": {"my_stream_id": {"123456789": {"last_report_date": "2022-09-07"}}}}
-        # update bookmark to now, so the test works in the future
-        state["bookmarks"]["my_stream_id"]["123456789"]["last_report_date"] = utils.now().strftime("%Y-%m-%d")
         expected_date = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=CONVERSION_WINDOW)
         self.assertEqual(expected_date, get_report_start_date(self.config, self.property_id, state, "my_stream_id"))
 
@@ -64,14 +66,7 @@ class TestConversionWindow(unittest.TestCase):
         self.assertEqual(expected_date, get_report_start_date(self.config, self.property_id, state, "my_stream_id"))
 
     def test_start_date_is_first_report_date_bookmark_exists(self):
-        state = {"currently_syncing": None, "bookmarks": {"my_stream_id": {"123456789": {"last_report_date": "2022-03-03"}}}}
-        # update bookmark to now, to future-proof test
-        state["bookmarks"]["my_stream_id"]["123456789"]["last_report_date"] = utils.now().strftime("%Y-%m-%d")
-        # update start_date to now - 3days to future-proof test
+        state = {"currently_syncing": None, "bookmarks": {"my_stream_id": {"123456789": {"last_report_date": "2022-09-09"}}}}
         self.config["start_date"] = (utils.now() - timedelta(days=3)).strftime("%Y-%m-%d")
         expected_date = utils.strptime_to_utc(self.config["start_date"])
         self.assertEqual(expected_date, get_report_start_date(self.config, self.property_id, state, "my_stream_id"))
-
-
-if __name__ == '__main__':
-    unittest.main()
