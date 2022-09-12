@@ -8,46 +8,48 @@ from google.analytics.data_v1beta.types import CheckCompatibilityRequest, GetMet
 
 LOGGER = singer.get_logger()
 
-dimension_integer_field_overrides = {'cohortNthDay',
-                                     'cohortNthMonth',
-                                     'cohortNthWeek',
-                                     'day',
-                                     'dayOfWeek',
-                                     'hour',
-                                     'minute',
-                                     'month',
-                                     'nthDay',
-                                     'nthHour',
-                                     'nthMinute',
-                                     'nthMonth',
-                                     'nthWeek',
-                                     'nthYear',
-                                     'percentScrolled',
-                                     'week',
-                                     'year'}
+dimension_integer_field_overrides = {"cohortNthDay",
+                                     "cohortNthMonth",
+                                     "cohortNthWeek",
+                                     "day",
+                                     "dayOfWeek",
+                                     "hour",
+                                     "minute",
+                                     "month",
+                                     "nthDay",
+                                     "nthHour",
+                                     "nthMinute",
+                                     "nthMonth",
+                                     "nthWeek",
+                                     "nthYear",
+                                     "percentScrolled",
+                                     "week",
+                                     "year"}
 
-dimension_datetime_field_overrides = {'date',
-                                      'dateHour',
-                                      'dateHourMinute',
-                                      'firstSessionDate'}
+dimension_datetime_field_overrides = {"date",
+                                      "dateHour",
+                                      "dateHourMinute",
+                                      "firstSessionDate"}
 
-FLOAT_TYPES = {'TYPE_FLOAT',
-               'TYPE_SECONDS',
-               'TYPE_MILLISECONDS',
-               'TYPE_MINUTES',
-               'TYPE_HOURS',
-               'TYPE_STANDARD',
-               'TYPE_CURRENCY',
-               'TYPE_FEET',
-               'TYPE_MILES',
-               'TYPE_METERS',
-               'TYPE_KILOMETERS'}
+FLOAT_TYPES = {"TYPE_FLOAT",
+               "TYPE_SECONDS",
+               "TYPE_MILLISECONDS",
+               "TYPE_MINUTES",
+               "TYPE_HOURS",
+               "TYPE_STANDARD",
+               "TYPE_CURRENCY",
+               "TYPE_FEET",
+               "TYPE_MILES",
+               "TYPE_METERS",
+               "TYPE_KILOMETERS"}
+
+INCOMPATIBLE_CATEGORIES = {"Cohort"}
 
 
 def add_metrics_to_schema(schema, metrics):
     for metric in metrics:
         metric_type = metric.type_.name
-        if metric_type == 'TYPE_INTEGER':
+        if metric_type == "TYPE_INTEGER":
             schema["properties"][metric.api_name] = {"type": ["integer", "null"]}
         elif metric_type in FLOAT_TYPES:
             schema["properties"][metric.api_name] = {"type": ["number", "null"]}
@@ -115,9 +117,9 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
     LOGGER.info("Generating catalog")
     for report in reports:
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
-                                            key_properties=['_sdc_record_hash'],
-                                            stream=report['name'],
-                                            tap_stream_id=report['id'],
+                                            key_properties=["_sdc_record_hash"],
+                                            stream=report["name"],
+                                            tap_stream_id=report["id"],
                                             metadata=metadata.to_list(mdata)))
 
     return Catalog(catalog_entries)
@@ -128,29 +130,29 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     LOGGER.info("Discovering dimension field exclusions")
     # TODO: Get the exclusions for `Cohort` fields
     for dimension in dimensions:
-        if dimension.category != 'Cohort':
-            res = client.check_compatibility(CheckCompatibilityRequest(
-                property=f'properties/{property_id}',
-                dimensions=[Dimension(name=dimension.api_name)],
-                compatibility_filter='INCOMPATIBLE'
+        res = client.check_compatibility(CheckCompatibilityRequest(
+            property=f"properties/{property_id}",
+            dimensions=[Dimension(name=dimension.api_name)],
+            compatibility_filter="INCOMPATIBLE"
             ))
-            for field in res.dimension_compatibilities:
-                field_exclusions[dimension.api_name].append(field.dimension_metadata.api_name)
-            for field in res.metric_compatibilities:
-                field_exclusions[dimension.api_name].append(field.metric_metadata.api_name)
+        for field in res.dimension_compatibilities:
+            field_exclusions[dimension.api_name].append(
+                field.dimension_metadata.api_name)
+        for field in res.metric_compatibilities:
+            field_exclusions[dimension.api_name].append(
+                field.metric_metadata.api_name)
 
     LOGGER.info("Discovering metric field exclusions")
     for metric in metrics:
-        if metric.category != 'Cohort':
-            res = client.check_compatibility(CheckCompatibilityRequest(
-                property=f'properties/{property_id}',
-                metrics=[Metric(name=metric.api_name)],
-                compatibility_filter='INCOMPATIBLE'
+        res = client.check_compatibility(CheckCompatibilityRequest(
+            property=f"properties/{property_id}",
+            metrics=[Metric(name=metric.api_name)],
+            compatibility_filter="INCOMPATIBLE"
             ))
-            for field in res.dimension_compatibilities:
-                field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
-            for field in res.metric_compatibilities:
-                field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
+        for field in res.dimension_compatibilities:
+            field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
+        for field in res.metric_compatibilities:
+            field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
 
     return field_exclusions
 
@@ -159,9 +161,16 @@ def get_dimensions_and_metrics(client, property_id):
     request = GetMetadataRequest(
         name=f"properties/{property_id}/metadata",
     )
-
     response = client.get_metadata(request)
-    return response.dimensions, response.metrics
+
+    # Some categories of dimensions and metrics need extra data when running a
+    # report like `Cohort` (https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/CohortSpec)
+    # These are not supported in field selection
+    dimensions = [dimension for dimension in response.dimensions
+                  if dimension.catergory in INCOMPATIBLE_CATEGORIES]
+    metrics = [metric for metric in response.metrics
+               if metric.catergory in INCOMPATIBLE_CATEGORIES]
+    return dimensions, metrics
 
 
 def discover(client, reports, property_id):
