@@ -80,9 +80,9 @@ def generate_base_schema():
                                              "property_id": {"type": "string"}}}
 
 
-def generate_metadata(schema, dimensions, metrics):
-    # TODO: add field exclusion metadata once google adds it
-    mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"])
+def generate_metadata(schema, dimensions, metrics, field_exclusions):
+    mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["start_date"],
+                                           replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
                    ["_sdc_record_hash", "start_date", "end_date", "property_id"],

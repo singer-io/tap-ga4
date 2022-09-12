@@ -47,7 +47,8 @@ def generate_report_dates(start_date, end_date):
     total_days = (end_date - start_date).days
     # NB: Add a day to be inclusive of both start and end
     for day_offset in range(total_days + 1):
-        yield start_date + timedelta(days=day_offset)
+        report_date = start_date + timedelta(days=day_offset)
+        yield report_date.strftime("%Y-%m-%d")
 
 def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     """
@@ -58,9 +59,8 @@ def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
 
-    report_date_string = report_date.strftime("%Y-%m-%d")
-    record["start_date"] = report_date_string
-    record["end_date"] = report_date_string
+    record["start_date"] = report_date
+    record["end_date"] = report_date
     record["property_id"] = report["property_id"]
     record["_sdc_record_hash"] = generate_sdc_record_hash(record, dimension_pairs)
     return record
@@ -198,7 +198,7 @@ def sync_report(client, schema, report, start_date, end_date, state):
             singer.write_bookmark(state,
                                   report["id"],
                                   report['property_id'],
-                                  {'last_report_date': report_date.strftime("%Y-%m-%d")})
+                                  {'last_report_date': report_date})
             singer.write_state(state)
     LOGGER.info("Done syncing %s for property_id %s", report['name'], report['property_id'])
 
