@@ -167,9 +167,9 @@ def get_dimensions_and_metrics(client, property_id):
     # report like `Cohort` (https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/CohortSpec)
     # These are not supported in field selection
     dimensions = [dimension for dimension in response.dimensions
-                  if dimension.catergory in INCOMPATIBLE_CATEGORIES]
+                  if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics
-               if metric.catergory in INCOMPATIBLE_CATEGORIES]
+               if metric.category not in INCOMPATIBLE_CATEGORIES]
     return dimensions, metrics
 
 
