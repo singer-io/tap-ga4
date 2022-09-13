@@ -3,9 +3,10 @@ from functools import reduce
 import backoff
 import singer
 from google.analytics.data_v1beta.types import GetMetadataRequest
-from google.api_core.exceptions import ServerError, TooManyRequests, ResourceExhausted
+from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
+
 from .sync import sleep_if_quota_reached
 
 LOGGER = singer.get_logger()
