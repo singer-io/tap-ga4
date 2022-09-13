@@ -1,12 +1,13 @@
 import hashlib
 import json
+import time
 from datetime import datetime, timedelta
+
 import backoff
 import singer
+from google.analytics.data_v1beta.types import (DateRange, Dimension, Metric, RunReportRequest)
+from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Transformer, get_bookmark, metadata, utils
-import time
-from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
-from google.api_core.exceptions import ServerError, TooManyRequests, ResourceExhausted
 
 LOGGER = singer.get_logger()
 
@@ -152,7 +153,7 @@ def seconds_to_next_hour():
 def sleep_if_quota_reached(ex):
     if isinstance(ex, ResourceExhausted):
         seconds = seconds_to_next_hour()
-        LOGGER.info(f"Reached hourly quota limit. Sleeping {seconds} seconds.")
+        LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
         time.sleep(seconds)
     return False
 
