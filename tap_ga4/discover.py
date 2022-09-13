@@ -80,7 +80,7 @@ def generate_base_schema():
                                              "property_id": {"type": "string"}}}
 
 
-def generate_metadata(schema, dimensions, metrics, field_exclusions):
+def generate_metadata(schema, dimensions, metrics):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["start_date"],
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
