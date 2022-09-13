@@ -1,10 +1,13 @@
 from functools import reduce
 
+import backoff
 import singer
 from google.analytics.data_v1beta.types import GetMetadataRequest
+from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 
+from .sync import sleep_if_quota_reached
 
 LOGGER = singer.get_logger()
 
@@ -122,6 +125,12 @@ def generate_catalog(reports, dimensions, metrics):
     return Catalog(catalog_entries)
 
 
+@backoff.on_exception(backoff.expo,
+                      (ServerError, TooManyRequests, ResourceExhausted),
+                      max_tries=5,
+                      jitter=None,
+                      giveup=sleep_if_quota_reached,
+                      logger=None)
 def get_dimensions_and_metrics(client, property_id):
     request = GetMetadataRequest(
         name=f"properties/{property_id}/metadata",
