@@ -142,6 +142,44 @@ def get_end_date(config):
         return utils.strptime_to_utc(config['end_date'])
     return utils.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
+def seconds_to_next_hour():
+    current_utc_time = utils.now()
+    next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=1, second=0, microsecond=0)
+    time_till_next_hour = (next_hour - current_utc_time).seconds
+    return time_till_next_hour
+
+
+def sleep_if_quota_reached(ex):
+    if isinstance(ex, ResourceExhausted):
+        seconds = seconds_to_next_hour()
+        LOGGER.info(f"Reached hourly quota limit. Sleeping {seconds} seconds.")
+        time.sleep(seconds)
+    return False
+
+
+@backoff.on_exception(backoff.expo,
+                      (ServerError, TooManyRequests, ResourceExhausted),
+                      max_tries=5,
+                      jitter=None,
+                      giveup=sleep_if_quota_reached,
+                      logger=None)
+def make_request(client, property_id, report_date, dimensions, metrics, offset):
+    request = RunReportRequest(
+        property=f'properties/{property_id}',
+        dimensions=dimensions,
+        metrics=metrics,
+        date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
+        limit=REPORT_LIMIT,
+        offset=offset,
+        return_property_quota=True
+        )
+
+    response = client.run_report(request)
+    has_more_rows = response.row_count > REPORT_LIMIT + offset
+    offset += REPORT_LIMIT
+
+    return response, has_more_rows, offset
+
 
 def get_report(client, property_id, report_date, dimensions, metrics):
     """
@@ -151,19 +189,12 @@ def get_report(client, property_id, report_date, dimensions, metrics):
     offset = 0
     has_more_rows = True
     while has_more_rows:
-        request = RunReportRequest(
-            property=f'properties/{property_id}',
-            dimensions=dimensions,
-            metrics=metrics,
-            date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
-            limit=REPORT_LIMIT,
-            offset=offset,
-            return_property_quota=True
-        )
-
-        response = client.run_report(request)
-        has_more_rows = response.row_count > REPORT_LIMIT + offset
-        offset += REPORT_LIMIT
+        response, has_more_rows, offset = make_request(client,
+                                                       property_id,
+                                                       report_date,
+                                                       dimensions,
+                                                       metrics,
+                                                       offset)
 
         yield response
 
