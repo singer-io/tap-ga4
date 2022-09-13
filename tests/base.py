@@ -36,7 +36,7 @@ class GA4Base(BaseCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            'start_date' : (dt.utcnow() - timedelta(days=30)).strftime(self.START_DATE_FORMAT),
+            'start_date' : (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
             'user_id': os.getenv('TAP_GA4_USER_ID'), # TODO what is?  should orca handle this?
@@ -64,10 +64,10 @@ class GA4Base(BaseCase):
         default_expectations = {
             self.PRIMARY_KEYS: {"_sdc_record_hash"},
             self.REPLICATION_METHOD: self.INCREMENTAL,
-            self.REPLICATION_KEYS: {"start_date"},
-            self.HASHED_KEYS: {
+            self.REPLICATION_KEYS: {"start_date"}, # TODO may be 'date'
+            self.HASHED_KEYS: { # TODO also sorted dimensions and values...
                 'property_id',
-                'account_id',
+                'end_date',
                 'end_date',
             },
         }
@@ -95,126 +95,22 @@ class GA4Base(BaseCase):
 
         return auto_fields
 
-    def setUp(self): # TODO need these variables!
-        missing_envs = [x for x in ['TAP_GA4_ACCESS_TOKEN',
-                                    'TAP_GA4_CLIENT_SECRET',
-                                    'TAP_GA4_REFRESH_TOKEN',
-                                    'TAP_GA4_PROPERTY_ID'] if os.getenv(x) is None]
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass(logging="Ensuring environment variables are sourced.")
+        missing_envs = [
+            x for x in [
+                'TAP_GA4_PROPERTY_ID',
+                'TAP_GA4_CLIENT_SECRET',
+                'TAP_GA4_CLIENT_ID',
+                'TAP_GA4_ACCESS_TOKEN',
+                'TAP_GA4_REFRESH_TOKEN',
+                'TAP_GA4_USER_ID',
+            ] if os.getenv(x) is None
+        ]
+
         if len(missing_envs) != 0:
             raise Exception("Missing environment variables: {}".format(missing_envs))
-
-
-    #########################
-    #   Helper Methods      #
-    #########################
-
-    def get_all_fields(self, catalog):
-        """
-        Retriving all fields from the catalog
-        """
-
-        metadata = catalog['metadata']
-        fields = set(md['breadcrumb'][-1] for md in metadata
-                             if len(md['breadcrumb']) > 0 and md['breadcrumb'][0] == 'properties')
-        return fields
-
-    def perform_and_verify_table_and_field_selection(self, conn_id, test_catalogs,
-                                                     select_default_fields: bool = True,
-                                                     select_pagination_fields: bool = False,
-                                                     non_selected_props=dict()):
-        """
-        Perform table and field selection based off of the streams to select
-        set and field selection parameters. Note that selecting all fields is not
-        possible for this tap due to dimension/metric conflicts set by Google and
-        enforced by the Stitch UI.
-
-        Verify this results in the expected streams selected and all or no
-        fields selected for those streams.
-        """
-
-        # Select all available fields or select no fields from all testable streams
-        self._select_streams_and_fields(
-            conn_id=conn_id, catalogs=test_catalogs,
-            select_default_fields=select_default_fields,
-            select_pagination_fields=select_pagination_fields,
-            non_selected_props=non_selected_props
-        )
-
-        catalogs = menagerie.get_catalogs(conn_id)
-
-        # Ensure our selection affects the catalog
-        expected_selected_streams = [tc.get('stream_name') for tc in test_catalogs]
-        expected_default_fields = self.expected_default_fields()
-        expected_pagination_fields = self.expected_pagination_fields()
-        for cat in catalogs:
-            catalog_entry = menagerie.get_annotated_schema(conn_id, cat['stream_id'])
-
-            # Verify all intended streams are selected
-            selected = catalog_entry['metadata'][0]['metadata'].get('selected')
-            LOGGER.info("Validating selection on %s: %s", cat['stream_name'], selected)
-            if cat['stream_name'] not in expected_selected_streams:
-                self.assertFalse(selected, msg="Stream selected, but not testable.")
-                continue # Skip remaining assertions if we aren't selecting this stream
-            self.assertTrue(selected, msg="Stream not selected.")
-
-            # collect field selection expecationas
-            expected_automatic_fields = self.expected_automatic_fields()[cat['stream_name']]
-            selected_default_fields = expected_default_fields[cat['stream_name']] if select_default_fields else set()
-            selected_pagination_fields = expected_pagination_fields[cat['stream_name']] if select_pagination_fields else set()
-
-            # Verify all intended fields within the stream are selected
-            if non_selected_props:
-                expected_selected_fields = self.get_all_fields(catalog_entry) - non_selected_props.get(cat['stream_name'],set())
-            else:
-                expected_selected_fields = expected_automatic_fields | selected_default_fields | selected_pagination_fields
-            selected_fields = self._get_selected_fields_from_metadata(catalog_entry['metadata'])
-            for field in expected_selected_fields:
-                field_selected = field in selected_fields
-                LOGGER.info("\tValidating field selection on %s.%s: %s", cat['stream_name'], field, field_selected)
-
-            self.assertSetEqual(expected_selected_fields, selected_fields)
-
-    @staticmethod
-    def _get_selected_fields_from_metadata(metadata):
-        selected_fields = set()
-        for field in metadata:
-            is_field_metadata = len(field['breadcrumb']) > 1
-            inclusion_automatic_or_selected = (
-                field['metadata']['selected'] is True or \
-                field['metadata']['inclusion'] == 'automatic'
-            )
-            if is_field_metadata and inclusion_automatic_or_selected:
-                selected_fields.add(field['breadcrumb'][1])
-        return selected_fields
-
-    def _select_streams_and_fields(self, conn_id, catalogs, select_default_fields, select_pagination_fields, non_selected_props=dict()):
-        """Select all streams and all fields within streams"""
-
-        for catalog in catalogs:
-
-            schema_and_metadata = menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
-            metadata = schema_and_metadata['metadata']
-
-            properties = set(md['breadcrumb'][-1] for md in metadata
-                             if len(md['breadcrumb']) > 0 and md['breadcrumb'][0] == 'properties')
-
-            # get a list of all properties so that none are selected
-            if select_default_fields:
-                non_selected_properties = properties.difference(
-                    self.expected_default_fields()[catalog['stream_name']]
-                )
-            elif select_pagination_fields:
-                non_selected_properties = properties.difference(
-                    self.expected_pagination_fields()[catalog['stream_name']]
-                )
-            elif non_selected_props:
-                non_selected_properties = non_selected_props.get(catalog['stream_name'])
-            else:
-                non_selected_properties = properties
-
-            connections.select_catalog_and_fields_via_metadata(
-                conn_id, catalog, schema_and_metadata, [], non_selected_properties)
-
 
     ##########################################################################
     ### Tap Specific Methods
