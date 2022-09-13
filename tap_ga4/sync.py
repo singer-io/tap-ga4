@@ -145,6 +145,8 @@ def get_end_date(config):
 
 def seconds_to_next_hour():
     current_utc_time = utils.now()
+    # Get a time 10 seconds past the hour to be sure we don't make another
+    # request before Google resets quota.
     next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
     time_till_next_hour = (next_hour - current_utc_time).seconds
     return time_till_next_hour
