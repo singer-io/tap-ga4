@@ -15,3 +15,22 @@ class GA4SyncCanaryTest(GA4Base, SyncCanaryTest):
 
     def streams_to_test(self):
         return set(self.expected_metadata().keys())
+
+    def streams_to_selected_fields(self):
+        return {
+            "Test Report 1": {  # engagement events
+                "conversions",
+                "defaultChannelGrouping",
+                "eventName",
+                "eventCount",
+                "newUsers",
+                "enagementRate",
+                "engagedSessions",
+            },
+            "Test Report 2": {  # retention
+                "pageTitle",
+                "newUsers",
+                "cohortActiveUsers",
+                "cohortTotalUsers",
+            },
+        }
