@@ -283,7 +283,7 @@ def sync(client, config, catalog, state):
                   "dimensions": dimensions}
 
         start_date = get_report_start_date(config, report["property_id"], state, report["id"])
-        sync_report(client, schema, report, start_date, end_date, 7, state) #config["request_range"], state)
+        sync_report(client, schema, report, start_date, end_date, int(config["request_window_size"]), state)
         singer.write_state(state)
 
     state = singer.set_currently_syncing(state, None)
