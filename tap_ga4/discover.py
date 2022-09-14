@@ -3,10 +3,9 @@ from functools import reduce
 
 import backoff
 import singer
-from google.analytics.data_v1beta.types import GetMetadataRequest
-from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
+from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from google.analytics.data_v1beta.types import CheckCompatibilityRequest, GetMetadataRequest, Dimension, Metric
 
 from .sync import sleep_if_quota_reached
@@ -132,6 +131,12 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
     return Catalog(catalog_entries)
 
 
+@backoff.on_exception(backoff.expo,
+                      (ServerError, TooManyRequests, ResourceExhausted),
+                      max_tries=5,
+                      jitter=None,
+                      giveup=sleep_if_quota_reached,
+                      logger=None)
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
     LOGGER.info("Discovering dimension field exclusions")
