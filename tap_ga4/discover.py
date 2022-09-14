@@ -132,6 +132,12 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
     return Catalog(catalog_entries)
 
 
+@backoff.on_exception(backoff.expo,
+                      (ServerError, TooManyRequests, ResourceExhausted),
+                      max_tries=5,
+                      jitter=None,
+                      giveup=sleep_if_quota_reached,
+                      logger=None)
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
     LOGGER.info("Discovering dimension field exclusions")
