@@ -1,12 +1,13 @@
 import hashlib
 import json
+import time
 from datetime import datetime, timedelta
 
+import backoff
 import singer
+from google.analytics.data_v1beta.types import (DateRange, Dimension, Metric, RunReportRequest)
+from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Transformer, get_bookmark, metadata, utils
-
-from google.analytics.data_v1beta.types import DateRange, Dimension, Metric, RunReportRequest
-
 
 LOGGER = singer.get_logger()
 
@@ -47,7 +48,8 @@ def generate_report_dates(start_date, end_date):
     total_days = (end_date - start_date).days
     # NB: Add a day to be inclusive of both start and end
     for day_offset in range(total_days + 1):
-        yield start_date + timedelta(days=day_offset)
+        report_date = start_date + timedelta(days=day_offset)
+        yield report_date.strftime("%Y-%m-%d")
 
 def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     """
@@ -58,9 +60,8 @@ def row_to_record(report, report_date, row, dimension_headers, metric_headers):
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
 
-    report_date_string = report_date.strftime("%Y-%m-%d")
-    record["start_date"] = report_date_string
-    record["end_date"] = report_date_string
+    record["start_date"] = report_date
+    record["end_date"] = report_date
     record["property_id"] = report["property_id"]
     record["_sdc_record_hash"] = generate_sdc_record_hash(record, dimension_pairs)
     return record
@@ -142,6 +143,46 @@ def get_end_date(config):
         return utils.strptime_to_utc(config['end_date'])
     return utils.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
+def seconds_to_next_hour():
+    current_utc_time = utils.now()
+    # Get a time 10 seconds past the hour to be sure we don't make another
+    # request before Google resets quota.
+    next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
+    time_till_next_hour = (next_hour - current_utc_time).seconds
+    return time_till_next_hour
+
+
+def sleep_if_quota_reached(ex):
+    if isinstance(ex, ResourceExhausted):
+        seconds = seconds_to_next_hour()
+        LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
+        time.sleep(seconds)
+    return False
+
+
+@backoff.on_exception(backoff.expo,
+                      (ServerError, TooManyRequests, ResourceExhausted),
+                      max_tries=5,
+                      jitter=None,
+                      giveup=sleep_if_quota_reached,
+                      logger=None)
+def make_request(client, property_id, report_date, dimensions, metrics, offset):
+    request = RunReportRequest(
+        property=f'properties/{property_id}',
+        dimensions=dimensions,
+        metrics=metrics,
+        date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
+        limit=REPORT_LIMIT,
+        offset=offset,
+        return_property_quota=True
+        )
+
+    response = client.run_report(request)
+    has_more_rows = response.row_count > REPORT_LIMIT + offset
+    offset += REPORT_LIMIT
+
+    return response, has_more_rows, offset
+
 
 def get_report(client, property_id, report_date, dimensions, metrics):
     """
@@ -151,19 +192,12 @@ def get_report(client, property_id, report_date, dimensions, metrics):
     offset = 0
     has_more_rows = True
     while has_more_rows:
-        request = RunReportRequest(
-            property=f'properties/{property_id}',
-            dimensions=dimensions,
-            metrics=metrics,
-            date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
-            limit=REPORT_LIMIT,
-            offset=offset,
-            return_property_quota=True
-        )
-
-        response = client.run_report(request)
-        has_more_rows = response.row_count > REPORT_LIMIT + offset
-        offset += REPORT_LIMIT
+        response, has_more_rows, offset = make_request(client,
+                                                       property_id,
+                                                       report_date,
+                                                       dimensions,
+                                                       metrics,
+                                                       offset)
 
         yield response
 
@@ -198,7 +232,7 @@ def sync_report(client, schema, report, start_date, end_date, state):
             singer.write_bookmark(state,
                                   report["id"],
                                   report['property_id'],
-                                  {'last_report_date': report_date.strftime("%Y-%m-%d")})
+                                  {'last_report_date': report_date})
             singer.write_state(state)
     LOGGER.info("Done syncing %s for property_id %s", report['name'], report['property_id'])
 
