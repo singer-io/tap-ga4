@@ -44,22 +44,26 @@ def generate_sdc_record_hash(record, dimension_pairs):
     return hashlib.sha256(hash_source_bytes).hexdigest()
 
 
-def generate_report_dates(start_date, end_date):
-    total_days = (end_date - start_date).days
-    # NB: Add a day to be inclusive of both start and end
-    for day_offset in range(total_days + 1):
-        report_date = start_date + timedelta(days=day_offset)
-        yield report_date.strftime("%Y-%m-%d")
+def generate_report_dates(start_date, end_date, request_range):
+    """
+    """
+    range_start = start_date
+    while range_start <= end_date:
+        # NB: Subtract 1 from request_range because date range in RunReportRequest is inclusive
+        range_end = range_start + timedelta(days=request_range - 1)
+        yield (range_start.strftime("%Y-%m-%d"), min(end_date, range_end).strftime("%Y-%m-%d"))
+        range_start = range_end + timedelta(days=1)
 
-def row_to_record(report, report_date, row, dimension_headers, metric_headers):
+def row_to_record(report, row, dimension_headers, metric_headers):
     """
     Parse a RunReportResponse row into a single Singer record, with added runtime info and PK.
     """
     record = {}
-    dimension_pairs = list(zip(dimension_headers, [dimension.value for dimension in row.dimension_values]))
+    dimension_values = [dimension.value for dimension in row.dimension_values]
+    dimension_pairs = list(zip(dimension_headers, dimension_values))
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
-
+    report_date = dimension_values[dimension_headers.index('date')]
     record["start_date"] = report_date
     record["end_date"] = report_date
     record["property_id"] = report["property_id"]
@@ -75,7 +79,7 @@ DATETIME_FORMATS = {
 }
 
 
-def parse_datetime(field_name, value):
+def parse_datetime(field_name, value, fmt=singer.utils.DATETIME_FMT):
     """
     Handle the case where the datetime value is not a valid datetime format.
 
@@ -86,7 +90,7 @@ def parse_datetime(field_name, value):
     """
     is_valid_datetime = True
     try:
-        parsed_datetime = datetime.strptime(value, DATETIME_FORMATS[field_name]).strftime(singer.utils.DATETIME_FMT)
+        parsed_datetime = datetime.strptime(value, DATETIME_FORMATS[field_name]).strftime(fmt)
         return parsed_datetime, is_valid_datetime
     except ValueError:
         is_valid_datetime = False
@@ -166,12 +170,12 @@ def sleep_if_quota_reached(ex):
                       jitter=None,
                       giveup=sleep_if_quota_reached,
                       logger=None)
-def make_request(client, property_id, report_date, dimensions, metrics, offset):
+def make_request(client, report, range_start_date, range_end_date, offset):
     request = RunReportRequest(
-        property=f'properties/{property_id}',
-        dimensions=dimensions,
-        metrics=metrics,
-        date_ranges=[DateRange(start_date=report_date, end_date=report_date)],
+        property=f"properties/{report['property_id']}",
+        dimensions=report["dimensions"],
+        metrics=report["metrics"],
+        date_ranges=[DateRange(start_date=range_start_date, end_date=range_end_date)],
         limit=REPORT_LIMIT,
         offset=offset,
         return_property_quota=True
@@ -181,10 +185,16 @@ def make_request(client, property_id, report_date, dimensions, metrics, offset):
     has_more_rows = response.row_count > REPORT_LIMIT + offset
     offset += REPORT_LIMIT
 
+    LOGGER.info("Request for report: %s from %s -> %s consumed %s GA4 quota tokens",
+                report["name"],
+                range_start_date,
+                range_end_date,
+                response.property_quota.tokens_per_hour.consumed)
+
     return response, has_more_rows, offset
 
 
-def get_report(client, property_id, report_date, dimensions, metrics):
+def get_report(client, report, range_start_date, range_end_date):
     """
     Calls run_report and paginates over the request if the
     response.row_count is greater than 100,000.
@@ -193,16 +203,15 @@ def get_report(client, property_id, report_date, dimensions, metrics):
     has_more_rows = True
     while has_more_rows:
         response, has_more_rows, offset = make_request(client,
-                                                       property_id,
-                                                       report_date,
-                                                       dimensions,
-                                                       metrics,
+                                                       report,
+                                                       range_start_date,
+                                                       range_end_date,
                                                        offset)
 
         yield response
 
 
-def sync_report(client, schema, report, start_date, end_date, state):
+def sync_report(client, schema, report, start_date, end_date, request_range, state):
     """
     Run a sync, beginning from either the start_date, bookmarked date, or
     (now - CONVERSION_WINDOW) requesting a report per day.
@@ -214,15 +223,15 @@ def sync_report(client, schema, report, start_date, end_date, state):
     """
     LOGGER.info("Syncing %s for property_id %s", report['name'], report['property_id'])
 
-    for report_date in generate_report_dates(start_date, end_date):
-        for response in get_report(client, report["property_id"], report_date, report["dimensions"], report["metrics"]):
+    for range_start_date, range_end_date in generate_report_dates(start_date, end_date, request_range):
+        for response in get_report(client, report, range_start_date, range_end_date):
             dimension_headers = [dimension.name for dimension in response.dimension_headers]
             metric_headers = [metric.name for metric in response.metric_headers]
             with singer.metrics.record_counter(report['name']) as counter:
                 with Transformer() as transformer:
                     for row in response.rows:
                         time_extracted = singer.utils.now()
-                        rec = row_to_record(report, report_date, row, dimension_headers, metric_headers)
+                        rec = row_to_record(report, row, dimension_headers, metric_headers)
                         singer.write_record(report["name"],
                                             transformer.transform(
                                                 transform_datetimes(report["name"], rec),
@@ -231,10 +240,10 @@ def sync_report(client, schema, report, start_date, end_date, state):
                         counter.increment()
             singer.write_bookmark(state,
                                   report["id"],
-                                  report['property_id'],
-                                  {'last_report_date': report_date})
+                                  report["property_id"],
+                                  {"last_report_date": range_end_date})
             singer.write_state(state)
-    LOGGER.info("Done syncing %s for property_id %s", report['name'], report['property_id'])
+    LOGGER.info("Done syncing %s for property_id %s", report["name"], report["property_id"])
 
 
 def sync(client, config, catalog, state):
@@ -250,15 +259,15 @@ def sync(client, config, catalog, state):
         for field_path, field_mdata in mdata.items():
             if field_path == tuple():
                 continue
-            if field_mdata.get('inclusion') == 'unsupported':
+            if field_mdata.get("inclusion") == "unsupported":
                 continue
             _, field_name = field_path
-            if field_mdata.get('inclusion') == 'automatic' or \
-               field_mdata.get('selected') or \
-               (field_mdata.get('selected-by-default') and field_mdata.get('selected') is None):
-                if field_mdata.get('behavior') == 'METRIC':
+            if field_mdata.get("inclusion") == "automatic" or \
+               field_mdata.get("selected") or \
+               (field_mdata.get("selected-by-default") and field_mdata.get("selected") is None):
+                if field_mdata.get("behavior") == "METRIC":
                     metrics.append(Metric(name=field_name))
-                elif field_mdata.get('behavior') == 'DIMENSION':
+                elif field_mdata.get("behavior") == "DIMENSION":
                     dimensions.append(Dimension(name=field_name))
 
         end_date = get_end_date(config)
@@ -273,8 +282,8 @@ def sync(client, config, catalog, state):
                   "metrics": metrics,
                   "dimensions": dimensions}
 
-        start_date = get_report_start_date(config, report['property_id'], state, report['id'])
-        sync_report(client, schema, report, start_date, end_date, state)
+        start_date = get_report_start_date(config, report["property_id"], state, report["id"])
+        sync_report(client, schema, report, start_date, end_date, 7, state) #config["request_range"], state)
         singer.write_state(state)
 
     state = singer.set_currently_syncing(state, None)
