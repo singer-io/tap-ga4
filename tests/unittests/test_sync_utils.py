@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 from singer import utils
 from tap_ga4.sync import (CONVERSION_WINDOW, generate_sdc_record_hash,
-                          get_report_start_date)
+                          get_report_start_date, generate_report_dates)
 
 
 class TestRecordHashing(unittest.TestCase):
@@ -70,3 +70,85 @@ class TestConversionWindow(unittest.TestCase):
         self.config["start_date"] = (utils.now() - timedelta(days=3)).strftime("%Y-%m-%d")
         expected_date = utils.strptime_to_utc(self.config["start_date"])
         self.assertEqual(expected_date, get_report_start_date(self.config, self.property_id, state, "my_stream_id"))
+
+
+class TestGenerateReportDates(unittest.TestCase):
+
+    def test_same_start_and_end_date_week_range(self):
+        start_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+
+        expected_ranges = [("2022-01-01", "2022-01-01")]
+        actual_ranges = []
+        for date_range in generate_report_dates(start_date, end_date, 7):
+            actual_ranges.append(date_range)
+
+        self.assertEqual(expected_ranges, actual_ranges)
+
+    def test_week_range_week_window(self):
+        start_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(2022, 1, 7, 0, 0, 0, 0, tzinfo=timezone.utc)
+
+        expected_ranges = [("2022-01-01", "2022-01-07")]
+        actual_ranges = []
+        for date_range in generate_report_dates(start_date, end_date, 7):
+            actual_ranges.append(date_range)
+
+        self.assertEqual(expected_ranges, actual_ranges)
+
+    def test_week_range_uneven_window(self):
+        start_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(2022, 1, 12, 0, 0, 0, 0, tzinfo=timezone.utc)
+
+        expected_ranges = [("2022-01-01", "2022-01-07"), ("2022-01-08", "2022-01-12")]
+        actual_ranges = []
+        for date_range in generate_report_dates(start_date, end_date, 7):
+            actual_ranges.append(date_range)
+
+        self.assertEqual(expected_ranges, actual_ranges)
+
+    def test_week_range_long_window(self):
+        start_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(2022, 3, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+
+        expected_ranges = [('2022-01-01', '2022-01-07'),
+                           ('2022-01-08', '2022-01-14'),
+                           ('2022-01-15', '2022-01-21'),
+                           ('2022-01-22', '2022-01-28'),
+                           ('2022-01-29', '2022-02-04'),
+                           ('2022-02-05', '2022-02-11'),
+                           ('2022-02-12', '2022-02-18'),
+                           ('2022-02-19', '2022-02-25'),
+                           ('2022-02-26', '2022-03-01')]
+        actual_ranges = []
+        for date_range in generate_report_dates(start_date, end_date, 7):
+            actual_ranges.append(date_range)
+
+        self.assertEqual(expected_ranges, actual_ranges)
+
+    def test_day_range(self):
+        start_date = datetime(2022, 1, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
+        end_date = datetime(2022, 1, 12, 0, 0, 0, 0, tzinfo=timezone.utc)
+
+        expected_ranges = [('2022-01-01', '2022-01-01'),
+                           ('2022-01-02', '2022-01-02'),
+                           ('2022-01-03', '2022-01-03'),
+                           ('2022-01-04', '2022-01-04'),
+                           ('2022-01-05', '2022-01-05'),
+                           ('2022-01-06', '2022-01-06'),
+                           ('2022-01-07', '2022-01-07'),
+                           ('2022-01-08', '2022-01-08'),
+                           ('2022-01-09', '2022-01-09'),
+                           ('2022-01-10', '2022-01-10'),
+                           ('2022-01-11', '2022-01-11'),
+                           ('2022-01-12', '2022-01-12')]
+        actual_ranges = []
+        for date_range in generate_report_dates(start_date, end_date, 1):
+            actual_ranges.append(date_range)
+
+        self.assertEqual(expected_ranges, actual_ranges)
+
+
+
+if __name__ == '__main__':
+    unittest.main()

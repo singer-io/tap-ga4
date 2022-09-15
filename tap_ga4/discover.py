@@ -88,11 +88,11 @@ def generate_base_schema():
 
 
 def generate_metadata(schema, dimensions, metrics, field_exclusions):
-    mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["start_date"],
+    mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
-                   ["_sdc_record_hash", "start_date", "end_date", "property_id"],
+                   ["_sdc_record_hash", "start_date", "end_date", "property_id", "date"],
                    mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Field"),
                    ["_sdc_record_hash", "start_date", "end_date", "property_id"],
@@ -140,7 +140,6 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
     LOGGER.info("Discovering dimension field exclusions")
-    # TODO: Get the exclusions for `Cohort` fields
     for dimension in dimensions:
         res = client.check_compatibility(CheckCompatibilityRequest(
             property=f"properties/{property_id}",
