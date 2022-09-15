@@ -147,8 +147,3 @@ class TestGenerateReportDates(unittest.TestCase):
             actual_ranges.append(date_range)
 
         self.assertEqual(expected_ranges, actual_ranges)
-
-
-
-if __name__ == '__main__':
-    unittest.main()
