@@ -5,14 +5,14 @@ from datetime import datetime, timedelta
 
 import backoff
 import singer
-from google.analytics.data_v1beta.types import (DateRange, Dimension, Metric, RunReportRequest)
+from google.analytics.data_v1beta.types import (DateRange, Dimension, Metric, OrderBy, RunReportRequest)
 from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Transformer, get_bookmark, metadata, utils
 
 LOGGER = singer.get_logger()
 
 CONVERSION_WINDOW = 90
-REPORT_LIMIT = 100000
+PAGE_SIZE = 100000
 
 def generate_sdc_record_hash(record, dimension_pairs):
     """
@@ -46,6 +46,8 @@ def generate_sdc_record_hash(record, dimension_pairs):
 
 def generate_report_dates(start_date, end_date, request_range):
     """
+    Splits date range from start_date to end_date into chunks of request_range
+    length and yields each chunk as a tuple (start_date, end_date).
     """
     range_start = start_date
     while range_start <= end_date:
@@ -56,7 +58,8 @@ def generate_report_dates(start_date, end_date, request_range):
 
 def row_to_record(report, row, dimension_headers, metric_headers):
     """
-    Parse a RunReportResponse row into a single Singer record, with added runtime info and PK.
+    Parse a RunReportResponse row into a single Singer record, with added
+    runtime info and PK.
     """
     record = {}
     dimension_values = [dimension.value for dimension in row.dimension_values]
@@ -176,14 +179,15 @@ def make_request(client, report, range_start_date, range_end_date, offset):
         dimensions=report["dimensions"],
         metrics=report["metrics"],
         date_ranges=[DateRange(start_date=range_start_date, end_date=range_end_date)],
-        limit=REPORT_LIMIT,
+        limit=PAGE_SIZE,
         offset=offset,
-        return_property_quota=True
-        )
+        return_property_quota=True,
+        order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))]
+    )
 
     response = client.run_report(request)
-    has_more_rows = response.row_count > REPORT_LIMIT + offset
-    offset += REPORT_LIMIT
+    has_more_rows = response.row_count > PAGE_SIZE + offset
+    offset += PAGE_SIZE
 
     LOGGER.info("Request for report: %s from %s -> %s consumed %s GA4 quota tokens",
                 report["name"],
