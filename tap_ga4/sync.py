@@ -242,11 +242,11 @@ def sync_report(client, schema, report, start_date, end_date, request_range, sta
                                                 schema),
                                             time_extracted=time_extracted)
                         counter.increment()
-            singer.write_bookmark(state,
-                                  report["id"],
-                                  report["property_id"],
-                                  {"last_report_date": range_end_date})
-            singer.write_state(state)
+        singer.write_bookmark(state,
+                              report["id"],
+                              report["property_id"],
+                              {"last_report_date": range_end_date})
+        singer.write_state(state)
     LOGGER.info("Done syncing %s for property_id %s", report["name"], report["property_id"])
 
 
