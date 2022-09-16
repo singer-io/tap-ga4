@@ -36,9 +36,7 @@ def generate_sdc_record_hash(record, dimension_pairs):
 
     # NB: Do not change the ordering of this list, it is the source of the PK hash
     hash_source_data = [property_id,
-                        sorted_dimension_pairs,
-                        record["start_date"],
-                        record["end_date"]]
+                        sorted_dimension_pairs]
 
     hash_source_bytes = json.dumps(hash_source_data).encode('utf-8')
     return hashlib.sha256(hash_source_bytes).hexdigest()
@@ -62,13 +60,9 @@ def row_to_record(report, row, dimension_headers, metric_headers):
     runtime info and PK.
     """
     record = {}
-    dimension_values = [dimension.value for dimension in row.dimension_values]
-    dimension_pairs = list(zip(dimension_headers, dimension_values))
+    dimension_pairs = list(zip(dimension_headers, [dimension.value for dimension in row.dimension_values]))
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
-    report_date = dimension_values[dimension_headers.index('date')]
-    record["start_date"] = report_date
-    record["end_date"] = report_date
     record["property_id"] = report["property_id"]
     record["_sdc_record_hash"] = generate_sdc_record_hash(record, dimension_pairs)
     return record

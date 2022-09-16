@@ -79,10 +79,6 @@ def add_dimensions_to_schema(schema, dimensions):
 
 def generate_base_schema():
     return {"type": "object", "properties": {"_sdc_record_hash": {"type": "string"},
-                                             "start_date": {"type": "string",
-                                                            "format": "date-time"},
-                                             "end_date": {"type": "string",
-                                                          "format": "date-time"},
                                              "property_id": {"type": "string"}}}
 
 
@@ -92,10 +88,10 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions):
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
-                   ["_sdc_record_hash", "start_date", "end_date", "property_id", "date"],
+                   ["_sdc_record_hash", "property_id", "date"],
                    mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Field"),
-                   ["_sdc_record_hash", "start_date", "end_date", "property_id"],
+                   ["_sdc_record_hash", "property_id"],
                    mdata)
     for dimension in dimensions:
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "tap_ga4.group", dimension.category)
