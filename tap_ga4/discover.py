@@ -12,7 +12,8 @@ from .sync import sleep_if_quota_reached
 
 LOGGER = singer.get_logger()
 
-dimension_integer_field_overrides = {"cohortNthDay",
+
+DIMENSION_INTEGER_FIELD_OVERRIDES = {"cohortNthDay",
                                      "cohortNthMonth",
                                      "cohortNthWeek",
                                      "day",
@@ -30,7 +31,7 @@ dimension_integer_field_overrides = {"cohortNthDay",
                                      "week",
                                      "year"}
 
-dimension_datetime_field_overrides = {"date",
+DIMENSION_DATETIME_FIELD_OVERRIDES = {"date",
                                       "dateHour",
                                       "dateHourMinute",
                                       "firstSessionDate"}
@@ -47,6 +48,7 @@ FLOAT_TYPES = {"TYPE_FLOAT",
                "TYPE_METERS",
                "TYPE_KILOMETERS"}
 
+# Cohort is incompatible with `date`, which is required.
 INCOMPATIBLE_CATEGORIES = {"Cohort"}
 
 
@@ -63,9 +65,9 @@ def add_metrics_to_schema(schema, metrics):
 
 def add_dimensions_to_schema(schema, dimensions):
     for dimension in dimensions:
-        if dimension.api_name in dimension_integer_field_overrides:
+        if dimension.api_name in DIMENSION_INTEGER_FIELD_OVERRIDES:
             schema["properties"][dimension.api_name] = {"type": ["integer", "null"]}
-        elif dimension.api_name in dimension_datetime_field_overrides:
+        elif dimension.api_name in DIMENSION_DATETIME_FIELD_OVERRIDES:
             # datetime is not always a valid datetime string
             # https://support.google.com/analytics/answer/9309767
             schema["properties"][dimension.api_name] = \
@@ -175,10 +177,6 @@ def get_dimensions_and_metrics(client, property_id):
         name=f"properties/{property_id}/metadata",
     )
     response = client.get_metadata(request)
-
-    # Some categories of dimensions and metrics need extra data when running a
-    # report like `Cohort` (https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/CohortSpec)
-    # These are not supported in field selection
     dimensions = [dimension for dimension in response.dimensions
                   if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics

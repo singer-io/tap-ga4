@@ -15,6 +15,7 @@ REQUIRED_CONFIG_KEYS = [
     "oauth_client_secret",
     "refresh_token",
     "property_id",
+    "account_id",
     "report_definitions",
 ]
 
@@ -47,8 +48,12 @@ def main_impl():
 
 
 def main():
-    main_impl()
-
+    try:
+        main_impl()
+    except Exception as e:
+        for line in str(e).splitlines():
+            LOGGER.critical(line)
+        raise e
 
 if __name__ == "__main__":
     main()
