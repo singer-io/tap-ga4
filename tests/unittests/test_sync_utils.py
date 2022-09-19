@@ -13,7 +13,8 @@ class TestRecordHashing(unittest.TestCase):
     indicates that the primary key has been invalidated by changes.
     """
     def test_record_hash_canary(self):
-        test_record = {"property_id": "123456789"}
+        test_record = {"property_id": "123456789",
+                       "account_id": "123456"}
 
         dimension_pairs = [('achievementId', 'hi'),
                            ('campaignId', '(not set)'),
@@ -23,7 +24,7 @@ class TestRecordHashing(unittest.TestCase):
                            ('city', 'my_city'),
                            ('firstSessionDate', '20220906')]
 
-        expected_hash = "23f0156453ea07c48dc1af80dfaf7f2346da49cbc18203d89056df81819c0ddb"
+        expected_hash = "0854e5a26abcccf6990128ab5581b429698e05a6436fc09defe5a22d7f479f9e"
         self.assertEqual(expected_hash, generate_sdc_record_hash(test_record, dimension_pairs))
 
 
