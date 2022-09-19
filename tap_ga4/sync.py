@@ -20,9 +20,8 @@ def generate_sdc_record_hash(record, dimension_pairs):
     associated with a report. This consists of a UTF-8 encoded JSON list
     containing:
     - The property_id of the associated report
+    - The account_id of the associated report
     - Pairs of ("dimension_name", "dimension_value")
-    - Report start_date value in YYYY-mm-dd format
-    - Report end_date value in YYYY-mm-dd format
 
     Start and end date are included to maintain flexibility in the event the
     tap is extended to support wider date ranges.
@@ -31,13 +30,9 @@ def generate_sdc_record_hash(record, dimension_pairs):
     REQUIRE a major version bump! As it will invalidate all previous
     primary keys and cause new data to be appended.
     """
-    property_id = record["property_id"]
-    sorted_dimension_pairs = sorted(dimension_pairs)
-
-    # NB: Do not change the ordering of this list, it is the source of the PK hash
-    hash_source_data = [property_id,
-                        sorted_dimension_pairs]
-
+    hash_source_data = sorted([("property_id", record["property_id"]),
+                               ("account_id", record["account_id"]),
+                               *dimension_pairs])
     hash_source_bytes = json.dumps(hash_source_data).encode('utf-8')
     return hashlib.sha256(hash_source_bytes).hexdigest()
 
@@ -64,6 +59,7 @@ def row_to_record(report, row, dimension_headers, metric_headers):
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
     record["property_id"] = report["property_id"]
+    record["account_id"] = report["account_id"]
     record["_sdc_record_hash"] = generate_sdc_record_hash(record, dimension_pairs)
     return record
 
@@ -275,6 +271,7 @@ def sync(client, config, catalog, state):
                             stream.key_properties)
 
         report = {"property_id": config["property_id"],
+                  "account_id": config["account_id"],
                   "name": stream.stream,
                   "id": stream.tap_stream_id,
                   "metrics": metrics,
