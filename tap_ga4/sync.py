@@ -13,7 +13,7 @@ LOGGER = singer.get_logger()
 
 DEFAULT_CONVERSION_WINDOW = 90
 DEFAULT_REQUEST_WINDOW_SIZE = 7
-PAGE_SIZE = 100000
+
 
 
 def sort_and_shuffle_streams(currently_syncing, selected_streams):
@@ -60,17 +60,18 @@ def generate_sdc_record_hash(record, dimension_pairs):
     return hashlib.sha256(hash_source_bytes).hexdigest()
 
 
-def generate_report_dates(start_date, end_date, request_range):
+def generate_report_dates(start_date, end_date, request_window_size):
     """
-    Splits date range from start_date to end_date into chunks of request_range
+    Splits date range from start_date to end_date into chunks of request_window_size
     length and yields each chunk as a tuple (start_date, end_date).
     """
     range_start = start_date
     while range_start <= end_date:
-        # NB: Subtract 1 from request_range because date range in RunReportRequest is inclusive
-        range_end = range_start + timedelta(days=request_range - 1)
+        # NB: Subtract 1 from request_window_size because date range in RunReportRequest is inclusive
+        range_end = range_start + timedelta(days=request_window_size - 1)
         yield (range_start.strftime("%Y-%m-%d"), min(end_date, range_end).strftime("%Y-%m-%d"))
         range_start = range_end + timedelta(days=1)
+
 
 def row_to_record(report, row, dimension_headers, metric_headers):
     """
@@ -163,72 +164,8 @@ def get_end_date(config):
         return utils.strptime_to_utc(config['end_date'])
     return utils.now().replace(hour=0, minute=0, second=0, microsecond=0)
 
-def seconds_to_next_hour():
-    current_utc_time = utils.now()
-    # Get a time 10 seconds past the hour to be sure we don't make another
-    # request before Google resets quota.
-    next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
-    time_till_next_hour = (next_hour - current_utc_time).seconds
-    return time_till_next_hour
 
-
-def sleep_if_quota_reached(ex):
-    if isinstance(ex, ResourceExhausted):
-        seconds = seconds_to_next_hour()
-        LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
-        time.sleep(seconds)
-    return False
-
-
-@backoff.on_exception(backoff.expo,
-                      (ServerError, TooManyRequests, ResourceExhausted),
-                      max_tries=5,
-                      jitter=None,
-                      giveup=sleep_if_quota_reached,
-                      logger=None)
-def make_request(client, report, range_start_date, range_end_date, offset):
-    request = RunReportRequest(
-        property=f"properties/{report['property_id']}",
-        dimensions=report["dimensions"],
-        metrics=report["metrics"],
-        date_ranges=[DateRange(start_date=range_start_date, end_date=range_end_date)],
-        limit=PAGE_SIZE,
-        offset=offset,
-        return_property_quota=True,
-        order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))]
-    )
-
-    response = client.run_report(request)
-    has_more_rows = response.row_count > PAGE_SIZE + offset
-    offset += PAGE_SIZE
-
-    LOGGER.info("Request for report: %s from %s -> %s consumed %s GA4 quota tokens",
-                report["name"],
-                range_start_date,
-                range_end_date,
-                response.property_quota.tokens_per_hour.consumed)
-
-    return response, has_more_rows, offset
-
-
-def get_report(client, report, range_start_date, range_end_date):
-    """
-    Calls run_report and paginates over the request if the
-    response.row_count is greater than 100,000.
-    """
-    offset = 0
-    has_more_rows = True
-    while has_more_rows:
-        response, has_more_rows, offset = make_request(client,
-                                                       report,
-                                                       range_start_date,
-                                                       range_end_date,
-                                                       offset)
-
-        yield response
-
-
-def sync_report(client, schema, report, start_date, end_date, request_range, state):
+def sync_report(client, schema, report, start_date, end_date, request_window_size, state):
     """
     Run a sync, beginning from either the start_date, bookmarked date, or
     (now - CONVERSION_WINDOW) requesting a report per day.
@@ -241,8 +178,8 @@ def sync_report(client, schema, report, start_date, end_date, request_range, sta
     """
     LOGGER.info("Syncing %s for property_id %s", report['name'], report['property_id'])
 
-    for range_start_date, range_end_date in generate_report_dates(start_date, end_date, request_range):
-        for response in get_report(client, report, range_start_date, range_end_date):
+    for range_start_date, range_end_date in generate_report_dates(start_date, end_date, request_window_size):
+        for response in client.get_report(report, range_start_date, range_end_date):
             dimension_headers = [dimension.name for dimension in response.dimension_headers]
             metric_headers = [metric.name for metric in response.metric_headers]
             with singer.metrics.record_counter(report['name']) as counter:
@@ -268,6 +205,7 @@ def sync(client, config, catalog, state):
     selected_streams = catalog.get_selected_streams(state)
     currently_syncing = state.get("currently_syncing", None)
     selected_streams = sort_and_shuffle_streams(currently_syncing, selected_streams)
+
     for stream in selected_streams:
         state = singer.set_currently_syncing(state, stream.tap_stream_id)
         singer.write_state(state)

@@ -140,11 +140,7 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
     LOGGER.info("Discovering dimension field exclusions")
     for dimension in dimensions:
-        res = client.check_compatibility(CheckCompatibilityRequest(
-            property=f"properties/{property_id}",
-            dimensions=[Dimension(name=dimension.api_name)],
-            compatibility_filter="INCOMPATIBLE"
-            ))
+        res = client.check_dimension_compatibility(property_id, dimension)
         for field in res.dimension_compatibilities:
             field_exclusions[dimension.api_name].append(
                 field.dimension_metadata.api_name)
@@ -154,11 +150,7 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
 
     LOGGER.info("Discovering metric field exclusions")
     for metric in metrics:
-        res = client.check_compatibility(CheckCompatibilityRequest(
-            property=f"properties/{property_id}",
-            metrics=[Metric(name=metric.api_name)],
-            compatibility_filter="INCOMPATIBLE"
-            ))
+        res = client.check_metric_compatibility(property_id, metric)
         for field in res.dimension_compatibilities:
             field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
         for field in res.metric_compatibilities:
@@ -167,17 +159,8 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     return field_exclusions
 
 
-@backoff.on_exception(backoff.expo,
-                      (ServerError, TooManyRequests, ResourceExhausted),
-                      max_tries=5,
-                      jitter=None,
-                      giveup=sleep_if_quota_reached,
-                      logger=None)
 def get_dimensions_and_metrics(client, property_id):
-    request = GetMetadataRequest(
-        name=f"properties/{property_id}/metadata",
-    )
-    response = client.get_metadata(request)
+    response = client.get_dimensions_and_metrics(property_id)
     dimensions = [dimension for dimension in response.dimensions
                   if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics
