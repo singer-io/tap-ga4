@@ -2,9 +2,10 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-from singer import utils
-from tap_ga4.sync import (CONVERSION_WINDOW, generate_sdc_record_hash,
-                          get_report_start_date, generate_report_dates)
+from singer import CatalogEntry, utils
+from tap_ga4.sync import (DEFAULT_CONVERSION_WINDOW, generate_sdc_record_hash,
+                          get_report_start_date, generate_report_dates,
+                          sort_and_shuffle_streams)
 
 
 class TestRecordHashing(unittest.TestCase):
@@ -51,7 +52,7 @@ class TestConversionWindow(unittest.TestCase):
 
     def test_conversion_day_is_first_report_date(self):
         state = {"currently_syncing": None, "bookmarks": {"my_stream_id": {"123456789": {"last_report_date": "2022-09-07"}}}}
-        expected_date = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=CONVERSION_WINDOW)
+        expected_date = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=DEFAULT_CONVERSION_WINDOW)
         self.assertEqual(expected_date, get_report_start_date(self.config, self.property_id, state, "my_stream_id"))
 
     def test_bookmark_is_first_report_date(self):
@@ -146,3 +147,45 @@ class TestGenerateReportDates(unittest.TestCase):
             actual_ranges.append(date_range)
 
         self.assertEqual(expected_ranges, actual_ranges)
+
+class TestStreamShuffling(unittest.TestCase):
+    stream_ids = ["stream5", "stream4", "stream3", "stream2", "stream1"]
+    def get_selected_streams(self):
+        for id in self.stream_ids:
+            yield CatalogEntry(tap_stream_id=id)
+
+    def test_no_currently_syncing(self):
+        state = {"currently_syncing": None, "bookmarks": {}}
+        actual = sort_and_shuffle_streams(state["currently_syncing"], self.get_selected_streams())
+        actual_streams = [stream.tap_stream_id for stream in actual]
+        expected_streams = ["stream1", "stream2", "stream3", "stream4", "stream5"]
+        self.assertEqual(expected_streams, actual_streams)
+
+    def test_with_currently_syncing(self):
+        state = {"currently_syncing": "stream2", "bookmarks": {}}
+        actual = sort_and_shuffle_streams(state["currently_syncing"], self.get_selected_streams())
+        actual_streams = [stream.tap_stream_id for stream in actual]
+        expected_streams = ["stream2", "stream3", "stream4", "stream5", "stream1"]
+        self.assertEqual(expected_streams, actual_streams)
+
+    def test_currently_syncing_not_selected(self):
+        state = {"currently_syncing": "stream2", "bookmarks": {}}
+        self.stream_ids = ["stream5", "stream4", "stream3", "stream1"]
+        actual = sort_and_shuffle_streams(state["currently_syncing"], self.get_selected_streams())
+        actual_streams = [stream.tap_stream_id for stream in actual]
+        expected_streams = ["stream1", "stream3", "stream4", "stream5"]
+        self.assertEqual(expected_streams, actual_streams)
+
+    def test_currently_syncing_at_start(self):
+        state = {"currently_syncing": "stream1", "bookmarks": {}}
+        actual = sort_and_shuffle_streams(state["currently_syncing"], self.get_selected_streams())
+        actual_streams = [stream.tap_stream_id for stream in actual]
+        expected_streams = ["stream1", "stream2", "stream3", "stream4", "stream5"]
+        self.assertEqual(expected_streams, actual_streams)
+
+    def test_currently_syncing_at_end(self):
+        state = {"currently_syncing": "stream5", "bookmarks": {}}
+        actual = sort_and_shuffle_streams(state["currently_syncing"], self.get_selected_streams())
+        actual_streams = [stream.tap_stream_id for stream in actual]
+        expected_streams = ["stream5", "stream1", "stream2", "stream3", "stream4"]
+        self.assertEqual(expected_streams, actual_streams)

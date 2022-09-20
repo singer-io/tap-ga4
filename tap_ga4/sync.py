@@ -11,8 +11,31 @@ from singer import Transformer, get_bookmark, metadata, utils
 
 LOGGER = singer.get_logger()
 
-CONVERSION_WINDOW = 90
+DEFAULT_CONVERSION_WINDOW = 90
+DEFAULT_REQUEST_WINDOW_SIZE = 7
 PAGE_SIZE = 100000
+
+
+def sort_and_shuffle_streams(currently_syncing, selected_streams):
+    """
+    Order selected streams and shuffle if currently_syncing is set.
+    """
+    stream_list = [stream for stream in selected_streams]
+    sorted_selected_streams = sorted(stream_list, key=lambda x: x.tap_stream_id)
+
+    if not currently_syncing:
+        return sorted_selected_streams
+
+    currently_syncing_idx = None
+    for i, stream in enumerate(sorted_selected_streams):
+        if currently_syncing == stream.tap_stream_id:
+            currently_syncing_idx = i
+            break
+
+    if currently_syncing_idx:
+        return sorted_selected_streams[currently_syncing_idx:] + sorted_selected_streams[:currently_syncing_idx]
+    return sorted_selected_streams
+
 
 def generate_sdc_record_hash(record, dimension_pairs):
     """
@@ -124,7 +147,7 @@ def get_report_start_date(config, property_id, state, tap_stream_id):
         return start_date
     else:
         bookmark = utils.strptime_to_utc(bookmark)
-        conversion_day = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=CONVERSION_WINDOW)
+        conversion_day = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=DEFAULT_CONVERSION_WINDOW)
     return min(bookmark, max(start_date, conversion_day))
 
 
@@ -212,6 +235,7 @@ def sync_report(client, schema, report, start_date, end_date, request_range, sta
 
     report = {"name": stream.tap_stream_id,
               "property_id": property_id,
+              "account_id": account_id,
               "metrics": metrics,
               "dimensions": dimensions}
     """
@@ -242,7 +266,8 @@ def sync_report(client, schema, report, start_date, end_date, request_range, sta
 
 def sync(client, config, catalog, state):
     selected_streams = catalog.get_selected_streams(state)
-    #TODO add start with currently syncing
+    currently_syncing = state.get("currently_syncing", None)
+    selected_streams = sort_and_shuffle_streams(currently_syncing, selected_streams)
     for stream in selected_streams:
         state = singer.set_currently_syncing(state, stream.tap_stream_id)
         singer.write_state(state)
@@ -278,8 +303,9 @@ def sync(client, config, catalog, state):
                   "dimensions": dimensions}
 
         start_date = get_report_start_date(config, report["property_id"], state, report["id"])
-        sync_report(client, schema, report, start_date, end_date, int(config["request_window_size"]), state)
-        singer.write_state(state)
+        request_window_size = int(config.get("request_window_size", DEFAULT_REQUEST_WINDOW_SIZE))
 
+        sync_report(client, schema, report, start_date, end_date, request_window_size, state)
+        singer.write_state(state)
     state = singer.set_currently_syncing(state, None)
     singer.write_state(state)
