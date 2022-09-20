@@ -16,7 +16,7 @@ class Client:
 
     PAGE_SIZE = 100000
     LOGGER = singer.get_logger()
-    
+
     def __init__(self, config):
         credentials = Credentials(None,
                               refresh_token=config["refresh_token"],
@@ -57,7 +57,7 @@ class Client:
             return self.client.get_metadata(request)
         if type(request) == CheckCompatibilityRequest:
             return self.client.check_compatibility(request)
-        
+
     def get_report(self, report, range_start_date, range_end_date):
         """
         Calls run_report and paginates over the request if the
@@ -76,7 +76,7 @@ class Client:
                 return_property_quota=True,
                 order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))]
             )
-            
+
             response = self._make_request(request)
             has_more_rows = response.row_count > self.PAGE_SIZE + offset
             offset += self.PAGE_SIZE
@@ -96,7 +96,7 @@ class Client:
         )
         return self._make_request(request)
 
-    
+
     def check_metric_compatibility(self, property_id, metric):
         request = CheckCompatibilityRequest(
             property=f"properties/{property_id}",
@@ -112,4 +112,3 @@ class Client:
             compatibility_filter="INCOMPATIBLE"
             )
         return self._make_request(request)
-        
