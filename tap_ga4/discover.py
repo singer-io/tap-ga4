@@ -1,14 +1,12 @@
 from collections import defaultdict
 from functools import reduce
 
-import backoff
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from google.analytics.data_v1beta.types import CheckCompatibilityRequest, GetMetadataRequest, Dimension, Metric
 
-from .sync import sleep_if_quota_reached
 
 LOGGER = singer.get_logger()
 

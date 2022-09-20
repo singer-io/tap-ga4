@@ -2,11 +2,7 @@ import hashlib
 import json
 import time
 from datetime import datetime, timedelta
-
-import backoff
 import singer
-from google.analytics.data_v1beta.types import (DateRange, Dimension, Metric, OrderBy, RunReportRequest)
-from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
 from singer import Transformer, get_bookmark, metadata, utils
 
 LOGGER = singer.get_logger()

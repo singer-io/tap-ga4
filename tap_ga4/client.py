@@ -9,7 +9,7 @@ from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
 import singer
 import backoff
-
+import time
 
 
 class Client:
@@ -27,7 +27,7 @@ class Client:
         self.client = BetaAnalyticsDataClient(credentials=credentials)
 
 
-    def seconds_to_next_hour():
+    def seconds_to_next_hour(self):
         current_utc_time = utils.now()
         # Get a time 10 seconds past the hour to be sure we don't make another
         # request before Google resets quota.
@@ -35,11 +35,11 @@ class Client:
         time_till_next_hour = (next_hour - current_utc_time).seconds
         return time_till_next_hour
 
-
-    def sleep_if_quota_reached(ex):
+    # TODO make private?
+    def sleep_if_quota_reached(self, ex):
         if isinstance(ex, ResourceExhausted):
             seconds = seconds_to_next_hour()
-            LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
+            self.LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
             time.sleep(seconds)
         return False
 
@@ -48,15 +48,16 @@ class Client:
                           (ServerError, TooManyRequests, ResourceExhausted),
                           max_tries=5,
                           jitter=None,
-                          giveup=sleep_if_quota_reached,
+                          giveup=self.sleep_if_quota_reached,
                           logger=None)
     def _make_request(self, request):
-        if type(request) == RunReportRequest:
+        if isinstance(request, RunReportRequest):
             return self.client.run_report(request)
-        if type(request) == GetMetadataRequest:
+        if isinstance(request, GetMetadataRequest):
             return self.client.get_metadata(request)
-        if type(request) == CheckCompatibilityRequest:
+        if isinstance(request, CheckCompatibilityRequest):
             return self.client.check_compatibility(request)
+        #TODO error handling here
 
     def get_report(self, report, range_start_date, range_end_date):
         """
