@@ -22,6 +22,7 @@ class GA4DiscoveryTest(DiscoveryTest, GA4Base):
         This tap accepts user provided stream names in the config via the report_definitions
         field and does not conform to the expaction that a stream's name must satisfy the condition:
 
+
             re.fullmatch(r"[a-z_]+", name)
 
         So this test case is skipped.

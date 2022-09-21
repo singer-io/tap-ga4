@@ -1,12 +1,11 @@
 import unittest
 
-from tap_tester import menagerie, connections
 from tap_tester.base_suite_tests.sync_canary_test import SyncCanaryTest
 
 from base import GA4Base
 
 
-class GA4SyncCanaryTest(GA4Base, SyncCanaryTest):
+class GA4SyncCanaryTest(SyncCanaryTest, GA4Base):
     """Standard Sync Canary Test"""
 
     @staticmethod
@@ -27,10 +26,8 @@ class GA4SyncCanaryTest(GA4Base, SyncCanaryTest):
                 "enagementRate",
                 "engagedSessions",
             },
-            "Test Report 2": {  # retention
+            "Test Report 2": {
                 "pageTitle",
                 "newUsers",
-                "cohortActiveUsers",
-                "cohortTotalUsers",
             },
         }
