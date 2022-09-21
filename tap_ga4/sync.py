@@ -1,7 +1,7 @@
 import hashlib
 import json
-import time
 from datetime import datetime, timedelta
+
 import singer
 from singer import Transformer, get_bookmark, metadata, utils
 
@@ -9,7 +9,6 @@ LOGGER = singer.get_logger()
 
 DEFAULT_CONVERSION_WINDOW = 90
 DEFAULT_REQUEST_WINDOW_SIZE = 7
-
 
 
 def sort_and_shuffle_streams(currently_syncing, selected_streams):

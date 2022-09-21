@@ -1,15 +1,17 @@
+import time
+from datetime import timedelta
+
+import backoff
+import singer
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
-from google.analytics.data_v1beta.types import (DateRange, Dimension,
-                                                Metric, OrderBy,
-                                                RunReportRequest,
-                                                GetMetadataRequest,
-                                                CheckCompatibilityRequest)
-from google.oauth2.credentials import Credentials
+from google.analytics.data_v1beta.types import (CheckCompatibilityRequest,
+                                                DateRange, Dimension,
+                                                GetMetadataRequest, Metric,
+                                                OrderBy, RunReportRequest)
 from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
-import singer
-import backoff
-import time
+from google.oauth2.credentials import Credentials
+from singer import utils
 
 
 class Client:
@@ -38,7 +40,7 @@ class Client:
     # TODO make private?
     def sleep_if_quota_reached(self, ex):
         if isinstance(ex, ResourceExhausted):
-            seconds = seconds_to_next_hour()
+            seconds = self.seconds_to_next_hour()
             self.LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
             time.sleep(seconds)
         return False
