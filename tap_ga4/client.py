@@ -14,10 +14,29 @@ from google.oauth2.credentials import Credentials
 from singer import utils
 
 
+LOGGER = singer.get_logger()
+
+
+def _seconds_to_next_hour():
+    current_utc_time = utils.now()
+    # Get a time 10 seconds past the hour to be sure we don't make another
+    # request before Google resets quota.
+    next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
+    time_till_next_hour = (next_hour - current_utc_time).seconds
+    return time_till_next_hour
+
+
+def _sleep_if_quota_reached(ex):
+    if isinstance(ex, ResourceExhausted):
+        seconds = _seconds_to_next_hour()
+        LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
+        time.sleep(seconds)
+    return False
+
+
 class Client:
 
     PAGE_SIZE = 100000
-    LOGGER = singer.get_logger()
 
     def __init__(self, config):
         credentials = Credentials(None,
@@ -29,37 +48,22 @@ class Client:
         self.client = BetaAnalyticsDataClient(credentials=credentials)
 
 
-    def seconds_to_next_hour(self):
-        current_utc_time = utils.now()
-        # Get a time 10 seconds past the hour to be sure we don't make another
-        # request before Google resets quota.
-        next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
-        time_till_next_hour = (next_hour - current_utc_time).seconds
-        return time_till_next_hour
-
-    # TODO make private?
-    def sleep_if_quota_reached(self, ex):
-        if isinstance(ex, ResourceExhausted):
-            seconds = self.seconds_to_next_hour()
-            self.LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
-            time.sleep(seconds)
-        return False
-
-
     @backoff.on_exception(backoff.expo,
                           (ServerError, TooManyRequests, ResourceExhausted),
                           max_tries=5,
                           jitter=None,
-                          giveup=self.sleep_if_quota_reached,
+                          giveup=_sleep_if_quota_reached,
                           logger=None)
     def _make_request(self, request):
+
         if isinstance(request, RunReportRequest):
             return self.client.run_report(request)
         if isinstance(request, GetMetadataRequest):
             return self.client.get_metadata(request)
         if isinstance(request, CheckCompatibilityRequest):
             return self.client.check_compatibility(request)
-        #TODO error handling here
+        raise(TypeError(f"Unrecognized request type: {type(request)}" ))
+
 
     def get_report(self, report, range_start_date, range_end_date):
         """
@@ -84,7 +88,7 @@ class Client:
             has_more_rows = response.row_count > self.PAGE_SIZE + offset
             offset += self.PAGE_SIZE
 
-            self.LOGGER.info("Request for report: %s from %s -> %s consumed %s GA4 quota tokens",
+            LOGGER.info("Request for report: %s from %s -> %s consumed %s GA4 quota tokens",
                         report["name"],
                         range_start_date,
                         range_end_date,
@@ -107,6 +111,7 @@ class Client:
             compatibility_filter="INCOMPATIBLE"
             )
         return self._make_request(request)
+
 
     def check_dimension_compatibility(self, property_id, dimension):
         request = CheckCompatibilityRequest(
