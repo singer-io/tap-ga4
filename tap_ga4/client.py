@@ -16,7 +16,7 @@ from singer import utils
 LOGGER = singer.get_logger()
 
 
-def _seconds_to_next_hour():
+def seconds_to_next_hour():
     current_utc_time = utils.now()
     # Get a time 10 seconds past the hour to be sure we don't make another
     # request before Google resets quota.
@@ -25,9 +25,9 @@ def _seconds_to_next_hour():
     return time_till_next_hour
 
 
-def _sleep_if_quota_reached(ex):
+def sleep_if_quota_reached(ex):
     if isinstance(ex, ResourceExhausted):
-        seconds = _seconds_to_next_hour()
+        seconds = seconds_to_next_hour()
         LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
         time.sleep(seconds)
     return False
@@ -51,7 +51,7 @@ class Client:
                           (ServerError, TooManyRequests, ResourceExhausted),
                           max_tries=5,
                           jitter=None,
-                          giveup=_sleep_if_quota_reached,
+                          giveup=sleep_if_quota_reached,
                           logger=None)
     def _make_request(self, request):
         if isinstance(request, RunReportRequest):
