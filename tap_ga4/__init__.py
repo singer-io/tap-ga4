@@ -1,9 +1,8 @@
-import logging
 import singer
 from singer import utils
 from singer.catalog import Catalog
-from google.analytics.data_v1beta import BetaAnalyticsDataClient
-from google.oauth2.credentials import Credentials
+
+from tap_ga4.client import Client
 from tap_ga4.discover import discover
 from tap_ga4.sync import sync
 
@@ -15,6 +14,7 @@ REQUIRED_CONFIG_KEYS = [
     "oauth_client_secret",
     "refresh_token",
     "property_id",
+    "account_id",
     "report_definitions",
 ]
 
@@ -25,14 +25,7 @@ def main_impl():
     catalog = args.catalog or Catalog([])
     state = {}
 
-    # access_token (1st param) can be None when refresh_token is supplied
-    credentials = Credentials(None,
-                              refresh_token=config["refresh_token"],
-                              token_uri='https://www.googleapis.com/oauth2/v4/token',
-                              client_id=config["oauth_client_id"],
-                              client_secret=config["oauth_client_secret"])
-
-    client = BetaAnalyticsDataClient(credentials=credentials)
+    client = Client(config)
 
     if args.state:
         state.update(args.state)
@@ -47,8 +40,12 @@ def main_impl():
 
 
 def main():
-    main_impl()
-
+    try:
+        main_impl()
+    except Exception as e:
+        for line in str(e).splitlines():
+            LOGGER.critical(line)
+        raise e
 
 if __name__ == "__main__":
     main()

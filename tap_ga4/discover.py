@@ -1,18 +1,14 @@
 from collections import defaultdict
 from functools import reduce
 
-import backoff
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
-from google.api_core.exceptions import (ResourceExhausted, ServerError, TooManyRequests)
-from google.analytics.data_v1beta.types import CheckCompatibilityRequest, GetMetadataRequest, Dimension, Metric
-
-from .sync import sleep_if_quota_reached
 
 LOGGER = singer.get_logger()
 
-dimension_integer_field_overrides = {"cohortNthDay",
+
+DIMENSION_INTEGER_FIELD_OVERRIDES = {"cohortNthDay",
                                      "cohortNthMonth",
                                      "cohortNthWeek",
                                      "day",
@@ -30,7 +26,7 @@ dimension_integer_field_overrides = {"cohortNthDay",
                                      "week",
                                      "year"}
 
-dimension_datetime_field_overrides = {"date",
+DIMENSION_DATETIME_FIELD_OVERRIDES = {"date",
                                       "dateHour",
                                       "dateHourMinute",
                                       "firstSessionDate"}
@@ -47,6 +43,7 @@ FLOAT_TYPES = {"TYPE_FLOAT",
                "TYPE_METERS",
                "TYPE_KILOMETERS"}
 
+# Cohort is incompatible with `date`, which is required.
 INCOMPATIBLE_CATEGORIES = {"Cohort"}
 
 
@@ -63,9 +60,9 @@ def add_metrics_to_schema(schema, metrics):
 
 def add_dimensions_to_schema(schema, dimensions):
     for dimension in dimensions:
-        if dimension.api_name in dimension_integer_field_overrides:
+        if dimension.api_name in DIMENSION_INTEGER_FIELD_OVERRIDES:
             schema["properties"][dimension.api_name] = {"type": ["integer", "null"]}
-        elif dimension.api_name in dimension_datetime_field_overrides:
+        elif dimension.api_name in DIMENSION_DATETIME_FIELD_OVERRIDES:
             # datetime is not always a valid datetime string
             # https://support.google.com/analytics/answer/9309767
             schema["properties"][dimension.api_name] = \
@@ -128,21 +125,11 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
     return Catalog(catalog_entries)
 
 
-@backoff.on_exception(backoff.expo,
-                      (ServerError, TooManyRequests, ResourceExhausted),
-                      max_tries=5,
-                      jitter=None,
-                      giveup=sleep_if_quota_reached,
-                      logger=None)
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
     LOGGER.info("Discovering dimension field exclusions")
     for dimension in dimensions:
-        res = client.check_compatibility(CheckCompatibilityRequest(
-            property=f"properties/{property_id}",
-            dimensions=[Dimension(name=dimension.api_name)],
-            compatibility_filter="INCOMPATIBLE"
-            ))
+        res = client.check_dimension_compatibility(property_id, dimension)
         for field in res.dimension_compatibilities:
             field_exclusions[dimension.api_name].append(
                 field.dimension_metadata.api_name)
@@ -152,11 +139,7 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
 
     LOGGER.info("Discovering metric field exclusions")
     for metric in metrics:
-        res = client.check_compatibility(CheckCompatibilityRequest(
-            property=f"properties/{property_id}",
-            metrics=[Metric(name=metric.api_name)],
-            compatibility_filter="INCOMPATIBLE"
-            ))
+        res = client.check_metric_compatibility(property_id, metric)
         for field in res.dimension_compatibilities:
             field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
         for field in res.metric_compatibilities:
@@ -165,21 +148,8 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     return field_exclusions
 
 
-@backoff.on_exception(backoff.expo,
-                      (ServerError, TooManyRequests, ResourceExhausted),
-                      max_tries=5,
-                      jitter=None,
-                      giveup=sleep_if_quota_reached,
-                      logger=None)
 def get_dimensions_and_metrics(client, property_id):
-    request = GetMetadataRequest(
-        name=f"properties/{property_id}/metadata",
-    )
-    response = client.get_metadata(request)
-
-    # Some categories of dimensions and metrics need extra data when running a
-    # report like `Cohort` (https://developers.google.com/analytics/devguides/reporting/data/v1/rest/v1beta/CohortSpec)
-    # These are not supported in field selection
+    response = client.get_dimensions_and_metrics(property_id)
     dimensions = [dimension for dimension in response.dimensions
                   if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics
