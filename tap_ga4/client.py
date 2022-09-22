@@ -65,8 +65,8 @@ class Client:
 
     def get_report(self, report, range_start_date, range_end_date):
         """
-        Calls run_report and paginates over the request if the
-        response.row_count is greater than 100,000.
+        Calls _make_request and paginates over the request if the
+        response.row_count is greater than the PAGE_SIZE
         """
         offset = 0
         has_more_rows = True
