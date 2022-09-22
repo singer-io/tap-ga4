@@ -60,7 +60,7 @@ class Client:
             return self.client.get_metadata(request)
         if isinstance(request, CheckCompatibilityRequest):
             return self.client.check_compatibility(request)
-        raise(TypeError(f"Unrecognized request type: {type(request)}" ))
+        raise TypeError(f"Unrecognized request type: {type(request)}")
 
 
     def get_report(self, report, range_start_date, range_end_date):
