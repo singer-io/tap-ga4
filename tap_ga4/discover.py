@@ -2,8 +2,6 @@ from collections import defaultdict
 from functools import reduce
 
 import singer
-from google.api_core.exceptions import (ResourceExhausted, ServerError,
-                                        TooManyRequests)
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 

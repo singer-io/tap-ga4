@@ -1,10 +1,9 @@
 import hashlib
 import json
 from datetime import datetime, timedelta
-
 import singer
 from singer import Transformer, get_bookmark, metadata, utils
-
+from google.analytics.data_v1beta.types import (Metric, Dimension)
 LOGGER = singer.get_logger()
 
 DEFAULT_CONVERSION_WINDOW = 90
@@ -15,7 +14,7 @@ def sort_and_shuffle_streams(currently_syncing, selected_streams):
     """
     Order selected streams and shuffle if currently_syncing is set.
     """
-    stream_list = [stream for stream in selected_streams]
+    stream_list = list(selected_streams)
     sorted_selected_streams = sorted(stream_list, key=lambda x: x.tap_stream_id)
 
     if not currently_syncing:

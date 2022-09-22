@@ -1,6 +1,5 @@
 import time
 from datetime import timedelta
-
 import backoff
 import singer
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
@@ -55,7 +54,6 @@ class Client:
                           giveup=_sleep_if_quota_reached,
                           logger=None)
     def _make_request(self, request):
-
         if isinstance(request, RunReportRequest):
             return self.client.run_report(request)
         if isinstance(request, GetMetadataRequest):
