@@ -1,9 +1,9 @@
 from collections import defaultdict
 from functools import reduce
-
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
+import json
 
 LOGGER = singer.get_logger()
 
@@ -127,8 +127,13 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
 
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
+    with open("field_exclusions.json", "r") as infile:
+        field_exclusions.update(json.load(infile))
+
     LOGGER.info("Discovering dimension field exclusions")
     for dimension in dimensions:
+        if dimension.api_name in field_exclusions:
+            continue
         res = client.check_dimension_compatibility(property_id, dimension)
         for field in res.dimension_compatibilities:
             field_exclusions[dimension.api_name].append(
@@ -139,6 +144,8 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
 
     LOGGER.info("Discovering metric field exclusions")
     for metric in metrics:
+        if metric.api_name in field_exclusions:
+            continue
         res = client.check_metric_compatibility(property_id, metric)
         for field in res.dimension_compatibilities:
             field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
@@ -157,7 +164,31 @@ def get_dimensions_and_metrics(client, property_id):
     return dimensions, metrics
 
 
+def get_default_dimensions_and_metrics(client, property_id):
+    d, m = get_dimensions_and_metrics(client, 0)
+
+    fields = defaultdict(list)
+    for dimension in d:
+        res = client.check_dimension_compatibility(property_id, dimension)
+        for field in res.dimension_compatibilities:
+            fields[dimension.api_name].append(field.dimension_metadata.api_name)
+        for field in res.metric_compatibilities:
+            fields[dimension.api_name].append(field.metric_metadata.api_name)
+
+    for metric in m:
+        res = client.check_metric_compatibility(property_id, metric)
+        for field in res.dimension_compatibilities:
+            fields[metric.api_name].append(field.dimension_metadata.api_name)
+        for field in res.metric_compatibilities:
+            fields[metric.api_name].append(field.metric_metadata.api_name)
+
+    with open("/opt/code/tap-ga4/tap_ga4/field_exclusions.json", "w") as outfile:
+        fields_json = json.dumps(fields)
+        outfile.write(fields_json)
+
+
 def discover(client, reports, property_id):
+    # get_default_dimensions_and_metrics(client, property_id)
     dimensions, metrics = get_dimensions_and_metrics(client, property_id)
     field_exclusions = get_field_exclusions(client, property_id, dimensions, metrics)
     catalog = generate_catalog(reports, dimensions, metrics, field_exclusions)
