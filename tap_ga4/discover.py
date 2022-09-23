@@ -164,31 +164,7 @@ def get_dimensions_and_metrics(client, property_id):
     return dimensions, metrics
 
 
-def get_default_dimensions_and_metrics(client, property_id):
-    d, m = get_dimensions_and_metrics(client, 0)
-
-    fields = defaultdict(list)
-    for dimension in d:
-        res = client.check_dimension_compatibility(property_id, dimension)
-        for field in res.dimension_compatibilities:
-            fields[dimension.api_name].append(field.dimension_metadata.api_name)
-        for field in res.metric_compatibilities:
-            fields[dimension.api_name].append(field.metric_metadata.api_name)
-
-    for metric in m:
-        res = client.check_metric_compatibility(property_id, metric)
-        for field in res.dimension_compatibilities:
-            fields[metric.api_name].append(field.dimension_metadata.api_name)
-        for field in res.metric_compatibilities:
-            fields[metric.api_name].append(field.metric_metadata.api_name)
-
-    with open("/opt/code/tap-ga4/tap_ga4/field_exclusions.json", "w") as outfile:
-        fields_json = json.dumps(fields)
-        outfile.write(fields_json)
-
-
 def discover(client, reports, property_id):
-    # get_default_dimensions_and_metrics(client, property_id)
     dimensions, metrics = get_dimensions_and_metrics(client, property_id)
     field_exclusions = get_field_exclusions(client, property_id, dimensions, metrics)
     catalog = generate_catalog(reports, dimensions, metrics, field_exclusions)
