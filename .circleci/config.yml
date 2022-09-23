@@ -154,8 +154,38 @@ workflows:
             - run_unit_tests
             - run_integration_tests
   build_daily:
-    <<: *commit_jobs
+    jobs:
+      - ensure_env:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+      - run_pylint:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_unit_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_integration_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
       - run_field_exclusions_test:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - run_pylint
+            - run_unit_tests
+            - run_integration_tests
+      - build:
           context:
             - circleci-user
             - tier-1-tap-user
