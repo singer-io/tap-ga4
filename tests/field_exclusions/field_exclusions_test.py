@@ -37,7 +37,7 @@ class TestFieldExclusions(unittest.TestCase):
                 fields[metric.api_name].append(field.metric_metadata.api_name)
 
         ### Uncomment to regenerate field_exclusions.json ###
-        # with open("tap_ga4/field_exclusions.json", "w") as outfile:
+        # with open("tap_ga4/field_exclusions.json", "w", encoding="utf-8") as outfile:
         #     fields_json = json.dumps(fields)
         #     outfile.write(fields_json)
                 
