@@ -1,1 +1,6 @@
 # Changelog
+
+## v0.0.2
+  * Cache standard dimensions and metrics [#12](https://github.com/singer-io/tap-ga4/pull/12)
+## v0.0.1
+  * Alpha release [#11](https://github.com/singer-io/tap-ga4/pull/11)
