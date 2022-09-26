@@ -193,6 +193,7 @@ workflows:
             - run_pylint
             - run_unit_tests
             - run_integration_tests
+            - run_field_exclusions_test
     triggers:
       - schedule:
           cron: "0 3 * * *"
