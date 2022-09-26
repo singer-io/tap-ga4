@@ -142,7 +142,8 @@ def get_report_start_date(config, property_id, state, tap_stream_id):
         return start_date
     else:
         bookmark = utils.strptime_to_utc(bookmark)
-        conversion_day = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=DEFAULT_CONVERSION_WINDOW)
+        conversion_window = int(config.get("conversion_window", DEFAULT_CONVERSION_WINDOW))
+        conversion_day = utils.now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=conversion_window)
     return min(bookmark, max(start_date, conversion_day))
 
 
