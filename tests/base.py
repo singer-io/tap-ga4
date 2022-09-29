@@ -37,8 +37,9 @@ class GA4Base(BaseCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         return_value = {
-            'start_date' : (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
+            'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
+            'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
             'user_id': os.getenv('TAP_GA4_USER_ID'), # TODO what is?  should orca handle this?
             'report_definitions': [
@@ -68,7 +69,6 @@ class GA4Base(BaseCase):
             self.REPLICATION_KEYS: {"start_date"}, # TODO may be 'date'
             self.HASHED_KEYS: { # TODO also sorted dimensions and values...
                 'property_id',
-                'end_date',
                 'end_date',
             },
         }
@@ -141,10 +141,15 @@ class GA4Base(BaseCase):
         NOTE: See method in tap-google-analytics/tests/base.py
         """
         return {
-            "Test Report 1": {'TODO',},
-            "Test Report 2": {'TODO',},
+            "Test Report 1": {'date',
+                              'city',
+                              'browser',
+                              'bounceRate',
+                              'checkouts'},
+            "Test Report 2": {'source',
+                              'streamId',
+                              'conversions'},
         }
-
 
     @staticmethod
     def expected_pagination_fields(): # TODO does this apply?
