@@ -1,6 +1,6 @@
 PREMADE_REPORTS = [
     {
-        "name": "First User Medium Report",
+        "name": "User Acquisition First User Medium Report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -17,7 +17,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "First User Source Report",
+        "name": "User Acquisition First User Source Report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -31,6 +31,320 @@ PREMADE_REPORTS = [
         "dimensions": [
             "date",
             "firstUserSource",
+        ],
+    },
+    {
+        "name": "User Acquisition First User Source and Medium Report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserSource",
+            "firstUserMedium",
+        ],
+    },
+    {
+        "name": "User Acquisition First User Source Platform Report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+            ],
+        "dimensions": [
+            "date",
+            "firstUserSourcePlatform",
+        ],
+    },
+    {
+        "name": "User Acquisition First User Campaign Report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserCampaignName",
+        ],
+    },
+    {
+        "name": "User Acquisition First User Google Ads Network Type Report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserGoogleAdsAdNetworkType",
+        ],
+    },
+    {
+        "name": "User Acquisition First User Google Ads Ad Group Name Report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserGoogleAdsAdGroupName",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Source and Medium Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionSource",
+            "sessionMedium",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Medium Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionMedium",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Source Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionSource",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Campaign Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionCampaignName",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Default Channel Grouping Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionDefaultChannelGrouping",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Default Channel Grouping Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionDefaultChannelGrouping",
+        ],
+    },
+    {
+        "name": "Traffic Acquisition Session Source Platform Report",
+        "metrics": [
+            "totalUsers",
+            "sessions",
+            "engagedSessions",
+            "eventsPerSession",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "sessionSourcePlatform",
+        ],
+    },
+    {
+        "name": "Events Report",
+        "metrics": [
+            "eventCount",
+            "totalUsers",
+            "eventCountPerUser",
+            "totalRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "eventName",
+        ],
+    },
+    {
+        "name": "Conversions Report",
+        "metrics": [
+            "conversions",
+            "totalUsers",
+            "totalRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "eventName",
+        ],
+    },
+    {
+        "name": "Conversions Report",
+        "metrics": [
+            "conversions",
+            "totalUsers",
+            "totalRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "eventName",
+        ],
+    },
+    {
+        "name": "Pages Title and Screen Class Report",
+        "metrics": [
+            "screenPageViews",
+            "totalUsers",
+            "newUsers",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "unifiedScreenClass",
+        ],
+    },
+    {
+        "name": "Pages Path Report",
+        "metrics": [
+            "screenPageViews",
+            "totalUsers",
+            "newUsers",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "pagePath",
+        ],
+    },
+    {
+        "name": "Pages Title and Screen Name Report",
+        "metrics": [
+            "screenPageViews",
+            "totalUsers",
+            "newUsers",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "unifiedScreenName",
+        ],
+    },
+    {
+        "name": "Content Group Report",
+        "metrics": [
+            "screenPageViews",
+            "totalUsers",
+            "newUsers",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "contentGroup",
         ],
     },
     {
@@ -177,7 +491,8 @@ PREMADE_REPORTS = [
             "purchaseToViewRate",
         ],
         "dimensions": [
-
+            "date",
+            "itemBrand",
         ],
     },
     {
@@ -388,10 +703,6 @@ PREMADE_REPORTS = [
     {
         "name": "Tech Screen Resolution Report",
         "metrics": [
-            "date",
-            "screenResolution",
-        ],
-        "dimensions": [
             "conversions",
             "engagedSessions",
             "engagementRate",
@@ -399,6 +710,10 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+        ],
+        "dimensions": [
+            "date",
+            "screenResolution",
         ],
     },
     {
