@@ -1,6 +1,6 @@
 PREMADE_REPORTS = [
     {
-        "name": "User Acquisition First User Medium Report",
+        "name": "user_acq_first_user_medium_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -17,7 +17,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Source Report",
+        "name": "user_acq_first_user_source_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -34,7 +34,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Source and Medium Report",
+        "name": "user_acq_first_user_source_and_medium_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -52,7 +52,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Source Platform Report",
+        "name": "user_acq_first_user_source_platform_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -69,7 +69,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Campaign Report",
+        "name": "user_acq_first_user_campaign_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -86,7 +86,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Google Ads Network Type Report",
+        "name": "user_acq_first_user_google_ads_network_type_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -103,7 +103,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "User Acquisition First User Google Ads Ad Group Name Report",
+        "name": "user_acq_first_user_google_ads_ad_group_name_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -120,7 +120,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Source and Medium Report",
+        "name": "traffic_acq_session_source_and_medium_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -139,7 +139,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Medium Report",
+        "name": "traffic_acq_session_medium_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -157,7 +157,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Source Report",
+        "name": "traffic_acq_session_source_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -175,7 +175,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Campaign Report",
+        "name": "traffic_acq_session_campaign_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -193,7 +193,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Default Channel Grouping Report",
+        "name": "traffic_acq_session_default_channel_grouping_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -211,7 +211,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Default Channel Grouping Report",
+        "name": "traffic_acq_session_default_channel_grouping_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -229,7 +229,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Traffic Acquisition Session Source Platform Report",
+        "name": "traffic_acq_session_source_platform_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -247,7 +247,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Events Report",
+        "name": "events_report",
         "metrics": [
             "eventCount",
             "totalUsers",
@@ -260,7 +260,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Conversions Report",
+        "name": "conversions_report",
         "metrics": [
             "conversions",
             "totalUsers",
@@ -272,19 +272,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Conversions Report",
-        "metrics": [
-            "conversions",
-            "totalUsers",
-            "totalRevenue",
-        ],
-        "dimensions": [
-            "date",
-            "eventName",
-        ],
-    },
-    {
-        "name": "Pages Title and Screen Class Report",
+        "name": "pages_title_and_screen_class_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -300,7 +288,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Pages Path Report",
+        "name": "pages_path_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -316,7 +304,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Pages Title and Screen Name Report",
+        "name": "pages_title_and_screen_name_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -332,7 +320,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Content Group Report",
+        "name": "content_group_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -348,7 +336,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Name Report",
+        "name": "ecommerce_purchases_item_name_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -364,7 +352,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Id Report",
+        "name": "ecommerce_purchases_item_id_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -380,7 +368,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category Combined Report",
+        "name": "ecommerce_purchases_item_category_combined_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -400,7 +388,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category 1 Report",
+        "name": "ecommerce_purchases_item_category_1_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -416,7 +404,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category 2 Report",
+        "name": "ecommerce_purchases_item_category_2_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -432,7 +420,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category 3 Report",
+        "name": "ecommerce_purchases_item_category_3_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -448,7 +436,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category 4 Report",
+        "name": "ecommerce_purchases_item_category_4_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -464,7 +452,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Category 5 Report",
+        "name": "ecommerce_purchases_item_category_5_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -480,7 +468,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Ecommerce Purchases Item Brand Report",
+        "name": "ecommerce_purchases_item_brand_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -496,7 +484,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Publisher Ads Ad Unit Report",
+        "name": "publisher_ads_ad_unit_report",
         "metrics": [
             "adUnitExposure",
             "publisherAdClicks",
@@ -509,7 +497,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Publisher Ads Page Path Report",
+        "name": "publisher_ads_page_path_report",
         "metrics": [
             "adUnitExposure",
             "publisherAdClicks",
@@ -522,7 +510,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Publisher Ads Ad Format Report",
+        "name": "publisher_ads_ad_format_report",
         "metrics": [
             "adUnitExposure",
             "publisherAdClicks",
@@ -535,7 +523,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Publisher Ads Ad Source Report",
+        "name": "publisher_ads_ad_source_report",
         "metrics": [
             "adUnitExposure",
             "publisherAdClicks",
@@ -548,7 +536,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Country Report",
+        "name": "demographic_country_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -563,7 +551,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Region Report",
+        "name": "demographic_region_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -578,7 +566,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic City Report",
+        "name": "demographic_city_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -593,7 +581,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Language Report",
+        "name": "demographic_language_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -608,7 +596,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Age Report",
+        "name": "demographic_age_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -623,7 +611,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Gender Report",
+        "name": "demographic_gender_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -638,7 +626,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Demographic Interests Report",
+        "name": "demographic_interests_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -653,7 +641,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Browser Report",
+        "name": "tech_browser_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -669,7 +657,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Device Category Report",
+        "name": "tech_device_category_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -685,7 +673,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Device Model Report",
+        "name": "tech_device_model_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -701,7 +689,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Screen Resolution Report",
+        "name": "tech_screen_resolution_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -717,7 +705,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech App Version Report",
+        "name": "tech_app_version_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -733,7 +721,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Platform Report",
+        "name": "tech_platform_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -749,7 +737,7 @@ PREMADE_REPORTS = [
         ],
     },
         {
-        "name": "Tech OS Version Report",
+        "name": "tech_os_version_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -765,7 +753,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Platform and Device Category Report",
+        "name": "tech_platform_and_device_category_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -782,7 +770,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech Operating System Report",
+        "name": "tech_operating_system_report",
         "metrics": [
             "conversions",
             "engagedSessions",
@@ -798,7 +786,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "Tech OS with Version Report",
+        "name": "tech_os_with_version_report",
         "metrics": [
             "conversions",
             "engagedSessions",
