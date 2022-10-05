@@ -1,5 +1,22 @@
 PREMADE_REPORTS = [
     {
+        "name": "user_acq_first_user_default_channel_grouping_report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserDefaultChannelGrouping",
+        ],
+    },
+    {
         "name": "user_acq_first_user_medium_report",
         "metrics": [
             "newUsers",
