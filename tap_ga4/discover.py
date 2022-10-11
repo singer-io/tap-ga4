@@ -1,11 +1,11 @@
 from collections import defaultdict
 from functools import reduce
 import json
+import re
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 from tap_ga4.reports import PREMADE_REPORTS
-import re
 
 LOGGER = singer.get_logger()
 
