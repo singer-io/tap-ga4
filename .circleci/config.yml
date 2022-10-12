@@ -44,7 +44,7 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             # TODO: Adjust the pylint disables
-            pylint tap_ga4 --disable 'broad-except,chained-comparison,empty-docstring,fixme,invalid-name,line-too-long,missing-class-docstring,missing-function-docstring,missing-module-docstring,no-else-raise,no-else-return,too-few-public-methods,too-many-arguments,too-many-branches,too-many-lines,too-many-locals,ungrouped-imports,wrong-spelling-in-comment,wrong-spelling-in-docstring,bad-whitespace,missing-class-docstring'
+            pylint tap_ga4 --disable 'broad-except,chained-comparison,empty-docstring,fixme,invalid-name,line-too-long,missing-class-docstring,missing-function-docstring,missing-module-docstring,no-else-raise,no-else-return,too-few-public-methods,too-many-arguments,too-many-branches,too-many-lines,too-many-locals,ungrouped-imports,wrong-spelling-in-comment,wrong-spelling-in-docstring,missing-class-docstring'
       - slack/notify-on-failure:
           only_for_branches: main
 
@@ -70,7 +70,7 @@ jobs:
           name: 'JSON Validator'
           command: |
             source /usr/local/share/virtualenvs/tap-tester/bin/activate
-            stitch-validate-json tap_ga4/schemas/*.json
+            stitch-validate-json tap_ga4/*.json
 
   run_integration_tests:
     executor: docker-executor
@@ -95,6 +95,25 @@ jobs:
                 run-test --tap=${CIRCLE_PROJECT_REPONAME} $test_file
               done
             fi
+      - slack/notify-on-failure:
+          only_for_branches: main
+      - store_artifacts:
+          path: /tmp/tap-ga4
+
+  run_field_exclusions_test:
+    executor: docker-executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /usr/local/share/virtualenvs
+      - run:
+          name: 'Run Field Exclusion Test'
+          no_output_timeout: 30m
+          command: |
+            source /usr/local/share/virtualenvs/tap-ga4/bin/activate
+            source /usr/local/share/virtualenvs/dev_env.sh
+            pip install nose
+            nosetests tests/field_exclusions
       - slack/notify-on-failure:
           only_for_branches: main
       - store_artifacts:
@@ -135,7 +154,46 @@ workflows:
             - run_unit_tests
             - run_integration_tests
   build_daily:
-    <<: *commit_jobs
+    jobs:
+      - ensure_env:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+      - run_pylint:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_unit_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_integration_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_field_exclusions_test:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - run_pylint
+            - run_unit_tests
+            - run_integration_tests
+      - build:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - run_pylint
+            - run_unit_tests
+            - run_integration_tests
+            - run_field_exclusions_test
     triggers:
       - schedule:
           cron: "0 3 * * *"
