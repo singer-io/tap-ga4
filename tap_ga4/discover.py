@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import reduce
 import json
 import re
+import os
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
@@ -155,7 +156,8 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
 
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
-    with open("field_exclusions.json", "r", encoding="utf-8") as infile:
+    field_exclusions_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "field_exclusions.json")
+    with open(field_exclusions_path, "r", encoding="utf-8") as infile:
         field_exclusions.update(json.load(infile))
 
     LOGGER.info("Discovering dimension field exclusions")
