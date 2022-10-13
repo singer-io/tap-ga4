@@ -30,5 +30,4 @@ setup(
     package_data = {
         "tap_ga4": ["tap_ga4/field_exclusions.json"]
     },
-    include_package_data=True,
 )
