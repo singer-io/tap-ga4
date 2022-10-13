@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.6
+  * Fixes error reading field_exclusions.json [#17](https://github.com/singer-io/tap-ga4/pull/17)
 ## v0.0.5
   * Adds pre-made reports [#14](https://github.com/singer-io/tap-ga4/pull/14)
   * Converts field names to lowecase and snake_case to match destination formatting [#16](https://github.com/singer-io/tap-ga4/pull/16) 
