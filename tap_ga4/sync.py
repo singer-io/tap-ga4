@@ -213,14 +213,13 @@ def sync(client, config, catalog, state):
                 continue
             if field_mdata.get("inclusion") == "unsupported":
                 continue
-            _, field_name = field_path
             if field_mdata.get("inclusion") == "automatic" or \
                field_mdata.get("selected") or \
                (field_mdata.get("selected-by-default") and field_mdata.get("selected") is None):
                 if field_mdata.get("behavior") == "METRIC":
-                    metrics.append(Metric(name=field_name))
+                    metrics.append(Metric(name=field_mdata.get("tap-ga4.api-field-names")))
                 elif field_mdata.get("behavior") == "DIMENSION":
-                    dimensions.append(Dimension(name=field_name))
+                    dimensions.append(Dimension(name=field_mdata.get("tap-ga4.api-field-names")))
 
         end_date = get_end_date(config)
         schema = stream.schema.to_dict()

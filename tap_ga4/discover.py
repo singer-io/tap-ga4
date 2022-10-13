@@ -1,6 +1,7 @@
 from collections import defaultdict
 from functools import reduce
 import json
+import re
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
@@ -49,30 +50,30 @@ INCOMPATIBLE_CATEGORIES = {"Cohort"}
 
 
 def add_metrics_to_schema(schema, metrics):
-    for metric in metrics:
-        metric_type = metric.type_.name
+    for metric in metrics.keys():
+        metric_type = metrics[metric].type_.name
         if metric_type == "TYPE_INTEGER":
-            schema["properties"][metric.api_name] = {"type": ["integer", "null"]}
+            schema["properties"][metric] = {"type": ["integer", "null"]}
         elif metric_type in FLOAT_TYPES:
-            schema["properties"][metric.api_name] = {"type": ["number", "null"]}
+            schema["properties"][metric] = {"type": ["number", "null"]}
         else:
             raise Exception(f"Unknown Google Analytics 4 type: {metric_type}")
 
 
 def add_dimensions_to_schema(schema, dimensions):
-    for dimension in dimensions:
-        if dimension.api_name in DIMENSION_INTEGER_FIELD_OVERRIDES:
-            schema["properties"][dimension.api_name] = {"type": ["integer", "null"]}
-        elif dimension.api_name in DIMENSION_DATETIME_FIELD_OVERRIDES:
+    for dimension in dimensions.keys():
+        if dimensions[dimension].api_name in DIMENSION_INTEGER_FIELD_OVERRIDES:
+            schema["properties"][dimension] = {"type": ["integer", "null"]}
+        elif dimensions[dimension].api_name in DIMENSION_DATETIME_FIELD_OVERRIDES:
             # datetime is not always a valid datetime string
             # https://support.google.com/analytics/answer/9309767
-            schema["properties"][dimension.api_name] = \
+            schema["properties"][dimension] = \
                 {"anyOf": [
                     {"type": ["string", "null"], "format": "date-time"},
                     {"type": ["string", "null"]}
                 ]}
         else:
-            schema["properties"][dimension.api_name] = {"type": ["string", "null"]}
+            schema["properties"][dimension] = {"type": ["string", "null"]}
 
 
 def generate_base_schema():
@@ -81,6 +82,9 @@ def generate_base_schema():
                                              "account_id": {"type": "string"}}}
 
 
+
+def to_snake_case(name):
+    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
 def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
@@ -93,19 +97,21 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=
                    ["_sdc_record_hash", "property_id", "account_id"],
                    mdata)
 
-    for dimension in dimensions:
-        mdata = metadata.write(mdata, ("properties", dimension.api_name), "tap_ga4.group", dimension.category)
-        mdata = metadata.write(mdata, ("properties", dimension.api_name), "behavior", "DIMENSION")
-        mdata = metadata.write(mdata, ("properties", dimension.api_name), "fieldExclusions", field_exclusions[dimension.api_name])
+    for dimension in dimensions.keys():
+        mdata = metadata.write(mdata, ("properties", dimension), "tap_ga4.group", dimensions[dimension].category)
+        mdata = metadata.write(mdata, ("properties", dimension), "behavior", "DIMENSION")
+        mdata = metadata.write(mdata, ("properties", dimension), "fieldExclusions", field_exclusions[dimension])
+        mdata = metadata.write(mdata, ("properties", dimension), "tap-ga4.api-field-names", dimensions[dimension].api_name)
         if is_premade:
-            mdata = metadata.write(mdata, ("properties", dimension.api_name), "selected-by-default", True)
+            mdata = metadata.write(mdata, ("properties", dimension), "selected-by-default", True)
 
-    for metric in metrics:
-        mdata = metadata.write(mdata, ("properties", metric.api_name), "tap_ga4.group", metric.category)
-        mdata = metadata.write(mdata, ("properties", metric.api_name), "behavior", "METRIC")
-        mdata = metadata.write(mdata, ("properties", metric.api_name), "fieldExclusions", field_exclusions[metric.api_name])
+    for metric in metrics.keys():
+        mdata = metadata.write(mdata, ("properties", metric), "tap_ga4.group", metrics[metric].category)
+        mdata = metadata.write(mdata, ("properties", metric), "behavior", "METRIC")
+        mdata = metadata.write(mdata, ("properties", metric), "fieldExclusions", field_exclusions[metric])
+        mdata = metadata.write(mdata, ("properties", metric), "tap-ga4.api-field-names", metrics[metric].api_name)
         if is_premade:
-            mdata = metadata.write(mdata, ("properties", metric.api_name), "selected-by-default", True)
+            mdata = metadata.write(mdata, ("properties", metric), "selected-by-default", True)
 
     return mdata
 
@@ -113,9 +119,12 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=
 def generate_schema_and_metadata(dimensions, metrics, field_exclusions, report, is_premade=False):
     LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
-    add_dimensions_to_schema(schema, dimensions)
-    add_metrics_to_schema(schema, metrics)
-    mdata = generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade)
+    # Convert field names to snake_case for consistency across downstream use-cases
+    snake_dimensions = {to_snake_case(dimension.api_name):dimension for dimension in dimensions}
+    snake_metrics = {to_snake_case(metric.api_name):metric for metric in metrics}
+    add_dimensions_to_schema(schema, snake_dimensions)
+    add_metrics_to_schema(schema, snake_metrics)
+    mdata = generate_metadata(schema, snake_dimensions, snake_metrics, field_exclusions, is_premade)
     return schema, mdata
 
 
@@ -171,6 +180,7 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
         for field in res.metric_compatibilities:
             field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
 
+    field_exclusions = {to_snake_case(key):[to_snake_case(v) for v in value] for (key,value) in field_exclusions.items()}
     return field_exclusions
 
 
