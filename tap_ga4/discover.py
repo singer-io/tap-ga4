@@ -4,6 +4,7 @@ import json
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
+from tap_ga4.reports import PREMADE_REPORTS
 
 LOGGER = singer.get_logger()
 
@@ -81,7 +82,7 @@ def generate_base_schema():
 
 
 
-def generate_metadata(schema, dimensions, metrics, field_exclusions):
+def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
@@ -91,31 +92,49 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions):
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Field"),
                    ["_sdc_record_hash", "property_id", "account_id"],
                    mdata)
+
     for dimension in dimensions:
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "tap_ga4.group", dimension.category)
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "behavior", "DIMENSION")
         mdata = metadata.write(mdata, ("properties", dimension.api_name), "fieldExclusions", field_exclusions[dimension.api_name])
+        if is_premade:
+            mdata = metadata.write(mdata, ("properties", dimension.api_name), "selected-by-default", True)
+
     for metric in metrics:
         mdata = metadata.write(mdata, ("properties", metric.api_name), "tap_ga4.group", metric.category)
         mdata = metadata.write(mdata, ("properties", metric.api_name), "behavior", "METRIC")
         mdata = metadata.write(mdata, ("properties", metric.api_name), "fieldExclusions", field_exclusions[metric.api_name])
+        if is_premade:
+            mdata = metadata.write(mdata, ("properties", metric.api_name), "selected-by-default", True)
+
     return mdata
 
 
-def generate_schema_and_metadata(dimensions, metrics, field_exclusions):
-    LOGGER.info("Discovering fields")
+def generate_schema_and_metadata(dimensions, metrics, field_exclusions, report, is_premade=False):
+    LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
     add_dimensions_to_schema(schema, dimensions)
     add_metrics_to_schema(schema, metrics)
-    mdata = generate_metadata(schema, dimensions, metrics, field_exclusions)
+    mdata = generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade)
     return schema, mdata
 
 
 def generate_catalog(reports, dimensions, metrics, field_exclusions):
-    schema, mdata = generate_schema_and_metadata(dimensions, metrics, field_exclusions)
     catalog_entries = []
     LOGGER.info("Generating catalog")
+    for report in PREMADE_REPORTS:
+        report_dimensions = [dimension for dimension in dimensions
+                             if dimension.api_name in report["dimensions"]]
+        report_metrics = [metric for metric in metrics
+                          if metric.api_name in report["metrics"]]
+        schema, mdata = generate_schema_and_metadata(report_dimensions, report_metrics, field_exclusions, report, is_premade=True)
+        catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
+                                            key_properties=["_sdc_record_hash"],
+                                            stream=report["name"],
+                                            tap_stream_id=report["name"],
+                                            metadata=metadata.to_list(mdata)))
     for report in reports:
+        schema, mdata = generate_schema_and_metadata(dimensions, metrics, field_exclusions, report)
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=["_sdc_record_hash"],
                                             stream=report["name"],
