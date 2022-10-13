@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.7
+  * Fixes error reading field_exclusions.json [#18](https://github.com/singer-io/tap-ga4/pull/18)
 ## v0.0.6
   * Fixes error reading field_exclusions.json [#17](https://github.com/singer-io/tap-ga4/pull/17)
 ## v0.0.5
