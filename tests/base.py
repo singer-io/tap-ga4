@@ -64,18 +64,69 @@ class GA4Base(BaseCase):
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
         default_expectations = {
+            self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+                'account_id',
+                'property_id',
+                # 'end_date',
+            },
             self.PRIMARY_KEYS: {"_sdc_record_hash"},
             self.REPLICATION_METHOD: self.INCREMENTAL,
-            self.REPLICATION_KEYS: {"start_date"}, # TODO may be 'date'
-            self.HASHED_KEYS: { # TODO also sorted dimensions and values...
-                'property_id',
-                'end_date',
-            },
+            self.REPLICATION_KEYS: {"date"},
+            self.RESPECTS_START_DATE: True,
         }
 
         return {
-            "Test Report 1": default_expectations,
-            "Test Report 2": default_expectations,
+            "Test Report 1": default_expectations, # TODO stitch QA generated, necessary?
+            "Test Report 2": default_expectations, # TODO stitch QA generated, necessary?
+            'content_group_report': default_expectations,
+            'demographic_region_report': default_expectations,
+            'demographic_age_report': default_expectations,
+            'traffic_acq_session_source_and_medium_report': default_expectations,
+            'conversions_report': default_expectations,
+            'traffic_acq_session_source_platform_report': default_expectations,
+            'tech_screen_resolution_report': default_expectations,
+            'demographic_interests_report': default_expectations,
+            'tech_operating_system_report': default_expectations,
+            'ecommerce_purchases_item_category_4_report': default_expectations,
+            'demographic_city_report': default_expectations,
+            'demographic_gender_report': default_expectations,
+            'events_report': default_expectations,
+            'traffic_acq_session_source_report': default_expectations,
+            'publisher_ads_ad_format_report': default_expectations,
+            'traffic_acq_session_medium_report': default_expectations,
+            'tech_browser_report': default_expectations,
+            'publisher_ads_ad_source_report': default_expectations,
+            'traffic_acq_session_campaign_report': default_expectations,
+            'user_acq_first_user_google_ads_ad_group_name_report': default_expectations,
+            'demographic_language_report': default_expectations,
+            'tech_os_with_version_report': default_expectations,
+            'ecommerce_purchases_item_category_3_report': default_expectations,
+            'user_acq_first_user_source_and_medium_report': default_expectations,
+            'ecommerce_purchases_item_name_report': default_expectations,
+            'tech_os_version_report': default_expectations,
+            'pages_title_and_screen_class_report': default_expectations,
+            'tech_device_category_report': default_expectations,
+            'tech_platform_report': default_expectations,
+            'demographic_country_report': default_expectations,
+            'ecommerce_purchases_item_category_5_report': default_expectations,
+            'user_acq_first_user_source_platform_report': default_expectations,
+            'tech_device_model_report': default_expectations,
+            'publisher_ads_page_path_report': default_expectations,
+            'user_acq_first_user_google_ads_network_type_report': default_expectations,
+            'user_acq_first_user_source_report': default_expectations,
+            'pages_path_report': default_expectations,
+            'pages_title_and_screen_name_report': default_expectations,
+            'ecommerce_purchases_item_category_2_report': default_expectations,
+            'ecommerce_purchases_item_id_report': default_expectations,
+            'publisher_ads_ad_unit_report': default_expectations,
+            'tech_platform_and_device_category_report': default_expectations,
+            'user_acq_first_user_campaign_report': default_expectations,
+            'ecommerce_purchases_item_brand_report': default_expectations,
+            'traffic_acq_session_default_channel_grouping_report': default_expectations,
+            'ecommerce_purchases_item_category_1_report': default_expectations,
+            'tech_app_version_report': default_expectations,
+            'user_acq_first_user_medium_report': default_expectations,
+            'ecommerce_purchases_item_category_combined_report': default_expectations,
             # TODO what predefined are we supporting?
         }
 
@@ -215,3 +266,65 @@ class GA4Base(BaseCase):
                 # "ga:eventCategory"  # Dimension
             },
         }
+
+
+    @staticmethod
+    def select_all_streams_and_fields(conn_id, catalogs, select_all_fields: bool = True):
+        """Select all streams and all fields within streams"""
+        for catalog in catalogs:
+            schema = menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
+
+            non_selected_properties = []
+            if not select_all_fields:
+                # get a list of all properties so that none are selected
+                non_selected_properties = schema.get('annotated-schema', {}).get(
+                    'properties', {}).keys()
+
+            connections.select_catalog_and_fields_via_metadata(
+                conn_id, catalog, schema, [], non_selected_properties)
+
+
+    def perform_and_verify_table_and_field_selection(self,
+                                                     conn_id,
+                                                     test_catalogs,
+                                                     select_all_fields=True):
+        """
+        Perform table and field selection based off of the streams to select
+        set and field selection parameters.
+        Verify this results in the expected streams selected and all or no
+        fields selected for those streams.
+        TODO update to account for field exclusions
+        """
+
+        # Select all available fields or select no fields from all testable streams
+        self.select_all_streams_and_fields(
+            conn_id=conn_id, catalogs=test_catalogs, select_all_fields=select_all_fields
+        )
+
+        catalogs = menagerie.get_catalogs(conn_id)
+
+        # Ensure our selection affects the catalog
+        expected_selected = [tc.get('stream_name') for tc in test_catalogs]
+        for cat in catalogs:
+            catalog_entry = menagerie.get_annotated_schema(conn_id, cat['stream_id'])
+
+            # Verify all testable streams are selected
+            selected = catalog_entry.get('annotated-schema').get('selected')
+            print("Validating selection on {}: {}".format(cat['stream_name'], selected))
+            if cat['stream_name'] not in expected_selected:
+                self.assertFalse(selected, msg="Stream selected, but not testable.")
+                continue # Skip remaining assertions if we aren't selecting this stream
+            self.assertTrue(selected, msg="Stream not selected.")
+
+            if select_all_fields:
+                # Verify all fields within each selected stream are selected
+                for field, field_props in catalog_entry.get('annotated-schema').get('properties').items():
+                    field_selected = field_props.get('selected')
+                    print("\tValidating selection on {}.{}: {}".format(
+                        cat['stream_name'], field, field_selected))
+                    self.assertTrue(field_selected, msg="Field not selected.")
+            else:
+                # Verify only automatic fields are selected
+                expected_automatic_fields = self.expected_automatic_fields().get(cat['stream_name'])
+                selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
+                self.assertEqual(expected_automatic_fields, selected_fields)
