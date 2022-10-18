@@ -1,5 +1,22 @@
 PREMADE_REPORTS = [
     {
+        "name": "user_acq_first_user_default_channel_grouping_report",
+        "metrics": [
+            "newUsers",
+            "engagedSessions",
+            "engagementRate",
+            "eventCount",
+            "conversions",
+            "totalRevenue",
+            "totalUsers",
+            "userEngagementDuration",
+        ],
+        "dimensions": [
+            "date",
+            "firstUserDefaultChannelGrouping",
+        ],
+    },
+    {
         "name": "user_acq_first_user_medium_report",
         "metrics": [
             "newUsers",
@@ -47,8 +64,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "firstUserSource",
-            "firstUserMedium",
+            "firstUserSourceMedium",
         ],
     },
     {
@@ -134,8 +150,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "sessionSource",
-            "sessionMedium",
+            "sessionSourceMedium",
         ],
     },
     {
@@ -211,24 +226,6 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "traffic_acq_session_default_channel_grouping_report",
-        "metrics": [
-            "totalUsers",
-            "sessions",
-            "engagedSessions",
-            "eventsPerSession",
-            "engagementRate",
-            "eventCount",
-            "conversions",
-            "totalRevenue",
-            "userEngagementDuration",
-        ],
-        "dimensions": [
-            "date",
-            "sessionDefaultChannelGrouping",
-        ],
-    },
-    {
         "name": "traffic_acq_session_source_platform_report",
         "metrics": [
             "totalUsers",
@@ -260,19 +257,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "conversions_report",
-        "metrics": [
-            "conversions",
-            "totalUsers",
-            "totalRevenue",
-        ],
-        "dimensions": [
-            "date",
-            "eventName",
-        ],
-    },
-    {
-        "name": "pages_title_and_screen_class_report",
+        "name": "page_title_and_screen_class_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -288,7 +273,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "pages_path_report",
+        "name": "page_path_and_screen_class_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -300,11 +285,11 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "pagePath",
+            "unifiedPagePathScreen",
         ],
     },
     {
-        "name": "pages_title_and_screen_name_report",
+        "name": "page_title_and_screen_name_report",
         "metrics": [
             "screenPageViews",
             "totalUsers",
@@ -368,7 +353,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "ecommerce_purchases_item_category_combined_report",
+        "name": "ecommerce_purchases_item_category_report",
         "metrics": [
             "addToCarts",
             "cartToViewRate",
@@ -380,27 +365,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "itemCategory1",
-            "itemCategory2",
-            "itemCategory3",
-            "itemCategory4",
-            "itemCategory5",
-        ],
-    },
-    {
-        "name": "ecommerce_purchases_item_category_1_report",
-        "metrics": [
-            "addToCarts",
-            "cartToViewRate",
-            "ecommercePurchases",
-            "itemPurchaseQuantity",
-            "itemRevenue",
-            "itemViews",
-            "purchaseToViewRate",
-        ],
-        "dimensions": [
-            "date",
-            "itemCategory1",
+            "itemCategory",
         ],
     },
     {
@@ -506,7 +471,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "pagePath",
+            "unifiedPagePathScreen",
         ],
     },
     {
@@ -541,9 +506,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount"
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -556,9 +523,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -571,9 +540,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -586,9 +557,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -601,9 +574,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -616,9 +591,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -631,9 +608,11 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -650,6 +629,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -666,6 +646,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -682,6 +663,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -698,6 +680,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -714,6 +697,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -730,6 +714,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -746,6 +731,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -762,11 +748,11 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
-            "deviceCatetory",
-            "platform",
+            "platformDeviceCatetory",
         ],
     },
     {
@@ -779,6 +765,7 @@ PREMADE_REPORTS = [
             "newUsers",
             "totalRevenue",
             "totalUsers",
+            "userEngagementDuration",
         ],
         "dimensions": [
             "date",
@@ -791,11 +778,12 @@ PREMADE_REPORTS = [
             "conversions",
             "engagedSessions",
             "engagementRate",
-            "eventCount"
+            "eventCount",
             "newUsers",
             "totalRevenue",
             "totalUsers",
-            ],
+            "userEngagementDuration",
+        ],
         "dimensions": [
             "date",
             "operatingSystemWithVersion",
