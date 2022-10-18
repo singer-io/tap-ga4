@@ -20,7 +20,7 @@ class GA4Base(BaseCase):
     Shared tap-specific methods (as needed).
     """
     HASHED_KEYS = "default-hashed-keys"
-    REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
+    REPLICATION_KEY_FORMAT = "%Y-%m-%d"
 
     start_date = ""
 

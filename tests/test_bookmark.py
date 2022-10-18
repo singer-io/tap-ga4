@@ -23,15 +23,17 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         }
 
     def manipulate_state(self, old_state):
-
         manipulated_state = {
             'bookmarks': {
-                stream_id: { os.getenv('TAP_GA4_PROPERTY_ID'): {'date': self.bookmark_date}}
+                stream_id: { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.bookmark_date}}
                 for stream_id in old_state['bookmarks'].keys()
             }
         }
 
         return manipulated_state
+
+    def get_bookmark_value(self, bookmark):
+        return bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
 
     def streams_to_selected_fields(self):
         return {
