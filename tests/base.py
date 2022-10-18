@@ -76,13 +76,31 @@ class GA4Base(BaseCase):
         }
 
         return {
-            "Test Report 1": default_expectations, # TODO stitch QA generated, necessary?
-            "Test Report 2": default_expectations, # TODO stitch QA generated, necessary?
+            'Test Report 1': default_expectations, # TODO stitch QA generated, necessary?
+            'Test Report 2': {      # TODO stitch QA generated, necessary?
+                self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+                    'account_id',
+                    'property_id',
+                },
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
+                self.REPLICATION_METHOD: self.INCREMENTAL,
+                self.REPLICATION_KEYS: {"date"},
+                self.RESPECTS_START_DATE: False,
+            },
             'content_group_report': default_expectations,
             'demographic_region_report': default_expectations,
             'demographic_age_report': default_expectations,
             'traffic_acq_session_source_and_medium_report': default_expectations,
-            'conversions_report': default_expectations,
+            'conversions_report': {
+                self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+                    'account_id',
+                    'property_id',
+                },
+                self.PRIMARY_KEYS: {"_sdc_record_hash"},
+                self.REPLICATION_METHOD: self.INCREMENTAL,
+                self.REPLICATION_KEYS: {"date"},
+                self.RESPECTS_START_DATE: True, # Updating here does not change tap behavior
+            },
             'traffic_acq_session_source_platform_report': default_expectations,
             'tech_screen_resolution_report': default_expectations,
             'demographic_interests_report': default_expectations,
