@@ -20,9 +20,13 @@ class GA4Base(BaseCase):
     Shared tap-specific methods (as needed).
     """
     HASHED_KEYS = "default-hashed-keys"
-    REPLICATION_KEY_FORMAT = "%Y-%m-%d"
+    REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
+    BOOKMARK_FORMAT = "%Y-%m-%d"
+    CONVERSION_WINDOW = "30"
 
     start_date = ""
+    custom_report_id_1 = None
+    custom_report_id_2 = None
 
     @staticmethod
     def tap_name():
@@ -36,17 +40,25 @@ class GA4Base(BaseCase):
 
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
+
+        # Use the same UUID for each custom report
+        if not self.custom_report_id_1 and not self.custom_report_id_2:
+            type(self).custom_report_id_1 = str(uuid.uuid4())
+            type(self).custom_report_id_2 = str(uuid.uuid4())
+
         return_value = {
             'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
+            'conversion_window': self.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
-            'user_id': os.getenv('TAP_GA4_USER_ID'), # TODO what is?  should orca handle this?
+            'user_id': os.getenv('TAP_GA4_USER_ID'),
             'report_definitions': [
-                {"id": str(uuid.uuid4()), "name": "Test Report 1"},
-                {"id": str(uuid.uuid4()), "name": "Test Report 2"},
+                {"id": self.custom_report_id_1, "name": "Test Report 1"},
+                {"id": self.custom_report_id_2, "name": "Test Report 2"},
             ]
         }
+
         if original:
             return return_value
 
@@ -238,13 +250,31 @@ class GA4Base(BaseCase):
         }
 
     def custom_reports_names_to_ids(self): # TODO does this apply?
-        report_definitions =self.get_properties()['report_definitions']
-        name_to_id_map = {
-            definition.get('name'): definition.get('id')
-            for definition in report_definitions
-        }
+        report_definitions = self.get_properties()['report_definitions']
+        name_and_id_bidirectional_map = {}
+        for definition in report_definitions:
+            name_and_id_bidirectional_map[definition.get('name')] = definition.get('id')
+            name_and_id_bidirectional_map[definition.get('id')] = definition.get('name')
 
-        return name_to_id_map
+        return name_and_id_bidirectional_map
+
+    def get_replication_key_for_stream(self, stream):
+        expected_stream_metadata = self.expected_metadata().get(stream)
+
+        # Get stream name from ID if its a custom report
+        if not expected_stream_metadata:
+            stream_name = self.custom_reports_names_to_ids().get(stream)
+            expected_stream_metadata = self.expected_metadata().get(stream_name)
+
+        return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
+
+    def get_records_for_stream(self, sync_records, stream):
+        records = sync_records.get(stream)
+        if not records:
+            stream_name = self.custom_reports_names_to_ids().get(stream)
+            records = sync_records.get(stream_name)
+        return records['messages']
+
 
     # TODO this will apply but not yet. And the standard list will likely be different
     # @staticmethod
