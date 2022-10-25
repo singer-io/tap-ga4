@@ -377,3 +377,13 @@ class GA4Base(BaseCase):
                 expected_automatic_fields = self.expected_automatic_fields().get(cat['stream_name'])
                 selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
                 self.assertEqual(expected_automatic_fields, selected_fields)
+
+
+    def get_sync_start_time(self, stream):
+        """
+        Calculates the sync start time, with respect to the lookback window
+        """
+        conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
+        bookmark_datetime = dt.strptime(self.bookmark_date, self.BOOKMARK_FORMAT)
+        start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
+        return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
