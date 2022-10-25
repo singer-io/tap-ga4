@@ -19,6 +19,8 @@ class GA4Base(BaseCase):
     A bunch of shared methods that are used in tap-tester tests.
     Shared tap-specific methods (as needed).
     """
+
+
     HASHED_KEYS = "default-hashed-keys"
     REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
     BOOKMARK_FORMAT = "%Y-%m-%d"
@@ -28,19 +30,21 @@ class GA4Base(BaseCase):
     custom_report_id_1 = None
     custom_report_id_2 = None
 
+
     @staticmethod
     def tap_name():
         """The name of the tap"""
         return "tap-ga4"
+
 
     @staticmethod
     def get_type():
         """the expected url route ending"""
         return "platform.ga4"
 
+
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
-
         # Use the same UUID for each custom report
         if not self.custom_report_id_1 and not self.custom_report_id_2:
             type(self).custom_report_id_1 = str(uuid.uuid4())
@@ -65,6 +69,7 @@ class GA4Base(BaseCase):
         return_value["start_date"] = self.start_date
         return return_value
 
+
     @staticmethod
     def get_credentials():
         return {
@@ -72,6 +77,7 @@ class GA4Base(BaseCase):
             'access_token': os.getenv('TAP_GA4_ACCESS_TOKEN'),
             'refresh_token': os.getenv('TAP_GA4_REFRESH_TOKEN'),
         }
+
 
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
@@ -161,6 +167,7 @@ class GA4Base(BaseCase):
             # 'ecommerce_purchases_item_category_combined_report': default_expectations,
         }
 
+
     def expected_hashed_keys(self):
         """
         return a dictionary with key of table name
@@ -170,6 +177,7 @@ class GA4Base(BaseCase):
                 for table, properties
                 in self.expected_metadata().items()}
 
+
     def expected_automatic_fields(self):
         auto_fields = {}
         for k, v in self.expected_metadata().items():
@@ -177,6 +185,7 @@ class GA4Base(BaseCase):
                 | v.get(self.HASHED_KEYS, set())
 
         return auto_fields
+
 
     @classmethod
     def setUpClass(cls):
@@ -195,9 +204,11 @@ class GA4Base(BaseCase):
         if len(missing_envs) != 0:
             raise Exception("Missing environment variables: {}".format(missing_envs))
 
+
     ##########################################################################
     ### Tap Specific Methods
     ##########################################################################
+
 
     @staticmethod
     def expected_default_fields():
@@ -233,6 +244,7 @@ class GA4Base(BaseCase):
                               'conversions'},
         }
 
+
     @staticmethod
     def expected_pagination_fields(): # TODO does this apply?
         return {
@@ -249,7 +261,8 @@ class GA4Base(BaseCase):
             "Ecommerce Overview": set(),
         }
 
-    def custom_reports_names_to_ids(self): # TODO does this apply?
+
+    def custom_reports_names_to_ids(self):
         report_definitions = self.get_properties()['report_definitions']
         name_and_id_bidirectional_map = {}
         for definition in report_definitions:
@@ -257,6 +270,7 @@ class GA4Base(BaseCase):
             name_and_id_bidirectional_map[definition.get('id')] = definition.get('name')
 
         return name_and_id_bidirectional_map
+
 
     def get_replication_key_for_stream(self, stream):
         expected_stream_metadata = self.expected_metadata().get(stream)
@@ -268,53 +282,13 @@ class GA4Base(BaseCase):
 
         return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
 
+
     def get_records_for_stream(self, sync_records, stream):
         records = sync_records.get(stream)
         if not records:
             stream_name = self.custom_reports_names_to_ids().get(stream)
             records = sync_records.get(stream_name)
         return records['messages']
-
-
-    # TODO this will apply but not yet. And the standard list will likely be different
-    # @staticmethod
-    # def is_custom_report(stream):
-    #     standard_reports = {
-    #         "Audience Overview",
-    #         "Audience Geo Location",
-    #         "Audience Technology",
-    #         "Acquisition Overview",
-    #         "Behavior Overview",
-    #         "Ecommerce Overview",
-    #     }
-    #     return stream not in standard_reports
-
-    @staticmethod
-    def custom_report_minimum_valid_field_selection():
-        """
-        The uncommented dimensions and metrics are sufficient for the current test suite.
-        In the future consider mixing up the selection to increase test covereage.
-        See TODO header at top of file.
-        """
-        return {
-            'Test Report 1': {
-                #"ga:sessions",  # Metric
-                "ga:avgSessionDuration",  # Metric
-                "ga:bounceRate",  # Metric
-                "ga:users",  # Metric
-                # "ga:pagesPerSession",  # Metric
-                "ga:avgTimeOnPage",  # Metric
-                "ga:bounces",  # Metric
-                "ga:hits",  # Metric
-                "ga:sessionDuration",  # Metric
-                "ga:newUsers",  # Metric
-                "ga:deviceCategory",  # Dimension
-                # "ga:eventAction",  # Dimension
-                "ga:date",  # Dimension
-                # "ga:eventLabel",  # Dimension
-                # "ga:eventCategory"  # Dimension
-            },
-        }
 
 
     @staticmethod

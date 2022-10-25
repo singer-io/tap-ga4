@@ -9,18 +9,20 @@ from base import GA4Base
 class GA4BookmarkTest(BookmarkTest, GA4Base):
     """Standard Start Date Test"""
 
+
     @staticmethod
     def name():
         return "tt_ga4_bookmark"
 
+
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        # return set(self.expected_metadata().keys())
         custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
             custom_id
         }
+
 
     def manipulate_state(self, old_state):
         manipulated_state = {
@@ -31,6 +33,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         }
 
         return manipulated_state
+
 
     def get_bookmark_value(self, bookmark, stream):
         return bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
@@ -53,6 +56,8 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
                 "conversions",
             },
         }
+
+
     # set default values for test in init
     def __init__(self, test_run):
         super().__init__(test_run)
