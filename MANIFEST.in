@@ -1,0 +1,2 @@
+include LICENSE
+include tap_ga4/field_exclusions.json

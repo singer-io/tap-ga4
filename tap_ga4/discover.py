@@ -2,6 +2,7 @@ from collections import defaultdict
 from functools import reduce
 import json
 import re
+import os
 import singer
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
@@ -83,7 +84,7 @@ def generate_base_schema():
 
 
 
-def to_snakecase(name):
+def to_snake_case(name):
     return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
 
 def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=False):
@@ -119,9 +120,9 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=
 def generate_schema_and_metadata(dimensions, metrics, field_exclusions, report, is_premade=False):
     LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
-    # Convert field names to snakecase for consistency across downstream use-cases
-    snake_dimensions = {to_snakecase(dimension.api_name):dimension for dimension in dimensions}
-    snake_metrics = {to_snakecase(metric.api_name):metric for metric in metrics}
+    # Convert field names to snake_case for consistency across downstream use-cases
+    snake_dimensions = {to_snake_case(dimension.api_name):dimension for dimension in dimensions}
+    snake_metrics = {to_snake_case(metric.api_name):metric for metric in metrics}
     add_dimensions_to_schema(schema, snake_dimensions)
     add_metrics_to_schema(schema, snake_metrics)
     mdata = generate_metadata(schema, snake_dimensions, snake_metrics, field_exclusions, is_premade)
@@ -155,7 +156,8 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
 
 def get_field_exclusions(client, property_id, dimensions, metrics):
     field_exclusions = defaultdict(list)
-    with open("field_exclusions.json", "r", encoding="utf-8") as infile:
+    field_exclusions_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "field_exclusions.json")
+    with open(field_exclusions_path, "r", encoding="utf-8") as infile:
         field_exclusions.update(json.load(infile))
 
     LOGGER.info("Discovering dimension field exclusions")
@@ -180,7 +182,7 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
         for field in res.metric_compatibilities:
             field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
 
-    field_exclusions = {to_snakecase(key):[to_snakecase(v) for v in value] for (key,value) in field_exclusions.items()}
+    field_exclusions = {to_snake_case(key):[to_snake_case(v) for v in value] for (key,value) in field_exclusions.items()}
     return field_exclusions
 
 
