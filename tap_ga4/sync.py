@@ -94,10 +94,10 @@ def row_to_record(report, row, dimension_headers, metric_headers):
 
 
 DATETIME_FORMATS = {
-    "dateHour": '%Y%m%d%H',
-    "dateHourMinute": '%Y%m%d%H%M',
+    "date_hour": '%Y%m%d%H',
+    "date_hour_minute": '%Y%m%d%H%M',
     "date": "%Y%m%d",
-    "firstSessionDate": "%Y%m%d"
+    "first_session_date": "%Y%m%d"
 }
 
 
