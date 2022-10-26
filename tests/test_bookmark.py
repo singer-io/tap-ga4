@@ -7,7 +7,7 @@ from base import GA4Base
 
 
 class GA4BookmarkTest(BookmarkTest, GA4Base):
-    """Standard Start Date Test"""
+    """GA4 bookmark test implementation"""
 
 
     @staticmethod
@@ -41,7 +41,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
 
     def streams_to_selected_fields(self):
         return {
-            "Test Report 1": {  # engagement events
+            "Test Report 1": {
                 "conversions",
                 "defaultChannelGrouping",
                 "eventName",
