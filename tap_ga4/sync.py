@@ -4,6 +4,10 @@ from datetime import datetime, timedelta
 import singer
 from singer import Transformer, get_bookmark, metadata, utils
 from google.analytics.data_v1beta.types import (Metric, Dimension)
+
+from tap_ga4.discover import to_snake_case
+
+
 LOGGER = singer.get_logger()
 
 DEFAULT_CONVERSION_WINDOW = 90
@@ -67,12 +71,19 @@ def generate_report_dates(start_date, end_date, request_window_size):
         range_start = range_end + timedelta(days=1)
 
 
+def transform_headers(dimension_headers, metric_headers):
+    dim_headers = [to_snake_case(dimension) for dimension in dimension_headers]
+    metric_headers = [to_snake_case(metric) for metric in metric_headers]
+    return dim_headers, metric_headers
+
+
 def row_to_record(report, row, dimension_headers, metric_headers):
     """
     Parse a RunReportResponse row into a single Singer record, with added
     runtime info and PK.
     """
     record = {}
+    dimension_headers, metric_headers = transform_headers(dimension_headers, metric_headers)
     dimension_pairs = list(zip(dimension_headers, [dimension.value for dimension in row.dimension_values]))
     record.update(dimension_pairs)
     record.update(zip(metric_headers, [metric.value for metric in row.metric_values]))
