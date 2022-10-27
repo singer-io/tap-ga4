@@ -265,6 +265,17 @@ class GA4Base(BaseCase):
 
 
     def custom_reports_names_to_ids(self):
+        """
+        Creates a bidirectional mapping of custom report names <-> UUID
+
+        example:
+          {
+             "Custom Report 1": "some UUID",
+             "some UUID":       "Custom Report 1",
+             "Custom Report 2": "another UUID",
+             "another UUID":    "Custom Report 2"
+          }
+        """
         report_definitions = self.get_properties()['report_definitions']
         name_and_id_bidirectional_map = {}
         for definition in report_definitions:
@@ -273,7 +284,21 @@ class GA4Base(BaseCase):
 
         return name_and_id_bidirectional_map
 
+    # TODO update bookmark test to use this
+    def get_stream_name(self, tap_stream_id):
+        """
+        Returns the stream_name given the tap_stream_id because synced_records
+        from the target output batches records by stream_name
 
+        Since the GA4 tap_stream_id is a UUID instead of the usual case of
+        tap_stream_id == stream_name, we need to get the stream_name that
+        maps to tap_stream_id
+
+        """
+        return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
+
+
+    # TODO use get_stream_name instead
     def expected_primary_keys(self):
         """
         return a dictionary with key of table name
@@ -300,6 +325,7 @@ class GA4Base(BaseCase):
                 in self.expected_metadata().items()}
 
 
+    # TODO use get_stream_name instead
     def get_replication_key_for_stream(self, stream):
         expected_stream_metadata = self.expected_metadata().get(stream)
 
@@ -311,6 +337,7 @@ class GA4Base(BaseCase):
         return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
 
 
+    # TODO use get_stream_name instead
     def get_records_for_stream(self, sync_records, stream):
         records = sync_records.get(stream)
         if not records:
@@ -389,3 +416,12 @@ class GA4Base(BaseCase):
         bookmark_datetime = dt.strptime(self.bookmark_date, self.BOOKMARK_FORMAT)
         start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
         return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
+
+
+    # TODO is this still useful now that we have get_stream_name?
+    def get_record_count_by_stream(self, record_count, stream):
+        count = record_count.get(stream)
+        if not count:
+            stream_name = self.custom_reports_names_to_ids().get(stream)
+            return record_count.get(stream_name)
+        return count

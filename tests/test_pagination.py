@@ -22,6 +22,7 @@ class GA4PaginationTest(PaginationTest, GA4Base):
             custom_id
         }
 
+
     def streams_to_selected_fields(self):
         return {
             "Test Report 1": {
@@ -30,8 +31,10 @@ class GA4PaginationTest(PaginationTest, GA4Base):
             },
         }
 
+
     def get_page_limit_for_stream(self, stream):
         return self.PAGE_SIZE
+
 
     def __init__(self, test_run):
         super().__init__(test_run)
