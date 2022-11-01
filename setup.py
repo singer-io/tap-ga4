@@ -22,11 +22,6 @@ setup(
             'nose'
         ]
     },
-    # entry_points="""
-    # [console_scripts]
-    # tap-ga4=tap_ga4:main
-    # """,
-
     entry_points={
         'console_scripts': [
             'tap-ga4 = tap_ga4:main',

@@ -22,9 +22,8 @@ jobs:
           command: |
             python3 -mvenv /usr/local/share/virtualenvs/tap-ga4
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
-            pip install 'pip==21.1.3'
-            pip install 'setuptools==60.8.2'
-            pip install .[dev]
+            pip install -U pip setuptools
+            pip install -e .[dev]
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox /usr/local/share/virtualenvs/dev_env.sh
       - slack/notify-on-failure:
           only_for_branches: main
