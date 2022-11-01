@@ -22,10 +22,16 @@ setup(
             'nose'
         ]
     },
-    entry_points="""
-    [console_scripts]
-    tap-ga4=tap_ga4:main
-    """,
+    # entry_points="""
+    # [console_scripts]
+    # tap-ga4=tap_ga4:main
+    # """,
+
+    entry_points={
+        'console_scripts': [
+            'tap-ga4 = tap_ga4:main',
+        ]
+    },
     packages=["tap_ga4"],
     package_data = {
         "tap_ga4": ["tap_ga4/field_exclusions.json"]
