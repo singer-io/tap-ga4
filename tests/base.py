@@ -300,54 +300,6 @@ class GA4Base(BaseCase):
         return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
 
 
-    # TODO use get_stream_name instead
-    def expected_primary_keys(self):
-        """
-        return a dictionary with key of table name
-        and value as a set of primary key fields
-        """
-        name_and_id_bidirectional_map = self.custom_reports_names_to_ids()
-        pk_dict = {}
-        for stream_name, properties in self.expected_metadata().items():
-            # Get UUID from stream name if its a custom report
-            if stream_name in name_and_id_bidirectional_map:
-                custom_stream_id = name_and_id_bidirectional_map[stream_name]
-                pk_dict[custom_stream_id] = properties.get(self.PRIMARY_KEYS, set())
-            pk_dict[stream_name] = properties.get(self.PRIMARY_KEYS, set())
-
-        return pk_dict
-
-
-        if not expected_stream_metadata:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            expected_stream_metadata = self.expected_metadata().get(stream_name)
-
-        return {table: properties.get(self.PRIMARY_KEYS, set())
-                for table, properties
-                in self.expected_metadata().items()}
-
-
-    # TODO use get_stream_name instead
-    def get_replication_key_for_stream(self, stream):
-        expected_stream_metadata = self.expected_metadata().get(stream)
-
-        # Get stream name from ID if its a custom report
-        if not expected_stream_metadata:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            expected_stream_metadata = self.expected_metadata().get(stream_name)
-
-        return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
-
-
-    # TODO use get_stream_name instead
-    def get_records_for_stream(self, sync_records, stream):
-        records = sync_records.get(stream)
-        if not records:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            records = sync_records.get(stream_name)
-        return records['messages']
-
-
     @staticmethod
     def select_all_streams_and_fields(conn_id, catalogs, select_all_fields: bool = True):
         """Select all streams and all fields within streams"""
