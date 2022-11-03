@@ -209,6 +209,26 @@ class GA4Base(BaseCase):
             raise Exception("Missing environment variables: {}".format(missing_envs))
 
 
+    def run_and_verify_sync_mode(self, conn_id):
+        """
+        Run a sync job and make sure it exited properly.
+        Return a dictionary with keys of streams synced
+        and values of records synced for each stream
+        """
+        # Run a sync job using orchestrator
+        sync_job_name = runner.run_sync_mode(self, conn_id)
+
+        # Verify tap and target exit codes
+        exit_status = menagerie.get_exit_status(conn_id, sync_job_name)
+        menagerie.verify_sync_exit_status(self, exit_status, sync_job_name)
+
+        sync_record_count = runner.examine_target_output_file(
+             self, conn_id, self.expected_stream_names(), self.expected_primary_keys())
+        LOGGER.info("total replicated row count: %s", sum(sync_record_count.values()))
+
+        return sync_record_count
+
+
     ##########################################################################
     ### Tap Specific Methods
     ##########################################################################
