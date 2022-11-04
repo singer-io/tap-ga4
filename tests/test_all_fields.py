@@ -12,7 +12,9 @@ from base import GA4Base
 class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     """GA4 all fields test implementation """
 
+
     fields = None
+
 
     @staticmethod
     def name():
@@ -77,13 +79,21 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
                 all_field_exclusions.update(field_exclusions['METRIC'][random_metric])
 
             #TODO check if there are no possible dimensions/metrics left
+            #     this may not be an issue depending on how widespread
+            #     field exclusions actaully are
 
         return selected_dimensions | selected_metrics
+
+
+    ##########################################################################
+    ### Tests To Skip
+    ##########################################################################
 
 
     @unittest.skip("Random selection doesn't always sync records")
     def test_all_streams_sync_records(self):
         pass
+
 
     def __init__(self, test_run):
         super().__init__(test_run)
