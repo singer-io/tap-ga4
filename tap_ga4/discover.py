@@ -85,7 +85,21 @@ def generate_base_schema():
 
 
 def to_snake_case(name):
-    return re.sub(r'(?<!^)(?=[A-Z])', '_', name).lower()
+    """
+    GA4 api names are camelCase, and GA4 custom api names must follow
+    these rules:
+    https://support.google.com/analytics/answer/10085872?hl=en#event-name-rules
+
+    Match the position before a capital letter or position of a `:`
+    unless capital letter is at the beginning of the word or after a `:`
+
+    example:
+      name:    customEvent:PageLocation
+      match:         ^    ^    ^
+      return:  custom_event_page_location
+    """
+    return re.sub(r'(?<!^)(?<!:)(?=[A-Z])|[:]', '_', name).lower()
+
 
 def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],

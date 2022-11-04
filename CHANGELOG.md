@@ -1,4 +1,10 @@
 # Changelog
+## v0.0.10
+  * Update datetime formats to account for canonicalization of datetime dimensions  [#22](https://github.com/singer-io/tap-ga4/pull/22)
+## v0.0.9
+  * Canonicalize response to match schema [#21](https://github.com/singer-io/tap-ga4/pull/21)
+## v0.0.8
+  * Fixes canonicalization for custom dimensions/metrics [#20](https://github.com/singer-io/tap-ga4/pull/20)
 ## v0.0.7
   * Fixes error reading field_exclusions.json [#18](https://github.com/singer-io/tap-ga4/pull/18)
 ## v0.0.6
