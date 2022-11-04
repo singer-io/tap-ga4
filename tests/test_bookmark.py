@@ -1,10 +1,10 @@
 import os
-from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
+import unittest
 from datetime import datetime as dt
 from datetime import timedelta
 
 from base import GA4Base
-
+from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
 
 class GA4BookmarkTest(BookmarkTest, GA4Base):
     """Standard Start Date Test"""
@@ -86,6 +86,16 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
                 # (The tap replicaates from the manipulated state through to todayf)
                 parsed_bookmark_value_2 = dt.strptime(bookmark_value_2, self.BOOKMARK_FORMAT)
                 self.assertEqual(parsed_bookmark_value_2, today_datetime)
+
+
+    ##########################################################################
+    ### Tests To Skip
+    ##########################################################################
+
+
+    @unittest.skip("Second sync bookmark will almost never be greater than the first sync. Bookmark value truncates to the day.")
+    def test_sync_2_bookmark_greater_than_sync_1(self):
+        pass
 
 
     # set default values for test in init
