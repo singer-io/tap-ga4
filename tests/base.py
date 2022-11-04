@@ -19,39 +19,56 @@ class GA4Base(BaseCase):
     A bunch of shared methods that are used in tap-tester tests.
     Shared tap-specific methods (as needed).
     """
+
+
     HASHED_KEYS = "default-hashed-keys"
     REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
+    BOOKMARK_FORMAT = "%Y-%m-%d"
+    CONVERSION_WINDOW = "30"
 
     start_date = ""
+    custom_report_id_1 = None
+    custom_report_id_2 = None
+
 
     @staticmethod
     def tap_name():
         """The name of the tap"""
         return "tap-ga4"
 
+
     @staticmethod
     def get_type():
         """the expected url route ending"""
         return "platform.ga4"
 
+
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
+        # Use the same UUID for each custom report
+        if not self.custom_report_id_1 and not self.custom_report_id_2:
+            type(self).custom_report_id_1 = str(uuid.uuid4())
+            type(self).custom_report_id_2 = str(uuid.uuid4())
+
         return_value = {
             'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
+            'conversion_window': self.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
-            'user_id': os.getenv('TAP_GA4_USER_ID'), # TODO what is?  should orca handle this?
+            'user_id': os.getenv('TAP_GA4_USER_ID'),
             'report_definitions': [
-                {"id": str(uuid.uuid4()), "name": "Test Report 1"},
-                {"id": str(uuid.uuid4()), "name": "Test Report 2"},
+                {"id": self.custom_report_id_1, "name": "Test Report 1"},
+                {"id": self.custom_report_id_2, "name": "Test Report 2"},
             ]
         }
+
         if original:
             return return_value
 
         return_value["start_date"] = self.start_date
         return return_value
+
 
     @staticmethod
     def get_credentials():
@@ -60,6 +77,7 @@ class GA4Base(BaseCase):
             'access_token': os.getenv('TAP_GA4_ACCESS_TOKEN'),
             'refresh_token': os.getenv('TAP_GA4_REFRESH_TOKEN'),
         }
+
 
     def expected_metadata(self):
         """The expected streams and metadata about the streams"""
@@ -88,65 +106,67 @@ class GA4Base(BaseCase):
                 self.RESPECTS_START_DATE: False,
             },
             'content_group_report': default_expectations,
-            'demographic_region_report': default_expectations,
             'demographic_age_report': default_expectations,
-            'traffic_acq_session_source_and_medium_report': default_expectations,
-            'conversions_report': {
-                self.HASHED_KEYS: { # TODO also sorted dimensions and values...
-                    'account_id',
-                    'property_id',
-                },
-                self.PRIMARY_KEYS: {"_sdc_record_hash"},
-                self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"date"},
-                self.RESPECTS_START_DATE: True, # Updating here does not change tap behavior
-            },
-            'traffic_acq_session_source_platform_report': default_expectations,
-            'tech_screen_resolution_report': default_expectations,
-            'demographic_interests_report': default_expectations,
-            'tech_operating_system_report': default_expectations,
-            'ecommerce_purchases_item_category_4_report': default_expectations,
             'demographic_city_report': default_expectations,
-            'demographic_gender_report': default_expectations,
-            'events_report': default_expectations,
-            'traffic_acq_session_source_report': default_expectations,
-            'publisher_ads_ad_format_report': default_expectations,
-            'traffic_acq_session_medium_report': default_expectations,
-            'tech_browser_report': default_expectations,
-            'publisher_ads_ad_source_report': default_expectations,
-            'traffic_acq_session_campaign_report': default_expectations,
-            'user_acq_first_user_google_ads_ad_group_name_report': default_expectations,
-            'demographic_language_report': default_expectations,
-            'tech_os_with_version_report': default_expectations,
-            'ecommerce_purchases_item_category_3_report': default_expectations,
-            'user_acq_first_user_source_and_medium_report': default_expectations,
-            'ecommerce_purchases_item_name_report': default_expectations,
-            'tech_os_version_report': default_expectations,
-            'pages_title_and_screen_class_report': default_expectations,
-            'tech_device_category_report': default_expectations,
-            'tech_platform_report': default_expectations,
             'demographic_country_report': default_expectations,
-            'ecommerce_purchases_item_category_5_report': default_expectations,
-            'user_acq_first_user_source_platform_report': default_expectations,
-            'tech_device_model_report': default_expectations,
-            'publisher_ads_page_path_report': default_expectations,
-            'user_acq_first_user_google_ads_network_type_report': default_expectations,
-            'user_acq_first_user_source_report': default_expectations,
-            'pages_path_report': default_expectations,
-            'pages_title_and_screen_name_report': default_expectations,
-            'ecommerce_purchases_item_category_2_report': default_expectations,
-            'ecommerce_purchases_item_id_report': default_expectations,
-            'publisher_ads_ad_unit_report': default_expectations,
-            'tech_platform_and_device_category_report': default_expectations,
-            'user_acq_first_user_campaign_report': default_expectations,
+            'demographic_gender_report': default_expectations,
+            'demographic_interests_report': default_expectations,
+            'demographic_language_report': default_expectations,
+            'demographic_region_report': default_expectations,
             'ecommerce_purchases_item_brand_report': default_expectations,
-            'traffic_acq_session_default_channel_grouping_report': default_expectations,
-            'ecommerce_purchases_item_category_1_report': default_expectations,
+            'ecommerce_purchases_item_category_2_report': default_expectations,
+            'ecommerce_purchases_item_category_3_report': default_expectations,
+            'ecommerce_purchases_item_category_4_report': default_expectations,
+            'ecommerce_purchases_item_category_5_report': default_expectations,
+            'ecommerce_purchases_item_category_report': default_expectations,
+            'ecommerce_purchases_item_id_report': default_expectations,
+            'ecommerce_purchases_item_name_report': default_expectations,
+            'events_report': default_expectations,
+            'page_path_and_screen_class_report': default_expectations,
+            'page_title_and_screen_class_report': default_expectations,
+            'page_title_and_screen_name_report': default_expectations,
+            'publisher_ads_ad_format_report': default_expectations,
+            'publisher_ads_ad_source_report': default_expectations,
+            'publisher_ads_ad_unit_report': default_expectations,
+            'publisher_ads_page_path_report': default_expectations,
             'tech_app_version_report': default_expectations,
+            'tech_browser_report': default_expectations,
+            'tech_device_category_report': default_expectations,
+            'tech_device_model_report': default_expectations,
+            'tech_operating_system_report': default_expectations,
+            'tech_os_version_report': default_expectations,
+            'tech_os_with_version_report': default_expectations,
+            'tech_platform_and_device_category_report': default_expectations,
+            'tech_platform_report': default_expectations,
+            'tech_screen_resolution_report': default_expectations,
+            'traffic_acq_session_campaign_report': default_expectations,
+            'traffic_acq_session_default_channel_grouping_report': default_expectations,
+            'traffic_acq_session_medium_report': default_expectations,
+            'traffic_acq_session_source_and_medium_report': default_expectations,
+            'traffic_acq_session_source_platform_report': default_expectations,
+            'traffic_acq_session_source_report': default_expectations,
+            'user_acq_first_user_campaign_report': default_expectations,
+            'user_acq_first_user_default_channel_grouping_report': default_expectations,
+            'user_acq_first_user_google_ads_ad_group_name_report': default_expectations,
+            'user_acq_first_user_google_ads_network_type_report': default_expectations,
             'user_acq_first_user_medium_report': default_expectations,
-            'ecommerce_purchases_item_category_combined_report': default_expectations,
-            # TODO what predefined are we supporting?
+            'user_acq_first_user_source_and_medium_report': default_expectations,
+            'user_acq_first_user_source_platform_report': default_expectations,
+            'user_acq_first_user_source_report': default_expectations,
+            # TODO Enable once filters are implemented
+            # 'conversions_report': {
+            #     self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            #         'account_id',
+            #         'property_id',
+            #     },
+            #     self.PRIMARY_KEYS: {"_sdc_record_hash"},
+            #     self.REPLICATION_METHOD: self.INCREMENTAL,
+            #     self.REPLICATION_KEYS: {"date"},
+            #     self.RESPECTS_START_DATE: True, # Updating here does not change tap behavior
+            # },
+            # 'ecommerce_purchases_item_category_combined_report': default_expectations,
         }
+
 
     def expected_hashed_keys(self):
         """
@@ -157,6 +177,7 @@ class GA4Base(BaseCase):
                 for table, properties
                 in self.expected_metadata().items()}
 
+
     def expected_automatic_fields(self):
         auto_fields = {}
         for k, v in self.expected_metadata().items():
@@ -164,6 +185,7 @@ class GA4Base(BaseCase):
                 | v.get(self.HASHED_KEYS, set())
 
         return auto_fields
+
 
     @classmethod
     def setUpClass(cls):
@@ -182,9 +204,11 @@ class GA4Base(BaseCase):
         if len(missing_envs) != 0:
             raise Exception("Missing environment variables: {}".format(missing_envs))
 
+
     ##########################################################################
     ### Tap Specific Methods
     ##########################################################################
+
 
     @staticmethod
     def expected_default_fields():
@@ -220,6 +244,7 @@ class GA4Base(BaseCase):
                               'conversions'},
         }
 
+
     @staticmethod
     def expected_pagination_fields(): # TODO does this apply?
         return {
@@ -236,54 +261,34 @@ class GA4Base(BaseCase):
             "Ecommerce Overview": set(),
         }
 
-    def custom_reports_names_to_ids(self): # TODO does this apply?
-        report_definitions =self.get_properties()['report_definitions']
-        name_to_id_map = {
-            definition.get('name'): definition.get('id')
-            for definition in report_definitions
-        }
 
-        return name_to_id_map
+    def custom_reports_names_to_ids(self):
+        report_definitions = self.get_properties()['report_definitions']
+        name_and_id_bidirectional_map = {}
+        for definition in report_definitions:
+            name_and_id_bidirectional_map[definition.get('name')] = definition.get('id')
+            name_and_id_bidirectional_map[definition.get('id')] = definition.get('name')
 
-    # TODO this will apply but not yet. And the standard list will likely be different
-    # @staticmethod
-    # def is_custom_report(stream):
-    #     standard_reports = {
-    #         "Audience Overview",
-    #         "Audience Geo Location",
-    #         "Audience Technology",
-    #         "Acquisition Overview",
-    #         "Behavior Overview",
-    #         "Ecommerce Overview",
-    #     }
-    #     return stream not in standard_reports
+        return name_and_id_bidirectional_map
 
-    @staticmethod
-    def custom_report_minimum_valid_field_selection():
-        """
-        The uncommented dimensions and metrics are sufficient for the current test suite.
-        In the future consider mixing up the selection to increase test covereage.
-        See TODO header at top of file.
-        """
-        return {
-            'Test Report 1': {
-                #"ga:sessions",  # Metric
-                "ga:avgSessionDuration",  # Metric
-                "ga:bounceRate",  # Metric
-                "ga:users",  # Metric
-                # "ga:pagesPerSession",  # Metric
-                "ga:avgTimeOnPage",  # Metric
-                "ga:bounces",  # Metric
-                "ga:hits",  # Metric
-                "ga:sessionDuration",  # Metric
-                "ga:newUsers",  # Metric
-                "ga:deviceCategory",  # Dimension
-                # "ga:eventAction",  # Dimension
-                "ga:date",  # Dimension
-                # "ga:eventLabel",  # Dimension
-                # "ga:eventCategory"  # Dimension
-            },
-        }
+
+    def get_replication_key_for_stream(self, stream):
+        expected_stream_metadata = self.expected_metadata().get(stream)
+
+        # Get stream name from ID if its a custom report
+        if not expected_stream_metadata:
+            stream_name = self.custom_reports_names_to_ids().get(stream)
+            expected_stream_metadata = self.expected_metadata().get(stream_name)
+
+        return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
+
+
+    def get_records_for_stream(self, sync_records, stream):
+        records = sync_records.get(stream)
+        if not records:
+            stream_name = self.custom_reports_names_to_ids().get(stream)
+            records = sync_records.get(stream_name)
+        return records['messages']
 
 
     @staticmethod
@@ -346,3 +351,13 @@ class GA4Base(BaseCase):
                 expected_automatic_fields = self.expected_automatic_fields().get(cat['stream_name'])
                 selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
                 self.assertEqual(expected_automatic_fields, selected_fields)
+
+
+    def get_sync_start_time(self, stream):
+        """
+        Calculates the sync start time, with respect to the lookback window
+        """
+        conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
+        bookmark_datetime = dt.strptime(self.bookmark_date, self.BOOKMARK_FORMAT)
+        start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
+        return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
