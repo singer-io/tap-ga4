@@ -58,6 +58,36 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         }
 
 
+    ##########################################################################
+    ### Tap Specific Tests
+    ##########################################################################
+
+
+    def test_bookmark_values_are_today(self):
+        """
+        For taps with a BOOKMARK_FORMAT of "%Y-%m-%d", these assertions are
+        valid.
+        """
+        today_datetime = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+        for stream in self.streams_to_test():
+            with self.subTest(stream=stream):
+                # gather results
+                stream_bookmark_1 = self.bookmarks_1.get(stream)
+                stream_bookmark_2 = self.bookmarks_2.get(stream)
+                bookmark_value_1 = self.get_bookmark_value(stream_bookmark_1, stream)
+                bookmark_value_2 = self.get_bookmark_value(stream_bookmark_2, stream)
+
+                # Verify the bookmark is set based on sync end date (today) for sync 1
+                # (The tap replicaates from the start date through to today)
+                parsed_bookmark_value_1 = dt.strptime(bookmark_value_1, self.BOOKMARK_FORMAT)
+                self.assertEqual(parsed_bookmark_value_1, today_datetime)
+
+                # Verify the bookmark is set based on sync execution time for sync 2
+                # (The tap replicaates from the manipulated state through to todayf)
+                parsed_bookmark_value_2 = dt.strptime(bookmark_value_2, self.BOOKMARK_FORMAT)
+                self.assertEqual(parsed_bookmark_value_2, today_datetime)
+
+
     # set default values for test in init
     def __init__(self, test_run):
         super().__init__(test_run)
