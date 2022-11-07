@@ -381,13 +381,13 @@ class GA4Base(BaseCase):
                 selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
                 self.assertEqual(expected_automatic_fields, selected_fields)
 
-
-    def get_sync_start_time(self, stream):
+    #TODO: change parameter in bookmark_test
+    def get_sync_start_time(self, stream, bookmark):
         """
         Calculates the sync start time, with respect to the lookback window
         """
         conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
-        bookmark_datetime = dt.strptime(self.bookmark_date, self.BOOKMARK_FORMAT)
+        bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
         start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
         return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
 
@@ -399,3 +399,12 @@ class GA4Base(BaseCase):
             stream_name = self.custom_reports_names_to_ids().get(stream)
             return record_count.get(stream_name)
         return count
+
+    # TODO fix in bookmark test
+    def get_bookmark_value(self, state, stream):
+        bookmark = state.get('bookmarks', {})
+        stream_bookmark = bookmark.get(stream)
+        if stream_bookmark:
+            return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
+        return None
+

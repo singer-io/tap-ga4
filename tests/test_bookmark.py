@@ -35,10 +35,6 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         return manipulated_state
 
 
-    def get_bookmark_value(self, bookmark, stream):
-        return bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
-
-
     def streams_to_selected_fields(self):
         return {
             "Test Report 1": {
