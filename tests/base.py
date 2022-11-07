@@ -381,7 +381,7 @@ class GA4Base(BaseCase):
                 selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
                 self.assertEqual(expected_automatic_fields, selected_fields)
 
-    #TODO: change parameter in bookmark_test
+
     def get_sync_start_time(self, stream, bookmark):
         """
         Calculates the sync start time, with respect to the lookback window
