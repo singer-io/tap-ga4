@@ -28,28 +28,28 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
 
     def manipulate_state(self):
-        manipulated_state = {
+        return {
             'currently_syncing': 'demographic_age_report',
             'bookmarks' : {
-                'content_group_report': { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.completed_bookmark_date}},\
-                'demographic_country_report': { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.interrupted_bookmark_date}}
-                }
+                'content_group_report': {
+                    os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.completed_bookmark_date}
+                },
+                'demographic_country_report': {
+                    os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.interrupted_bookmark_date}
+                },
             }
-        return manipulated_state
+        }
 
-
-    def streams_to_selected_fields(self):
-        return {}
 
     # set default values for test in init
     def __init__(self, test_run):
         super().__init__(test_run)
         self.start_date = self.timedelta_formatted(dt.now(),
-                                                   days=-40,
+                                                   days=-32,
                                                    date_format=self.START_DATE_FORMAT)
 
         self.interrupted_bookmark_date = self.timedelta_formatted(dt.now(),
-                                                                  days=-35,
+                                                                  days=-31,
                                                                   date_format=self.BOOKMARK_FORMAT)
 
         self.completed_bookmark_date = self.timedelta_formatted(dt.now(),
