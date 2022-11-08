@@ -4,6 +4,8 @@ import json
 import os
 import unittest
 from tap_tester.base_suite_tests.all_fields_test import AllFieldsTest
+from tap_tester import menagerie, runner
+from tap_tester.logger import LOGGER
 from datetime import datetime as dt
 from datetime import timedelta
 from base import GA4Base
@@ -83,6 +85,33 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
             #     field exclusions actaully are
 
         return selected_dimensions | selected_metrics
+
+
+    ##########################################################################
+    ### Overridden Methods
+    ##########################################################################
+
+
+    # Removes assertion that each stream syncs records
+    # No guarantee random selection will sync records
+    def run_and_verify_sync_mode(self, conn_id):
+        """
+        Run a sync job and make sure it exited properly.
+        Return a dictionary with keys of streams synced
+        and values of records synced for each stream
+        """
+        # Run a sync job using orchestrator
+        sync_job_name = runner.run_sync_mode(self, conn_id)
+
+        # Verify tap and target exit codes
+        exit_status = menagerie.get_exit_status(conn_id, sync_job_name)
+        menagerie.verify_sync_exit_status(self, exit_status, sync_job_name)
+
+        sync_record_count = runner.examine_target_output_file(
+             self, conn_id, self.expected_stream_names(), self.expected_primary_keys())
+        LOGGER.info("total replicated row count: %s", sum(sync_record_count.values()))
+
+        return sync_record_count
 
 
     ##########################################################################
