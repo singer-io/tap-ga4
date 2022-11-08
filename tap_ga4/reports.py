@@ -13,7 +13,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "firstUserDefaultChannelGrouping",
+            "firstUserDefaultChannelGroup",
         ],
     },
     {
@@ -222,7 +222,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "sessionDefaultChannelGrouping",
+            "sessionDefaultChannelGroup",
         ],
     },
     {
