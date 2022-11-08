@@ -400,7 +400,7 @@ class GA4Base(BaseCase):
             return record_count.get(stream_name)
         return count
 
-    # TODO fix in bookmark test
+
     def get_bookmark_value(self, state, stream):
         bookmark = state.get('bookmarks', {})
         stream_bookmark = bookmark.get(stream)
