@@ -29,7 +29,7 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
     def manipulate_state(self):
         return {
-            'currently_syncing': 'demographic_age_report',
+            'currently_syncing': 'demographic_country_report',
             'bookmarks' : {
                 'content_group_report': {
                     os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.completed_bookmark_date}
