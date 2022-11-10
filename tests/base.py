@@ -55,7 +55,6 @@ class GA4Base(BaseCase):
         return_value = {
             'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
             'conversion_window': self.CONVERSION_WINDOW,
-            'request_window_size': self.request_window_size,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
@@ -69,7 +68,10 @@ class GA4Base(BaseCase):
         if original:
             return return_value
 
-        return_value["start_date"] = self.start_date
+        if self.start_date:
+            return_value["start_date"] = self.start_date
+        if self.request_window_size:
+            return_value["request_window_size"] = self.request_window_size
         return return_value
 
 
@@ -296,54 +298,6 @@ class GA4Base(BaseCase):
 
         """
         return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
-
-
-    # TODO use get_stream_name instead
-    def expected_primary_keys(self):
-        """
-        return a dictionary with key of table name
-        and value as a set of primary key fields
-        """
-        name_and_id_bidirectional_map = self.custom_reports_names_to_ids()
-        pk_dict = {}
-        for stream_name, properties in self.expected_metadata().items():
-            # Get UUID from stream name if its a custom report
-            if stream_name in name_and_id_bidirectional_map:
-                custom_stream_id = name_and_id_bidirectional_map[stream_name]
-                pk_dict[custom_stream_id] = properties.get(self.PRIMARY_KEYS, set())
-            pk_dict[stream_name] = properties.get(self.PRIMARY_KEYS, set())
-
-        return pk_dict
-
-
-        if not expected_stream_metadata:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            expected_stream_metadata = self.expected_metadata().get(stream_name)
-
-        return {table: properties.get(self.PRIMARY_KEYS, set())
-                for table, properties
-                in self.expected_metadata().items()}
-
-
-    # TODO use get_stream_name instead
-    def get_replication_key_for_stream(self, stream):
-        expected_stream_metadata = self.expected_metadata().get(stream)
-
-        # Get stream name from ID if its a custom report
-        if not expected_stream_metadata:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            expected_stream_metadata = self.expected_metadata().get(stream_name)
-
-        return expected_stream_metadata.get(self.REPLICATION_KEYS).pop()
-
-
-    # TODO use get_stream_name instead
-    def get_records_for_stream(self, sync_records, stream):
-        records = sync_records.get(stream)
-        if not records:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            records = sync_records.get(stream_name)
-        return records['messages']
 
 
     @staticmethod
