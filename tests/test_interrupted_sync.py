@@ -1,7 +1,5 @@
-import unittest
 import os
 from datetime import datetime as dt
-from datetime import timedelta
 
 from base import GA4Base
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
@@ -18,7 +16,6 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
             'demographic_country_report',
