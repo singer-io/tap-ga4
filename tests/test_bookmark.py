@@ -35,10 +35,6 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         return manipulated_state
 
 
-    def get_bookmark_value(self, bookmark, stream):
-        return bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
-
-
     def streams_to_selected_fields(self):
         return {
             "Test Report 1": {
@@ -74,17 +70,18 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
                 # gather results
                 stream_bookmark_1 = self.bookmarks_1.get(stream)
                 stream_bookmark_2 = self.bookmarks_2.get(stream)
-                bookmark_value_1 = self.get_bookmark_value(stream_bookmark_1, stream)
-                bookmark_value_2 = self.get_bookmark_value(stream_bookmark_2, stream)
+
+                bookmark_value_1 = self.get_bookmark_value(self.state_1, stream)
+                bookmark_value_2 = self.get_bookmark_value(self.state_2, stream)
 
                 # Verify the bookmark is set based on sync end date (today) for sync 1
                 # (The tap replicaates from the start date through to today)
-                parsed_bookmark_value_1 = dt.strptime(bookmark_value_1, self.BOOKMARK_FORMAT)
+                parsed_bookmark_value_1 = self.parse_date(bookmark_value_1)
                 self.assertEqual(parsed_bookmark_value_1, today_datetime)
 
                 # Verify the bookmark is set based on sync execution time for sync 2
                 # (The tap replicaates from the manipulated state through to todayf)
-                parsed_bookmark_value_2 = dt.strptime(bookmark_value_2, self.BOOKMARK_FORMAT)
+                parsed_bookmark_value_2 = self.parse_date(bookmark_value_2)
                 self.assertEqual(parsed_bookmark_value_2, today_datetime)
 
 
