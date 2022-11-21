@@ -200,12 +200,20 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     return field_exclusions
 
 
+# We've observed failures in metric compatiblity requests
+# where the api_name contains non-alphanumeric, non-ascii characters.
+# see: https://support.google.com/analytics/thread/176551995/conversion-event-api-calls-should-use-event-id-not-name-sessionconversionrate-conversion-event-name
+def validate_alphanumeric_names(name):
+    return re.match(r"^[a-zA-Z0-9_:]+$", name)
+
+
 def get_dimensions_and_metrics(client, property_id):
     response = client.get_dimensions_and_metrics(property_id)
     dimensions = [dimension for dimension in response.dimensions
                   if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics
-               if metric.category not in INCOMPATIBLE_CATEGORIES]
+               if metric.category not in INCOMPATIBLE_CATEGORIES
+               and validate_alphanumeric_names(metric.api_name)]
     return dimensions, metrics
 
 
