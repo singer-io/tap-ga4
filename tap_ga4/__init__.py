@@ -1,7 +1,6 @@
 import singer
 from singer import utils
 from singer.catalog import Catalog
-
 from tap_ga4.client import Client
 from tap_ga4.discover import discover
 from tap_ga4.sync import sync

@@ -158,7 +158,6 @@ def get_report_start_date(config, property_id, state, tap_stream_id):
     return min(bookmark, max(start_date, conversion_day))
 
 
-
 def get_end_date(config):
     """
     Returns the end_date for the reporting sync. Under normal operation,
