@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.13
+  * Filter metrics with non-ascii non-alphanumeric characters [#28](https://github.com/singer-io/tap-ga4/pull/28)
 ## v0.0.12
   * Update premade report names to match GA4 Data API changes [#27](https://github.com/singer-io/tap-ga4/pull/27)
 ## v0.0.11
