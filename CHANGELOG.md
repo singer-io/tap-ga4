@@ -1,4 +1,8 @@
 # Changelog
+## v0.0.12
+  * Update premade report names to match GA4 Data API changes [#27](https://github.com/singer-io/tap-ga4/pull/27)
+## v0.0.11
+  * Update field names to match GA4 Data API changes [#26](https://github.com/singer-io/tap-ga4/pull/26)
 ## v0.0.10
   * Update datetime formats to account for canonicalization of datetime dimensions  [#22](https://github.com/singer-io/tap-ga4/pull/22)
 ## v0.0.9

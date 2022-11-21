@@ -1,6 +1,6 @@
 PREMADE_REPORTS = [
     {
-        "name": "user_acq_first_user_default_channel_grouping_report",
+        "name": "user_acq_first_user_default_channel_group_report",
         "metrics": [
             "newUsers",
             "engagedSessions",
@@ -13,7 +13,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "firstUserDefaultChannelGrouping",
+            "firstUserDefaultChannelGroup",
         ],
     },
     {
@@ -208,7 +208,7 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "traffic_acq_session_default_channel_grouping_report",
+        "name": "traffic_acq_session_default_channel_group_report",
         "metrics": [
             "totalUsers",
             "sessions",
@@ -222,7 +222,7 @@ PREMADE_REPORTS = [
         ],
         "dimensions": [
             "date",
-            "sessionDefaultChannelGrouping",
+            "sessionDefaultChannelGroup",
         ],
     },
     {
