@@ -137,7 +137,6 @@ def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclus
     return mdata
 
 
-# TODO stopped here for invalid metrics added to metadata as unsupported
 def generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report, is_premade=False):
     LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
