@@ -214,6 +214,10 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
 # where the api_name contains non-alphanumeric, non-ascii characters.
 # see: https://support.google.com/analytics/thread/176551995/conversion-event-api-calls-should-use-event-id-not-name-sessionconversionrate-conversion-event-name
 def is_valid_alphanumeric_name(name):
+    """
+    Returns boolean determining if name is an ascii alphanumeric string.
+    Brackets and colons are also part of valid names to send to Google.
+    """
     return re.match(r"^[a-zA-Z0-9\[\]_:]+$", name)
 
 
