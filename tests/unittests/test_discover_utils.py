@@ -1,6 +1,6 @@
 import unittest
 
-from tap_ga4.discover import to_snake_case
+from tap_ga4.discover import is_valid_alphanumeric_name, to_snake_case
 
 
 class TestCanonicalization(unittest.TestCase):
@@ -21,3 +21,26 @@ class TestCanonicalization(unittest.TestCase):
         api_name = "customEvent:PageLocation"
         expected_name = "custom_event_page_location"
         self.assertEqual(expected_name, to_snake_case(api_name))
+
+
+class TestInvalidMetrics(unittest.TestCase):
+
+    def test_valid_metric(self):
+        api_name = "metric"
+        self.assertTrue(is_valid_alphanumeric_name(api_name))
+
+    def test_valid_metric_with_colon(self):
+        api_name = "metric:event"
+        self.assertTrue(is_valid_alphanumeric_name(api_name))
+
+    def test_valid_metric_with_brackets(self):
+        api_name = "customEvent:customMetric[event]"
+        self.assertTrue(is_valid_alphanumeric_name(api_name))
+
+    def test_invalid_metric(self):
+        api_name = "metric:(other)"
+        self.assertFalse(is_valid_alphanumeric_name(api_name))
+
+    def test_invalid_metric_non_ascii(self):
+        api_name = "ÜwÜ"
+        self.assertFalse(is_valid_alphanumeric_name(api_name))
