@@ -6,7 +6,8 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (CheckCompatibilityRequest,
                                                 DateRange, Dimension,
                                                 GetMetadataRequest, Metric,
-                                                OrderBy, RunReportRequest)
+                                                OrderBy, RunReportRequest,
+                                                Filter, FilterExpression,)
 from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
 from google.oauth2.credentials import Credentials
@@ -70,6 +71,9 @@ class Client:
         """
         offset = 0
         has_more_rows = True
+        if report["filters"]:
+            dimension_filters = self.get_filter_expression(report["filters"])
+
         while has_more_rows:
             request = RunReportRequest(
                 property=f"properties/{report['property_id']}",
@@ -79,7 +83,8 @@ class Client:
                 limit=self.PAGE_SIZE,
                 offset=offset,
                 return_property_quota=True,
-                order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))]
+                order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))],
+                dimension_filter=None
             )
 
             response = self._make_request(request)
@@ -118,3 +123,12 @@ class Client:
             compatibility_filter="INCOMPATIBLE"
             )
         return self._make_request(request)
+
+
+    def get_filter_expression(self, filters):
+        return FilterExpression(
+            filter=Filter(
+                field_name=filter_json[0]["field_name"],
+                string_filter=Filter.StringFilter(value=filter_json[0]["string_filter"]),
+            )
+        )

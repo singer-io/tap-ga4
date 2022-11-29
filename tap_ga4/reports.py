@@ -257,6 +257,21 @@ PREMADE_REPORTS = [
         ],
     },
     {
+        "name": "conversions_report",
+        "metrics": [
+            "conversions",
+            "totalUsers",
+            "totalRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "eventName",
+        ],
+        "dimension_filter": [
+            {"field_name": "isConversionEvent", "string_filter":"true"}
+        ],
+    },
+    {
         "name": "page_title_and_screen_class_report",
         "metrics": [
             "screenPageViews",
