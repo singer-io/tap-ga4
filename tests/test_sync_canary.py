@@ -32,7 +32,7 @@ class GA4SyncCanaryTest(SyncCanaryTest, GA4Base):
             },
             'content_group_report': { "date", "browser", "conversions", },
             # TODO clean up fields and formatting
-            # 'conversions_report': { "date", "browser", "conversions", }, TODO Enable once filters are implemented
+            'conversions_report': { "date", "browser", "conversions", },
             'demographic_age_report': { "date", "browser", "conversions", },
             'demographic_city_report': { "date", "browser", "conversions", },
             'demographic_country_report': { "date", "browser", "conversions", },
