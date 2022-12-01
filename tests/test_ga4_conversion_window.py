@@ -63,7 +63,6 @@ class ConversionWindowBaseTest(GA4Base):
         custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
-            custom_id
         }
 
 
@@ -115,32 +114,26 @@ class ConversionWindowBaseTest(GA4Base):
 
                 stream_name = self.get_stream_name(stream)
                 expected_replication_key = next(iter(self.expected_metadata().get(stream_name).get(self.REPLICATION_KEYS)))
-                if not expected_replication_key:
-                    LOGGER.warn(f"********** Failed to get replication key for stream: {stream_name}")
-                    continue
+                self.assertTrue(expected_replication_key)
 
                 replication_dates =[row.get('data').get(expected_replication_key) for row in
                                     synced_messages_by_stream.get(stream, {'messages': []}).get('messages', [])
                                     if row.get('data')]
+                self.assertTrue(replication_dates)
 
-                if replication_dates:
-                    conversion_window_int = int(self.conversion_window)
-                    oldest_date = self.parse_date(min(replication_dates))
-                    oldest_possible_date = (dt.utcnow().replace(
-                        hour=0, minute=0, second=0, microsecond=0) - timedelta(days=conversion_window_int))
-                    start_date = self.parse_date(self.start_date)
+                conversion_window_int = int(self.conversion_window)
+                oldest_date = self.parse_date(min(replication_dates))
+                oldest_possible_date = (dt.utcnow().replace(
+                    hour=0, minute=0, second=0, microsecond=0) - timedelta(days=conversion_window_int))
+                start_date = self.parse_date(self.start_date)
 
-                    # Verify start date is before the oldest replicated record per test set up
-                    self.assertGreater(oldest_date, start_date)
-                    # Verify the oldest record is not older than conversion window
-                    self.assertGreaterEqual(oldest_date, oldest_possible_date)
-                    # Verify minimal gap between oldest record and conversion_window
-                    # allow a 1 day gap for stability / rollover? TODO
-                    self.assertTrue(timedelta(days=1) > (oldest_date - oldest_possible_date))
-
-                else:
-                    # TODO why is Test Report 1 never syncing records?
-                    LOGGER.warn(f"********** No records sync'd for stream: {stream_name}")
+                # Verify start date is before the oldest replicated record per test set up
+                self.assertGreater(oldest_date, start_date)
+                # Verify the oldest record is not older than conversion window
+                self.assertGreaterEqual(oldest_date, oldest_possible_date)
+                # Verify minimal gap between oldest record and conversion_window
+                # allow a 1 day gap for UTC / day rollover, stream generates 1 rec per day
+                self.assertTrue(timedelta(days=1) > (oldest_date - oldest_possible_date))
 
 
 class ConversionWindowTestThirty(ConversionWindowBaseTest):

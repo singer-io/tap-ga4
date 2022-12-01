@@ -59,73 +59,31 @@ class ConversionWindowInvalidTest(GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
-            custom_id
         }
 
 
     def run_test(self):
         """
-        Testing that basic sync functions without Critical Errors when
-        a valid conversion_window is set.
+        Testing that basic sync throws an exception  when an invalid conversion window is set.
         """
 
-        try:
-            # Create a connection
-            conn_id = connections.ensure_connection(self, original_properties=False)
-
-            # Run a discovery job
-            found_catalogs = self.run_and_verify_check_mode(conn_id)
-
-            # Select tables and fields
-            test_catalogs = [catalog
-                             for catalog in found_catalogs
-                             if catalog['stream_name'] in self.streams_to_test()]
-            streams_to_selected_fields = {stream: set() for stream in self.streams_to_test()}
-            self.select_streams_and_fields(conn_id, test_catalogs, streams_to_selected_fields)
-
-            # set state to ensure conversion window is used
-            today_datetime = dt.strftime(dt.utcnow(), self.BOOKMARK_FORMAT)
-            initial_state = {
-                'bookmarks': {
-                    stream: { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': today_datetime}}
-                    for stream in self.streams_to_test()
-                }, 'currently_syncing': None
-            }
-
-            menagerie.set_state(conn_id, initial_state)
-
-            # Run a sync
-            sync_job_name = runner.run_sync_mode(self, conn_id)
-
-            # Verify the tap and target do not throw a critical error
-            exit_status = menagerie.get_exit_status(conn_id, sync_job_name)
-            menagerie.verify_sync_exit_status(self, exit_status, sync_job_name)
-
-            # Verify tap replicates through today by check state
-            final_state = menagerie.get_state(conn_id)
-            self.assertDictEqual(final_state, initial_state)
-
-            with self.subTest():
-                raise AssertionError("Tap should not have ran sync with conversion_window: "
-                                     f"value {self.conversion_window}, type {type(self.conversion_window)}")
-
-        except Exception as ex:
+        with self.assertRaises(Exception) as context:
             err_msg_1 = "'message': 'properties do not match schema'"
             err_msg_2 = "'bad_properties': ['conversion_window']"
 
-            LOGGER.info(f"********** Expected exception occurred.")
+            # Create a connection
+            conn_id = connections.ensure_connection(self, original_properties=False)
 
-            # Verify connection cannot be made with invalid conversion_window
-            LOGGER.info(f"********** Validating error message contains {err_msg_1}")
-            self.assertIn(err_msg_1, ex.args[0])
-            LOGGER.info(f"********** Validating error message contains {err_msg_2}")
-            self.assertIn(err_msg_2, ex.args[0])
+        # Verify connection cannot be made with invalid conversion_window
+        LOGGER.info(f"********** Validating error message contains {err_msg_1}")
+        self.assertIn(err_msg_1, str(context.exception))
+        LOGGER.info(f"********** Validating error message contains {err_msg_2}")
+        self.assertIn(err_msg_2, str(context.exception))
 
 
-# # BUG https://jira.talendforge.org/browse/TDL-21395
+# BUG https://jira.talendforge.org/browse/TDL-21395
 # class ConversionWindowTestZeroInteger(ConversionWindowInvalidTest):
 
 #     # Fails (does not throw exception) with values 0, 1 as ints
@@ -137,6 +95,7 @@ class ConversionWindowInvalidTest(GA4Base):
 
 #     def test_run(self):
 #         self.run_test()
+
 
 class ConversionWindowTestZeroString(ConversionWindowInvalidTest):
 
