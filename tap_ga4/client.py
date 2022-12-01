@@ -72,6 +72,7 @@ class Client:
         offset = 0
         has_more_rows = True
         dimension_filters = None
+        # Dimension filters are hardcoded for premade reports
         if report["name"] in ["conversions_report", "in_app_purchases"]:
             dimension_filters = self.get_premade_report_dimension_filter(report["name"])
 
@@ -126,6 +127,7 @@ class Client:
 
 
     def get_premade_report_dimension_filter(self, report_name):
+        """Returns the hardcoded dimension filter for an applicable premade report"""
         if report_name == "conversions_report":
             return FilterExpression(
                 filter=Filter(
