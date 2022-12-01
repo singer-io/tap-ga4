@@ -7,7 +7,7 @@ from google.analytics.data_v1beta.types import (CheckCompatibilityRequest,
                                                 DateRange, Dimension,
                                                 GetMetadataRequest, Metric,
                                                 OrderBy, RunReportRequest,
-                                                Filter, FilterExpression,)
+                                                Filter, FilterExpression)
 from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
 from google.oauth2.credentials import Credentials
@@ -71,8 +71,9 @@ class Client:
         """
         offset = 0
         has_more_rows = True
-        if report["filters"]:
-            dimension_filters = self.get_filter_expression(report["filters"])
+        dimension_filters = None
+        if report["name"] in ["conversions_report", "in_app_purchases"]:
+            dimension_filters = self.get_premade_report_dimension_filter(report["name"])
 
         while has_more_rows:
             request = RunReportRequest(
@@ -84,9 +85,8 @@ class Client:
                 offset=offset,
                 return_property_quota=True,
                 order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))],
-                dimension_filter=None
+                dimension_filter= dimension_filters
             )
-
             response = self._make_request(request)
             has_more_rows = response.row_count > self.PAGE_SIZE + offset
             offset += self.PAGE_SIZE
@@ -125,10 +125,19 @@ class Client:
         return self._make_request(request)
 
 
-    def get_filter_expression(self, filters):
-        return FilterExpression(
-            filter=Filter(
-                field_name=filter_json[0]["field_name"],
-                string_filter=Filter.StringFilter(value=filter_json[0]["string_filter"]),
+    def get_premade_report_dimension_filter(self, report_name):
+        if report_name == "conversions_report":
+            return FilterExpression(
+                filter=Filter(
+                    field_name="isConversionEvent",
+                    string_filter=Filter.StringFilter(value="true")
+                )
             )
-        )
+        if report_name == "in_app_purchases":
+            return FilterExpression(
+                filter=Filter(
+                    field_name="eventName",
+                    string_filter=Filter.StringFilter(value="in_app_purchase")
+                )
+            )
+        return None

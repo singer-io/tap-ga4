@@ -179,8 +179,7 @@ def sync_report(client, schema, report, start_date, end_date, request_window_siz
               "property_id": property_id,
               "account_id": account_id,
               "metrics": metrics,
-              "dimensions": dimensions,
-              "filters": dimension_filters}
+              "dimensions": dimensions}
     """
     LOGGER.info("Syncing %s for property_id %s", report['name'], report['property_id'])
 
@@ -237,14 +236,13 @@ def sync(client, config, catalog, state):
         singer.write_schema(stream.stream,
                             schema,
                             stream.key_properties)
-        filters = metadata.get(mdata, (), 'tap-ga4.filters')
+
         report = {"property_id": config["property_id"],
                   "account_id": config["account_id"],
                   "name": stream.stream,
                   "id": stream.tap_stream_id,
                   "metrics": metrics,
-                  "dimensions": dimensions,
-                  "filters": filters}
+                  "dimensions": dimensions}
 
         start_date = get_report_start_date(config, report["property_id"], state, report["id"])
         request_window_size = int(config.get("request_window_size", DEFAULT_REQUEST_WINDOW_SIZE))

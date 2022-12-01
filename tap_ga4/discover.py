@@ -101,7 +101,7 @@ def to_snake_case(name):
     return re.sub(r'(?<!^)(?<!:)(?=[A-Z])|[:]', '_', name).lower()
 
 
-def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclusions, filters, is_premade=False):
+def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
@@ -111,8 +111,7 @@ def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclus
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "tap_ga4.group", "Report Field"),
                    ["_sdc_record_hash", "property_id", "account_id"],
                    mdata)
-    if is_premade and filters:
-        mdata = metadata.write(mdata, (), "tap-ga4.filters", filters)
+
     for dimension in dimensions.keys():
         mdata = metadata.write(mdata, ("properties", dimension), "tap_ga4.group", dimensions[dimension].category)
         mdata = metadata.write(mdata, ("properties", dimension), "behavior", "DIMENSION")
@@ -138,7 +137,7 @@ def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclus
     return mdata
 
 
-def generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report, filters, is_premade=False):
+def generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report, is_premade=False):
     LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
     # Convert field names to snake_case for consistency across downstream use-cases
@@ -150,8 +149,7 @@ def generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exc
     add_dimensions_to_schema(schema, snake_dimensions)
     add_metrics_to_schema(schema, snake_metrics)
     add_metrics_to_schema(schema, snake_invalids)
-    mdata = generate_metadata(schema, snake_dimensions, snake_metrics, snake_invalids, field_exclusions,
-                              filters, is_premade)
+    mdata = generate_metadata(schema, snake_dimensions, snake_metrics, snake_invalids, field_exclusions, is_premade)
     return schema, mdata
 
 
@@ -163,16 +161,14 @@ def generate_catalog(reports, dimensions, metrics, invalid_metrics, field_exclus
                              if dimension.api_name in report["dimensions"]]
         report_metrics = [metric for metric in metrics
                           if metric.api_name in report["metrics"]]
-        report_filters = report.get("dimension_filter", None)
-        schema, mdata = generate_schema_and_metadata(report_dimensions, report_metrics, None,
-                                                     field_exclusions, report, report_filters, is_premade=True)
+        schema, mdata = generate_schema_and_metadata(report_dimensions, report_metrics, None, field_exclusions, report, is_premade=True)
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=["_sdc_record_hash"],
                                             stream=report["name"],
                                             tap_stream_id=report["name"],
                                             metadata=metadata.to_list(mdata)))
     for report in reports:
-        schema, mdata = generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report, None)
+        schema, mdata = generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report)
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=["_sdc_record_hash"],
                                             stream=report["name"],

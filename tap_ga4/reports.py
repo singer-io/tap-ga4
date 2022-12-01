@@ -267,9 +267,6 @@ PREMADE_REPORTS = [
             "date",
             "eventName",
         ],
-        "dimension_filter": [
-            {"field_name": "isConversionEvent", "string_filter":"true"}
-        ],
     },
     {
         "name": "page_title_and_screen_class_report",
@@ -461,6 +458,17 @@ PREMADE_REPORTS = [
         "dimensions": [
             "date",
             "itemBrand",
+        ],
+    },
+    {
+        "name": "in_app_purchases",
+        "metrics": [
+            "itemsPurchased",
+            "itemRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "itemId",
         ],
     },
     {
