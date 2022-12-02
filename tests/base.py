@@ -127,8 +127,7 @@ class GA4Base(BaseCase):
             'ecommerce_purchases_item_id_report': default_expectations,
             'ecommerce_purchases_item_name_report': default_expectations,
             'events_report': default_expectations,
-            # TODO: There is not app purchaser data in the test account, uncomment if that changes
-            #'in_app_purchases': default_expectations,
+            'in_app_purchases': default_expectations,
             'page_path_and_screen_class_report': default_expectations,
             'page_title_and_screen_class_report': default_expectations,
             'page_title_and_screen_name_report': default_expectations,

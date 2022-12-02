@@ -11,4 +11,6 @@ class GA4MinimumSelectionTest(MinimumSelectionTest, GA4Base):
         return "tt_ga4_auto"
 
     def streams_to_test(self):
-        return set(self.expected_metadata().keys())
+        streams_to_test = set(self.expected_metadata().keys())
+        # We have no test data for in_app_purchases stream
+        return streams_to_test.remove("in_app_purchases")
