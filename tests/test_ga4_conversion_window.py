@@ -133,7 +133,7 @@ class ConversionWindowBaseTest(GA4Base):
                 self.assertGreaterEqual(oldest_date, oldest_possible_date)
                 # Verify minimal gap between oldest record and conversion_window
                 # allow a 1 day gap for UTC / day rollover, stream generates 1 rec per day
-                self.assertTrue(timedelta(days=1) > (oldest_date - oldest_possible_date))
+                self.assertGreaterEqual(timedelta(days=1), (oldest_date - oldest_possible_date))
 
 
 class ConversionWindowTestThirty(ConversionWindowBaseTest):
