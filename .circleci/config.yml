@@ -82,7 +82,7 @@ jobs:
           at: /usr/local/share/virtualenvs
       - run:
           name: 'Run Integration Tests'
-          no_output_timeout: 30m
+          no_output_timeout: 60m
           command: |
             source /usr/local/share/virtualenvs/dev_env.sh
             mkdir /tmp/${CIRCLE_PROJECT_REPONAME}
