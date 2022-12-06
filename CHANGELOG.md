@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.14
+  * Update cached field exclusions to match changes made in the GA4 Data API [#33](https://github.com/singer-io/tap-ga4/pull/33)
 ## v0.0.13
   * Mark metrics with non-ascii non-alphanumeric characters as unsupported [#28](https://github.com/singer-io/tap-ga4/pull/28)
 ## v0.0.12
