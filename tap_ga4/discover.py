@@ -101,7 +101,7 @@ def to_snake_case(name):
     return re.sub(r'(?<!^)(?<!:)(?=[A-Z])|[:]', '_', name).lower()
 
 
-def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=False):
+def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
                                            replication_method=["INCREMENTAL"])
     mdata = metadata.to_map(mdata)
@@ -128,22 +128,32 @@ def generate_metadata(schema, dimensions, metrics, field_exclusions, is_premade=
         if is_premade:
             mdata = metadata.write(mdata, ("properties", metric), "selected-by-default", True)
 
+    for metric in invalid_metrics.keys():
+        mdata = metadata.write(mdata, ("properties", metric), "tap_ga4.group", invalid_metrics[metric].category)
+        mdata = metadata.write(mdata, ("properties", metric), "behavior", "METRIC")
+        mdata = metadata.write(mdata, ("properties", metric), "tap-ga4.api-field-names", invalid_metrics[metric].api_name)
+        mdata = metadata.write(mdata, ("properties", metric), "inclusion", "unsupported")
+
     return mdata
 
 
-def generate_schema_and_metadata(dimensions, metrics, field_exclusions, report, is_premade=False):
+def generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report, is_premade=False):
     LOGGER.info("Discovering fields for report: %s", report["name"])
     schema = generate_base_schema()
     # Convert field names to snake_case for consistency across downstream use-cases
     snake_dimensions = {to_snake_case(dimension.api_name):dimension for dimension in dimensions}
     snake_metrics = {to_snake_case(metric.api_name):metric for metric in metrics}
+    snake_invalids = {}
+    if not is_premade:
+        snake_invalids = {to_snake_case(metric.api_name):metric for metric in invalid_metrics}
     add_dimensions_to_schema(schema, snake_dimensions)
     add_metrics_to_schema(schema, snake_metrics)
-    mdata = generate_metadata(schema, snake_dimensions, snake_metrics, field_exclusions, is_premade)
+    add_metrics_to_schema(schema, snake_invalids)
+    mdata = generate_metadata(schema, snake_dimensions, snake_metrics, snake_invalids, field_exclusions, is_premade)
     return schema, mdata
 
 
-def generate_catalog(reports, dimensions, metrics, field_exclusions):
+def generate_catalog(reports, dimensions, metrics, invalid_metrics, field_exclusions):
     catalog_entries = []
     LOGGER.info("Generating catalog")
     for report in PREMADE_REPORTS:
@@ -151,14 +161,14 @@ def generate_catalog(reports, dimensions, metrics, field_exclusions):
                              if dimension.api_name in report["dimensions"]]
         report_metrics = [metric for metric in metrics
                           if metric.api_name in report["metrics"]]
-        schema, mdata = generate_schema_and_metadata(report_dimensions, report_metrics, field_exclusions, report, is_premade=True)
+        schema, mdata = generate_schema_and_metadata(report_dimensions, report_metrics, None, field_exclusions, report, is_premade=True)
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=["_sdc_record_hash"],
                                             stream=report["name"],
                                             tap_stream_id=report["name"],
                                             metadata=metadata.to_list(mdata)))
     for report in reports:
-        schema, mdata = generate_schema_and_metadata(dimensions, metrics, field_exclusions, report)
+        schema, mdata = generate_schema_and_metadata(dimensions, metrics, invalid_metrics, field_exclusions, report)
         catalog_entries.append(CatalogEntry(schema=Schema.from_dict(schema),
                                             key_properties=["_sdc_record_hash"],
                                             stream=report["name"],
@@ -200,17 +210,32 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     return field_exclusions
 
 
+# We've observed failures in metric compatiblity requests
+# where the api_name contains non-alphanumeric, non-ascii characters.
+# see: https://support.google.com/analytics/thread/176551995/conversion-event-api-calls-should-use-event-id-not-name-sessionconversionrate-conversion-event-name
+def is_valid_alphanumeric_name(name):
+    """
+    Returns boolean determining if name is an ascii alphanumeric string.
+    Brackets and colons are also part of valid names to send to Google.
+    """
+    return re.match(r"^[a-zA-Z0-9\[\]_:]+$", name)
+
+
 def get_dimensions_and_metrics(client, property_id):
     response = client.get_dimensions_and_metrics(property_id)
     dimensions = [dimension for dimension in response.dimensions
                   if dimension.category not in INCOMPATIBLE_CATEGORIES]
     metrics = [metric for metric in response.metrics
-               if metric.category not in INCOMPATIBLE_CATEGORIES]
-    return dimensions, metrics
+               if metric.category not in INCOMPATIBLE_CATEGORIES
+               and is_valid_alphanumeric_name(metric.api_name)]
+    invalid_metrics = [metric for metric in response.metrics
+                            if metric.category not in INCOMPATIBLE_CATEGORIES
+                            and not is_valid_alphanumeric_name(metric.api_name)]
+    return dimensions, metrics, invalid_metrics
 
 
 def discover(client, reports, property_id):
-    dimensions, metrics = get_dimensions_and_metrics(client, property_id)
+    dimensions, metrics, invalid_metrics = get_dimensions_and_metrics(client, property_id)
     field_exclusions = get_field_exclusions(client, property_id, dimensions, metrics)
-    catalog = generate_catalog(reports, dimensions, metrics, field_exclusions)
+    catalog = generate_catalog(reports, dimensions, metrics, invalid_metrics, field_exclusions)
     write_catalog(catalog)
