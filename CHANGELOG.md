@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.15
+  * Adds two preamde reports with filters, conversions_report and in_app_purchases [#31](https://github.com/singer-io/tap-ga4/pull/31)
 ## v0.0.14
   * Update cached field exclusions to match changes made in the GA4 Data API [#33](https://github.com/singer-io/tap-ga4/pull/33)
 ## v0.0.13
