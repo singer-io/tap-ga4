@@ -257,6 +257,18 @@ PREMADE_REPORTS = [
         ],
     },
     {
+        "name": "conversions_report",
+        "metrics": [
+            "conversions",
+            "totalUsers",
+            "totalRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "eventName",
+        ],
+    },
+    {
         "name": "page_title_and_screen_class_report",
         "metrics": [
             "screenPageViews",
@@ -446,6 +458,17 @@ PREMADE_REPORTS = [
         "dimensions": [
             "date",
             "itemBrand",
+        ],
+    },
+    {
+        "name": "in_app_purchases",
+        "metrics": [
+            "itemsPurchased",
+            "itemRevenue",
+        ],
+        "dimensions": [
+            "date",
+            "itemId",
         ],
     },
     {

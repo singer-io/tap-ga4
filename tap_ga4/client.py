@@ -6,7 +6,8 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (CheckCompatibilityRequest,
                                                 DateRange, Dimension,
                                                 GetMetadataRequest, Metric,
-                                                OrderBy, RunReportRequest)
+                                                OrderBy, RunReportRequest,
+                                                Filter, FilterExpression)
 from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
 from google.oauth2.credentials import Credentials
@@ -70,6 +71,11 @@ class Client:
         """
         offset = 0
         has_more_rows = True
+        dimension_filters = None
+        # Dimension filters are hardcoded for premade reports
+        if report["name"] in ["conversions_report", "in_app_purchases"]:
+            dimension_filters = self.get_premade_report_dimension_filter(report["name"])
+
         while has_more_rows:
             request = RunReportRequest(
                 property=f"properties/{report['property_id']}",
@@ -79,9 +85,9 @@ class Client:
                 limit=self.PAGE_SIZE,
                 offset=offset,
                 return_property_quota=True,
-                order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))]
+                order_bys=[OrderBy(dimension=OrderBy.DimensionOrderBy(dimension_name="date", order_type="NUMERIC"))],
+                dimension_filter= dimension_filters
             )
-
             response = self._make_request(request)
             has_more_rows = response.row_count > self.PAGE_SIZE + offset
             offset += self.PAGE_SIZE
@@ -118,3 +124,22 @@ class Client:
             compatibility_filter="INCOMPATIBLE"
             )
         return self._make_request(request)
+
+
+    def get_premade_report_dimension_filter(self, report_name):
+        """Returns the hardcoded dimension filter for an applicable premade report"""
+        if report_name == "conversions_report":
+            return FilterExpression(
+                filter=Filter(
+                    field_name="isConversionEvent",
+                    string_filter=Filter.StringFilter(value="true")
+                )
+            )
+        if report_name == "in_app_purchases":
+            return FilterExpression(
+                filter=Filter(
+                    field_name="eventName",
+                    string_filter=Filter.StringFilter(value="in_app_purchase")
+                )
+            )
+        return None
