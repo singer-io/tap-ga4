@@ -13,11 +13,7 @@ class GA4SyncCanaryTest(SyncCanaryTest, GA4Base):
         return "tt_ga4_sync"
 
     def streams_to_test(self):
-        streams_to_test = set(self.expected_metadata().keys())
-        # We have no test data for in_app_purchases stream
-        streams_to_test.remove("in_app_purchases")
-        return streams_to_test
-
+        return set(self.expected_metadata().keys())
 
     def streams_to_selected_fields(self):
         return {
@@ -36,7 +32,7 @@ class GA4SyncCanaryTest(SyncCanaryTest, GA4Base):
             },
             'content_group_report': { "date", "browser", "conversions", },
             # TODO clean up fields and formatting
-            'conversions_report': { "date", "browser", "conversions", },
+            # 'conversions_report': { "date", "browser", "conversions", }, TODO Enable once filters are implemented
             'demographic_age_report': { "date", "browser", "conversions", },
             'demographic_city_report': { "date", "browser", "conversions", },
             'demographic_country_report': { "date", "browser", "conversions", },

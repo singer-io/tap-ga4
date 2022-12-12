@@ -110,7 +110,6 @@ class GA4Base(BaseCase):
                 self.RESPECTS_START_DATE: False,
             },
             'content_group_report': default_expectations,
-            'conversions_report': default_expectations,
             'demographic_age_report': default_expectations,
             'demographic_city_report': default_expectations,
             'demographic_country_report': default_expectations,
@@ -127,7 +126,6 @@ class GA4Base(BaseCase):
             'ecommerce_purchases_item_id_report': default_expectations,
             'ecommerce_purchases_item_name_report': default_expectations,
             'events_report': default_expectations,
-            'in_app_purchases': default_expectations,
             'page_path_and_screen_class_report': default_expectations,
             'page_title_and_screen_class_report': default_expectations,
             'page_title_and_screen_name_report': default_expectations,
@@ -159,6 +157,18 @@ class GA4Base(BaseCase):
             'user_acq_first_user_source_and_medium_report': default_expectations,
             'user_acq_first_user_source_platform_report': default_expectations,
             'user_acq_first_user_source_report': default_expectations,
+            # TODO Enable once filters are implemented
+            # 'conversions_report': {
+            #     self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            #         'account_id',
+            #         'property_id',
+            #     },
+            #     self.PRIMARY_KEYS: {"_sdc_record_hash"},
+            #     self.REPLICATION_METHOD: self.INCREMENTAL,
+            #     self.REPLICATION_KEYS: {"date"},
+            #     self.RESPECTS_START_DATE: True, # Updating here does not change tap behavior
+            # },
+            # 'ecommerce_purchases_item_category_combined_report': default_expectations,
         }
 
 
@@ -377,3 +387,4 @@ class GA4Base(BaseCase):
         if stream_bookmark:
             return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
         return None
+
