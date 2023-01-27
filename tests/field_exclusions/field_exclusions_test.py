@@ -38,7 +38,7 @@ class TestFieldExclusions(unittest.TestCase):
 
         ### Uncomment to regenerate field_exclusions.json ###
         # with open("tap_ga4/field_exclusions.json", "w", encoding="utf-8") as outfile:
-        #     fields_json = json.dumps(fields)
+        #     fields_json = json.dumps(fields, indent=4)
         #     outfile.write(fields_json)
                 
         return fields
