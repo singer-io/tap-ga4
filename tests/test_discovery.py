@@ -27,10 +27,3 @@ class GA4DiscoveryTest(DiscoveryTest, GA4Base):
 
         So this test case is skipped.
         """
-
-    @unittest.skip("TODO Known Failure. Waiting on tap implementation.")
-    def test_replication_metadata_by_streams(self):
-        """
-        Currently the replication key is not yet decided on, and the forced-replication-method
-        is missing from metadata.
-        """
