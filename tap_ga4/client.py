@@ -10,8 +10,6 @@ from google.analytics.data_v1beta.types import (CheckCompatibilityRequest,
 from google.api_core.exceptions import (ResourceExhausted, ServerError,
                                         TooManyRequests)
 from google.oauth2.credentials import Credentials
-from singer import utils
-
 
 LOGGER = singer.get_logger()
 
