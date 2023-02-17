@@ -1,5 +1,4 @@
 import time
-from datetime import timedelta
 import backoff
 import singer
 from google.analytics.data_v1beta import BetaAnalyticsDataClient
