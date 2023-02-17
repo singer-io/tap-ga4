@@ -82,7 +82,7 @@ jobs:
           at: /usr/local/share/virtualenvs
       - run:
           name: 'Run Integration Tests'
-          no_output_timeout: 60m
+          no_output_timeout: 70m
           command: |
             source /usr/local/share/virtualenvs/dev_env.sh
             mkdir /tmp/${CIRCLE_PROJECT_REPONAME}
@@ -109,7 +109,7 @@ jobs:
           at: /usr/local/share/virtualenvs
       - run:
           name: 'Run Field Exclusion Test'
-          no_output_timeout: 60m
+          no_output_timeout: 70m
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh

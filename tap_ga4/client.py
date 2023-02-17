@@ -17,22 +17,13 @@ from singer import utils
 LOGGER = singer.get_logger()
 
 
-def seconds_to_next_hour():
-    current_utc_time = utils.now()
-    # Get a time 10 seconds past the hour to be sure we don't make another
-    # request before Google resets quota.
-    next_hour = (current_utc_time + timedelta(hours=1)).replace(minute=0, second=10, microsecond=0)
-    time_till_next_hour = (next_hour - current_utc_time).seconds
-    return time_till_next_hour
-
-
 def sleep_if_quota_reached(ex):
     if isinstance(ex, ResourceExhausted):
-        seconds = seconds_to_next_hour()
+        # Wait 1 hour for google to reset api quota
+        seconds = 3600
         LOGGER.info("Reached hourly quota limit. Sleeping %s seconds.", seconds)
         time.sleep(seconds)
     return False
-
 
 class Client:
 
