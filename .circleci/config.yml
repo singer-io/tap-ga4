@@ -143,8 +143,6 @@ workflows:
             - tier-1-tap-user
           requires:
             - run_pylint
-            - run_unit_tests
-            - run_integration_tests
       - run_unit_tests:
           context:
             - circleci-user
