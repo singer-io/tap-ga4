@@ -128,6 +128,9 @@ jobs:
             git checkout main
             git checkout -b update-field-selection-$(date -I)
             mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
+            OLD_VERSION=$(python setup.py --version)
+            NEW_VERSION="$(python setup.py --version | awk -F. '/[0-9]+\./{$NF++;print}/' OFS=.)"
+            sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
             git commit -am "Update field exclusions"
             git push -u origin update-field-selection-$(date -I)
       - slack/notify-on-failure:
