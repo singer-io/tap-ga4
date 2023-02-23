@@ -1,4 +1,6 @@
 # Changelog
+## v0.0.20
+  * Update cached field exclusions to match changes made in the GA4 Data API [#44](https://github.com/singer-io/tap-ga4/pull/44)
 ## v0.0.19
   * Update wait time after quota limit is reached to one hour [#42](https://github.com/singer-io/tap-ga4/pull/42)
 ## v0.0.18
