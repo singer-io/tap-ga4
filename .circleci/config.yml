@@ -132,7 +132,7 @@ jobs:
             apt install -y gawk
             NEW_VERSION="$(python setup.py --version | gawk -F. '/[0-9]+/{$NF++;print}' OFS=.)"
             sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
-            git commit -am "Update field exclusions and version bump"
+            git commit -am "Update field exclusions"
             git push -u origin update-field-selection-$(date -I)
       - slack/notify-on-failure:
           only_for_branches: main
@@ -147,12 +147,32 @@ workflows:
           context:
             - circleci-user
             - tier-1-tap-user
-      - run_field_exclusions_test:
+      - run_pylint:
           context:
             - circleci-user
             - tier-1-tap-user
           requires:
             - ensure_env
+      - run_unit_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_integration_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - build:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - run_pylint
+            - run_unit_tests
+            - run_integration_tests
   build_daily:
     jobs:
       - ensure_env:
