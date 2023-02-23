@@ -105,6 +105,9 @@ jobs:
     executor: docker-executor
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "cf:fb:a9:64:e1:34:ee:2b:74:9c:88:b0:bf:f8:0f:99"
       - attach_workspace:
           at: /usr/local/share/virtualenvs
       - run:
