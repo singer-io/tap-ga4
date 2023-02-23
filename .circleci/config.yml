@@ -135,6 +135,8 @@ workflows:
           context:
             - circleci-user
             - tier-1-tap-user
+          requires:
+            - ensure_env
   build_daily:
     jobs:
       - ensure_env:
