@@ -125,6 +125,7 @@ jobs:
             echo "Committing to GitHub"
             git config user.email "stitchintegrationdev@talend.com"
             git config user.name "CircleCI Job"
+            git checkout main
             git checkout -b update-field-selection-$(date -I)
             mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
             git commit -am "Update field exclusions"
