@@ -737,7 +737,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -882,14 +882,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "day": [
         "cohortNthDay",
@@ -1586,7 +1589,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -1738,14 +1741,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "googleAdsAccountName": [
         "cohortNthDay",
@@ -2697,7 +2703,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemBrand": [
         "campaignId",
@@ -2782,7 +2789,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemCategory": [
         "campaignId",
@@ -2867,7 +2875,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemCategory2": [
         "campaignId",
@@ -2952,7 +2961,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemCategory3": [
         "campaignId",
@@ -3037,7 +3047,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemCategory4": [
         "campaignId",
@@ -3122,7 +3133,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemCategory5": [
         "campaignId",
@@ -3207,7 +3219,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemId": [
         "campaignId",
@@ -3292,7 +3305,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemListId": [
         "campaignId",
@@ -3377,7 +3391,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemListName": [
         "campaignId",
@@ -3462,7 +3477,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemName": [
         "campaignId",
@@ -3547,7 +3563,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemPromotionCreativeName": [
         "campaignId",
@@ -3632,7 +3649,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemPromotionId": [
         "campaignId",
@@ -3717,7 +3735,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemPromotionName": [
         "campaignId",
@@ -3802,7 +3821,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemVariant": [
         "campaignId",
@@ -3887,9 +3907,10 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
-    "landingPage": [
+    "landingPagePlusQueryString": [
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
@@ -4439,7 +4460,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -4584,14 +4605,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "mobileDeviceBranding": [
         "cohortNthDay",
@@ -4816,7 +4840,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -4961,14 +4985,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "nthMonth": [
         "cohortNthDay",
@@ -5210,7 +5237,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -5362,14 +5389,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "pagePath": [
         "cohortNthDay",
@@ -5473,7 +5503,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -5625,14 +5655,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "pageReferrer": [
         "cohortNthDay",
@@ -6911,7 +6944,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -7063,14 +7096,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "unifiedScreenClass": [
         "cohortNthDay",
@@ -7650,7 +7686,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -7798,14 +7834,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "advertiserAdCost": [
         "achievementId",
@@ -7863,7 +7902,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -8011,14 +8050,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "advertiserAdCostPerClick": [
         "achievementId",
@@ -8076,7 +8118,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -8224,14 +8266,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "advertiserAdCostPerConversion": [
         "achievementId",
@@ -8289,7 +8334,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -8437,14 +8482,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "advertiserAdImpressions": [
         "achievementId",
@@ -8502,7 +8550,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -8650,14 +8698,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "averagePurchaseRevenue": [
         "campaignId",
@@ -9989,7 +10040,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsAddedToCart": [
         "campaignId",
@@ -10074,7 +10126,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsCheckedOut": [
         "campaignId",
@@ -10159,7 +10212,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsClickedInList": [
         "campaignId",
@@ -10244,7 +10298,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsClickedInPromotion": [
         "campaignId",
@@ -10329,7 +10384,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsPurchased": [
         "campaignId",
@@ -10414,7 +10470,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsViewed": [
         "campaignId",
@@ -10499,7 +10556,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsViewedInList": [
         "campaignId",
@@ -10584,7 +10642,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemsViewedInPromotion": [
         "campaignId",
@@ -10669,7 +10728,8 @@
         "conversions:contact_sales_request",
         "conversions:demo_request",
         "conversions:free_trial_request",
-        "conversions:purchase"
+        "conversions:purchase",
+        "conversions:stitch_sign_up"
     ],
     "itemViewEvents": [
         "campaignId",
@@ -11064,14 +11124,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "organicGoogleSearchClicks": [
         "achievementId",
@@ -11330,14 +11393,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "organicGoogleSearchClickThroughRate": [
         "achievementId",
@@ -11596,14 +11662,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "organicGoogleSearchImpressions": [
         "achievementId",
@@ -11862,14 +11931,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "promotionClicks": [
         "campaignId",
@@ -12292,7 +12364,7 @@
         "itemPromotionId",
         "itemPromotionName",
         "itemVariant",
-        "landingPage",
+        "landingPagePlusQueryString",
         "language",
         "languageCode",
         "level",
@@ -12440,14 +12512,17 @@
         "conversions:demo_request",
         "conversions:free_trial_request",
         "conversions:purchase",
+        "conversions:stitch_sign_up",
         "sessionConversionRate:contact_sales_request",
         "sessionConversionRate:demo_request",
         "sessionConversionRate:free_trial_request",
         "sessionConversionRate:purchase",
+        "sessionConversionRate:stitch_sign_up",
         "userConversionRate:contact_sales_request",
         "userConversionRate:demo_request",
         "userConversionRate:free_trial_request",
-        "userConversionRate:purchase"
+        "userConversionRate:purchase",
+        "userConversionRate:stitch_sign_up"
     ],
     "screenPageViews": [
         "campaignId",
