@@ -134,6 +134,14 @@ jobs:
             sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
             git commit -am "Update field exclusions"
             git push -u origin update-field-selection-$(date -I)
+            wget https://github.com/cli/cli/releases/download/v2.23.0/gh_2.23.0_linux_amd64.tar.gz
+            tar xf gh_2.23.0_linux_amd64.tar.gz
+            cp gh_2.23.0_linux_amd64/bin/gh .
+            ./gh pr create --title "Update field selection" --body "Update cached field exclusions to match changes made in the GA4 Data API" -B main 2> create-pr
+            export PR_NUMBER=$(tail -n 1 create-pr | gawk -F/ '{print $NF}')
+            sed -i '1 a\## v'"$NEW_VERSION"'\n  * Update cached field exclusions to match changes made in the GA4 Data API [#'"$PR_NUMBER"'](https://github.com/singer-io/tap-ga4/pull/'"$PR_NUMBER"')' CHANGELOG.md
+            git commit -am "Update changelog [skip-ci]"
+            git push
       - slack/notify-on-failure:
           only_for_branches: main
       - store_artifacts:
