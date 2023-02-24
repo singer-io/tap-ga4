@@ -105,6 +105,9 @@ jobs:
     executor: docker-executor
     steps:
       - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "cf:fb:a9:64:e1:34:ee:2b:74:9c:88:b0:bf:f8:0f:99"
       - attach_workspace:
           at: /usr/local/share/virtualenvs
       - run:
@@ -115,6 +118,22 @@ jobs:
             source /usr/local/share/virtualenvs/dev_env.sh
             pip install nose
             nosetests tests/field_exclusions
+      - run:
+          name: 'Commit changes to git'
+          when: on_fail
+          command: |
+            echo "Committing to GitHub"
+            git config user.email "stitchintegrationdev@talend.com"
+            git config user.name "CircleCI Job"
+            git checkout main
+            git checkout -b update-field-selection-$(date -I)
+            mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
+            OLD_VERSION=$(python setup.py --version)
+            apt install -y gawk
+            NEW_VERSION="$(python setup.py --version | gawk -F. '/[0-9]+/{$NF++;print}' OFS=.)"
+            sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
+            git commit -am "Update field exclusions"
+            git push -u origin update-field-selection-$(date -I)
       - slack/notify-on-failure:
           only_for_branches: main
       - store_artifacts:
