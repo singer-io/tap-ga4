@@ -151,17 +151,36 @@ workflows:
   version: 2
   commit: &commit_jobs
     jobs:
-      - ensure_env:
+            - ensure_env:
           context:
             - circleci-user
             - tier-1-tap-user
-      - run_field_exclusions_test:
+      - run_pylint:
           context:
             - circleci-user
             - tier-1-tap-user
-            - singer-bot-github-token
           requires:
             - ensure_env
+      - run_unit_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - run_integration_tests:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - ensure_env
+      - build:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+          requires:
+            - run_pylint
+            - run_unit_tests
+            - run_integration_tests
   build_daily:
     jobs:
       - ensure_env:
@@ -190,7 +209,7 @@ workflows:
           context:
             - circleci-user
             - tier-1-tap-user
-            - stitch-stitch-cd-circleci-github-token
+            - singer-bot-github-token
           requires:
             - run_pylint
             - run_unit_tests
