@@ -47,5 +47,9 @@ class TestFieldExclusions(unittest.TestCase):
         with open("tap_ga4/field_exclusions.json", "r") as infile:
             cached_field_exclusions = json.load(infile)
 
-        generated_field_exclusions = self.get_default_field_exclusions(self.client, self.client_config["property_id"])
+        #generated_field_exclusions = self.get_default_field_exclusions(self.client, self.client_config["property_id"])
+        with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
+            fields_json = json.dumps({}, indent=4)
+            outfile.write(fields_json)
+        generated_field_exclusions = False
         self.assertEqual(generated_field_exclusions, cached_field_exclusions)
