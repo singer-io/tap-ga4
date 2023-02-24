@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name="tap-ga4",
-    version="0.0.19",
+    version="0.0.20",
     description="Singer.io tap for extracting data",
     author="Stitch",
     url="http://singer.io",
