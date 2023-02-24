@@ -159,7 +159,7 @@ workflows:
           context:
             - circleci-user
             - tier-1-tap-user
-            - stitch-stitch-cd-circleci-github-token
+            - singer-bot-github-token
           requires:
             - ensure_env
   build_daily:
