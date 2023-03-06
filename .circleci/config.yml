@@ -151,7 +151,7 @@ workflows:
   version: 2
   commit: &commit_jobs
     jobs:
-            - ensure_env:
+      - ensure_env:
           context:
             - circleci-user
             - tier-1-tap-user
