@@ -103,7 +103,7 @@ def to_snake_case(name):
 
 def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclusions, is_premade=False):
     mdata = metadata.get_standard_metadata(schema=schema, key_properties=["_sdc_record_hash"], valid_replication_keys=["date"],
-                                           replication_method=["INCREMENTAL"])
+                                           replication_method="INCREMENTAL")
     mdata = metadata.to_map(mdata)
     mdata = reduce(lambda mdata, field_name: metadata.write(mdata, ("properties", field_name), "inclusion", "automatic"),
                    ["_sdc_record_hash", "property_id", "account_id", "date"],
