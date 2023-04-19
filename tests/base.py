@@ -276,7 +276,6 @@ class GA4Base(BaseCase):
 
         return name_and_id_bidirectional_map
 
-    # TODO update bookmark test to use this
     def get_stream_name(self, tap_stream_id):
         """
         Returns the stream_name given the tap_stream_id because synced_records
@@ -289,69 +288,6 @@ class GA4Base(BaseCase):
         """
         return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
 
-
-    @staticmethod
-    def select_all_streams_and_fields(conn_id, catalogs, select_all_fields: bool = True):
-        """Select all streams and all fields within streams"""
-        for catalog in catalogs:
-            schema = menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
-
-            non_selected_properties = []
-            if not select_all_fields:
-                # get a list of all properties so that none are selected
-                non_selected_properties = schema.get('annotated-schema', {}).get(
-                    'properties', {}).keys()
-
-            connections.select_catalog_and_fields_via_metadata(
-                conn_id, catalog, schema, [], non_selected_properties)
-
-
-    def perform_and_verify_table_and_field_selection(self,
-                                                     conn_id,
-                                                     test_catalogs,
-                                                     select_all_fields=True):
-        """
-        Perform table and field selection based off of the streams to select
-        set and field selection parameters.
-        Verify this results in the expected streams selected and all or no
-        fields selected for those streams.
-        TODO update to account for field exclusions
-        """
-
-        # Select all available fields or select no fields from all testable streams
-        self.select_all_streams_and_fields(
-            conn_id=conn_id, catalogs=test_catalogs, select_all_fields=select_all_fields
-        )
-
-        catalogs = menagerie.get_catalogs(conn_id)
-
-        # Ensure our selection affects the catalog
-        expected_selected = [tc.get('stream_name') for tc in test_catalogs]
-        for cat in catalogs:
-            catalog_entry = menagerie.get_annotated_schema(conn_id, cat['stream_id'])
-
-            # Verify all testable streams are selected
-            selected = catalog_entry.get('annotated-schema').get('selected')
-            print("Validating selection on {}: {}".format(cat['stream_name'], selected))
-            if cat['stream_name'] not in expected_selected:
-                self.assertFalse(selected, msg="Stream selected, but not testable.")
-                continue # Skip remaining assertions if we aren't selecting this stream
-            self.assertTrue(selected, msg="Stream not selected.")
-
-            if select_all_fields:
-                # Verify all fields within each selected stream are selected
-                for field, field_props in catalog_entry.get('annotated-schema').get('properties').items():
-                    field_selected = field_props.get('selected')
-                    print("\tValidating selection on {}.{}: {}".format(
-                        cat['stream_name'], field, field_selected))
-                    self.assertTrue(field_selected, msg="Field not selected.")
-            else:
-                # Verify only automatic fields are selected
-                expected_automatic_fields = self.expected_automatic_fields().get(cat['stream_name'])
-                selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
-                self.assertEqual(expected_automatic_fields, selected_fields)
-
-
     def get_sync_start_time(self, stream, bookmark):
         """
         Calculates the sync start time, with respect to the lookback window
@@ -360,16 +296,6 @@ class GA4Base(BaseCase):
         bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
         start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
         return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
-
-
-    # TODO is this still useful now that we have get_stream_name?
-    def get_record_count_by_stream(self, record_count, stream):
-        count = record_count.get(stream)
-        if not count:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            return record_count.get(stream_name)
-        return count
-
 
     def get_bookmark_value(self, state, stream):
         bookmark = state.get('bookmarks', {})
