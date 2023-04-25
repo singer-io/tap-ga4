@@ -13,7 +13,7 @@ class GA4DiscoveryTest(DiscoveryTest, GA4Base):
         return "tt_ga4_discovery"
 
     def streams_to_test(self):
-        return set(self.expected_metadata().keys())
+        return self.expected_stream_names()
 
     @unittest.skip("Does Not Apply")
     def test_stream_naming(self):
