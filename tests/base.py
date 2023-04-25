@@ -7,7 +7,6 @@ import uuid
 from datetime import datetime as dt
 from datetime import timedelta
 
-from tap_tester import connections, menagerie, runner, LOGGER
 from tap_tester.base_suite_tests.base_case import BaseCase
 
 
@@ -20,48 +19,51 @@ class GA4Base(BaseCase):
     Shared tap-specific methods (as needed).
     """
 
-
     HASHED_KEYS = "default-hashed-keys"
     REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
     BOOKMARK_FORMAT = "%Y-%m-%d"
     CONVERSION_WINDOW = "30"
     PAGE_SIZE = 100000
 
-    start_date = ""
     custom_report_id_1 = None
     custom_report_id_2 = None
     request_window_size = None
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._start_date = ""
+
+    @property
+    def start_date(self):
+        return self._start_date
 
     @staticmethod
     def tap_name():
         """The name of the tap"""
         return "tap-ga4"
 
-
     @staticmethod
     def get_type():
         """the expected url route ending"""
         return "platform.ga4"
 
-
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         # Use the same UUID for each custom report
-        if not self.custom_report_id_1 and not self.custom_report_id_2:
-            type(self).custom_report_id_1 = str(uuid.uuid4())
-            type(self).custom_report_id_2 = str(uuid.uuid4())
+        if not GA4Base.custom_report_id_1 or not GA4Base.custom_report_id_2:
+            GA4Base.custom_report_id_1 = str(uuid.uuid4())
+            GA4Base.custom_report_id_2 = str(uuid.uuid4())
 
         return_value = {
-            'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
-            'conversion_window': self.CONVERSION_WINDOW,
+            'start_date': (dt.utcnow() - timedelta(days=3)).strftime(BaseCase.START_DATE_FORMAT),
+            'conversion_window': GA4Base.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
             'user_id': os.getenv('TAP_GA4_USER_ID'),
             'report_definitions': [
-                {"id": self.custom_report_id_1, "name": "Test Report 1"},
-                {"id": self.custom_report_id_2, "name": "Test Report 2"},
+                {"id": GA4Base.custom_report_id_1, "name": "Test Report 1"},
+                {"id": GA4Base.custom_report_id_2, "name": "Test Report 2"},
             ]
         }
 
@@ -70,10 +72,9 @@ class GA4Base(BaseCase):
 
         if self.start_date:
             return_value["start_date"] = self.start_date
-        if self.request_window_size:
-            return_value["request_window_size"] = self.request_window_size
+        if GA4Base.request_window_size:
+            return_value["request_window_size"] = GA4Base.request_window_size
         return return_value
-
 
     @staticmethod
     def get_credentials():
@@ -83,31 +84,31 @@ class GA4Base(BaseCase):
             'refresh_token': os.getenv('TAP_GA4_REFRESH_TOKEN'),
         }
 
-
-    def expected_metadata(self):
+    @classmethod
+    def expected_metadata(cls):
         """The expected streams and metadata about the streams"""
         default_expectations = {
-            self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            GA4Base.HASHED_KEYS: {  # TODO also sorted dimensions and values...
                 'account_id',
                 'property_id',
             },
-            self.PRIMARY_KEYS: {"_sdc_record_hash"},
-            self.REPLICATION_METHOD: self.INCREMENTAL,
-            self.REPLICATION_KEYS: {"date"},
-            self.RESPECTS_START_DATE: True,
+            BaseCase.PRIMARY_KEYS: {"_sdc_record_hash"},
+            BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
+            BaseCase.REPLICATION_KEYS: {"date"},
+            BaseCase.RESPECTS_START_DATE: True,
         }
 
         return {
-            'Test Report 1': default_expectations, # TODO stitch QA generated, necessary?
-            'Test Report 2': {      # TODO stitch QA generated, necessary?
-                self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            'Test Report 1': default_expectations,  # TODO stitch QA generated, necessary?
+            'Test Report 2': {       # TODO stitch QA generated, necessary?
+                GA4Base.HASHED_KEYS: {  # TODO also sorted dimensions and values...
                     'account_id',
                     'property_id',
                 },
-                self.PRIMARY_KEYS: {"_sdc_record_hash"},
-                self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"date"},
-                self.RESPECTS_START_DATE: False,
+                BaseCase.PRIMARY_KEYS: {"_sdc_record_hash"},
+                BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
+                BaseCase.REPLICATION_KEYS: {"date"},
+                BaseCase.RESPECTS_START_DATE: False,
             },
             'content_group_report': default_expectations,
             'conversions_report': default_expectations,
@@ -161,7 +162,6 @@ class GA4Base(BaseCase):
             'user_acq_first_user_source_report': default_expectations,
         }
 
-
     def expected_hashed_keys(self):
         """
         return a dictionary with key of table name
@@ -171,7 +171,6 @@ class GA4Base(BaseCase):
                 for table, properties
                 in self.expected_metadata().items()}
 
-
     def expected_automatic_fields(self):
         auto_fields = {}
         for k, v in self.expected_metadata().items():
@@ -179,7 +178,6 @@ class GA4Base(BaseCase):
                 | v.get(self.HASHED_KEYS, set())
 
         return auto_fields
-
 
     @classmethod
     def setUpClass(cls):

@@ -9,11 +9,9 @@ from base import GA4Base
 class GA4PaginationTest(PaginationTest, GA4Base):
     """GA4 pagination test implementation """
 
-
     @staticmethod
     def name():
         return "tt_ga4_pagination"
-
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
@@ -21,7 +19,6 @@ class GA4PaginationTest(PaginationTest, GA4Base):
         return {
             custom_id
         }
-
 
     def streams_to_selected_fields(self):
         return {
@@ -31,10 +28,8 @@ class GA4PaginationTest(PaginationTest, GA4Base):
             },
         }
 
-
     def get_page_limit_for_stream(self, stream):
         return self.PAGE_SIZE
-
 
     def __init__(self, test_run):
         super().__init__(test_run)

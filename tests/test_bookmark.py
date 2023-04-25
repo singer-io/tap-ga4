@@ -1,19 +1,17 @@
 import os
 import unittest
 from datetime import datetime as dt
-from datetime import timedelta
 
 from base import GA4Base
 from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
 
+
 class GA4BookmarkTest(BookmarkTest, GA4Base):
     """GA4 bookmark test implementation"""
-
 
     @staticmethod
     def name():
         return "tt_ga4_bookmark"
-
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
@@ -23,17 +21,15 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
             custom_id
         }
 
-
     def manipulate_state(self, old_state):
         manipulated_state = {
             'bookmarks': {
-                stream_id: { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.bookmark_date}}
+                stream_id: {os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.bookmark_date}}
                 for stream_id in old_state['bookmarks'].keys()
             }
         }
 
         return manipulated_state
-
 
     def streams_to_selected_fields(self):
         return {
@@ -53,11 +49,9 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
             },
         }
 
-
     ##########################################################################
-    ### Tap Specific Tests
+    # Tap Specific Tests
     ##########################################################################
-
 
     def test_bookmark_values_are_today(self):
         """
@@ -84,16 +78,13 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
                 parsed_bookmark_value_2 = self.parse_date(bookmark_value_2)
                 self.assertEqual(parsed_bookmark_value_2, today_datetime)
 
-
     ##########################################################################
-    ### Tests To Skip
+    # Tests To Skip
     ##########################################################################
-
 
     @unittest.skip("Second sync bookmark will almost never be greater than the first sync. Bookmark value truncates to the day.")
     def test_sync_2_bookmark_greater_than_sync_1(self):
         pass
-
 
     # set default values for test in init
     def __init__(self, test_run):
