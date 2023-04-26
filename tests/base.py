@@ -29,14 +29,6 @@ class GA4Base(BaseCase):
     custom_report_id_2 = None
     request_window_size = None
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._start_date = ""
-
-    @property
-    def start_date(self):
-        return self._start_date
-
     @staticmethod
     def tap_name():
         """The name of the tap"""

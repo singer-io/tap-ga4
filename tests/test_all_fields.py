@@ -81,9 +81,8 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         cls.record_count_by_stream = self.run_and_verify_sync_mode(conn_id)
         cls.synced_records = runner.get_records_from_target_output()
 
-
     ##########################################################################
-    ### Helper methods
+    # Helper methods
     ##########################################################################
 
 
