@@ -4,14 +4,18 @@ from base import GA4Base
 
 
 class GA4MinimumSelectionTest(MinimumSelectionTest, GA4Base):
-    """Standard Sync Canary Test"""
+    """Standard Automatic Fields Test"""
 
     @staticmethod
     def name():
         return "tt_ga4_auto"
 
     def streams_to_test(self):
-        streams_to_test = set(self.expected_metadata().keys())
-        # We have no test data for in_app_purchases stream
-        streams_to_test.remove("in_app_purchases")
-        return streams_to_test
+        # We have no test data for the in_app_purchases stream
+        return self.expected_stream_names().difference({'in_app_purchases'})
+
+    """
+    if stream == "traffic_acq_session_default_channel_grouping_report":
+        # TODO fill in JIRA informaiton here for BUG
+        continue
+    """
