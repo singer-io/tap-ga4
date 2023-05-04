@@ -33,7 +33,5 @@ class GA4PaginationTest(PaginationTest, GA4Base):
 
     def __init__(self, test_run):
         super().__init__(test_run)
-        self.start_date = self.timedelta_formatted(dt.now(),
-                                                   days=-100,
-                                                   date_format=self.START_DATE_FORMAT)
+        self.start_date = self.timedelta_formatted(dt.now(), delta=timedelta(days=-100))
         self.request_window_size = '100'

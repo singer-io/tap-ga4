@@ -6,6 +6,7 @@ import os
 import uuid
 from datetime import datetime as dt
 from datetime import timedelta
+from unittest import skip
 
 from tap_tester.base_suite_tests.base_case import BaseCase
 
@@ -88,6 +89,7 @@ class GA4Base(BaseCase):
             BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
             BaseCase.REPLICATION_KEYS: {"date"},
             BaseCase.RESPECTS_START_DATE: True,
+            BaseCase.LOOK_BACK_WINDOW: timedelta(days=GA4Base.CONVERSION_WINDOW),
         }
 
         return {
@@ -101,6 +103,7 @@ class GA4Base(BaseCase):
                 BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
                 BaseCase.REPLICATION_KEYS: {"date"},
                 BaseCase.RESPECTS_START_DATE: False,
+                BaseCase.LOOK_BACK_WINDOW: timedelta(days=GA4Base.CONVERSION_WINDOW)
             },
             'content_group_report': default_expectations,
             'conversions_report': default_expectations,
@@ -188,108 +191,82 @@ class GA4Base(BaseCase):
         if len(missing_envs) != 0:
             raise Exception("Missing environment variables: {}".format(missing_envs))
 
-
     ##########################################################################
-    ### Tap Specific Methods
+    # Tap Specific Methods
     ##########################################################################
 
+    # @staticmethod
+    # def expected_default_fields():
+    #     """
+    #
+    #     TODO setup a standard custom report to start iterating through tests
+    #     TODO need to determine how to cover all metrics and dimensions via custom reports.
+    #     TODO need to determine if there are any specific combinations that need to be covered
+    #          (combinations that may later be used as pre-defiined reports?)
+    #
+    #     GA4 NOTES:
+    #       Segment are based on dimensions and metrics
+    #        - Users: People interact with your property (e.g., your website or app)
+    #        - Sessions: Interactions by a single user are grouped into sessions.
+    #        - Hits: Interactions during a session are referred to as hits. Hits include interactions like pageviews, events, and transactions.
+    #
+    #       Dimensions are data attributes like City, Browser, PAGE, etc.
+    #
+    #       Metrics are quantitative measures like Clicks, Sessions, Pages per Session, etc.
+    #
+    #
+    #
+    #     NOTE: See method in tap-google-analytics/tests/base.py
+    #     """
+    #     return {
+    #         "Test Report 1": {'date',
+    #                           'city',
+    #                           'browser',
+    #                           'bounceRate',
+    #                           'checkouts'},
+    #         "Test Report 2": {'source',
+    #                           'streamId',
+    #                           'conversions'},
+    #     }
+    #
+    # @staticmethod
+    # def expected_pagination_fields():  # TODO does this apply?
+    #     return {
+    #         "Test Report 1": set(),
+    #         "Audience Overview": {
+    #             "ga:users", "ga:newUsers", "ga:sessions", "ga:sessionsPerUser", "ga:pageviews",
+    #             "ga:pageviewsPerSession", "ga:sessionDuration", "ga:bounceRate", "ga:date",
+    #             # "ga:pageviews",
+    #         },
+    #         "Audience Geo Location": set(),
+    #         "Audience Technology": set(),
+    #         "Acquisition Overview": set(),
+    #         "Behavior Overview": set(),
+    #         "Ecommerce Overview": set(),
+    #     }
+    #
 
-    @staticmethod
-    def expected_default_fields():
-        """
-
-        TODO setup a standard custom report to start iterating through tests
-        TODO need to determine how to cover all metrics and dimensions via custom reports.
-        TODO need to determine if there are any specific combinations that need to be covered
-             (combinations that may later be used as pre-defiined reports?)
-
-        GA4 NOTES:
-          Segment are based on dimensions and metrics
-           - Users: People interact with your property (e.g., your website or app)
-           - Sessions: Interactions by a single user are grouped into sessions.
-           - Hits: Interactions during a session are referred to as hits. Hits include interactions like pageviews, events, and transactions.
-
-          Dimensions are data attributes like City, Browser, PAGE, etc.
-
-          Metrics are quantitative measures like Clicks, Sessions, Pages per Session, etc.
-
-
-
-        NOTE: See method in tap-google-analytics/tests/base.py
-        """
-        return {
-            "Test Report 1": {'date',
-                              'city',
-                              'browser',
-                              'bounceRate',
-                              'checkouts'},
-            "Test Report 2": {'source',
-                              'streamId',
-                              'conversions'},
-        }
-
-
-    @staticmethod
-    def expected_pagination_fields(): # TODO does this apply?
-        return {
-            "Test Report 1" : set(),
-            "Audience Overview": {
-                "ga:users", "ga:newUsers", "ga:sessions", "ga:sessionsPerUser", "ga:pageviews",
-                "ga:pageviewsPerSession", "ga:sessionDuration", "ga:bounceRate", "ga:date",
-                # "ga:pageviews",
-            },
-            "Audience Geo Location": set(),
-            "Audience Technology": set(),
-            "Acquisition Overview": set(),
-            "Behavior Overview": set(),
-            "Ecommerce Overview": set(),
-        }
-
-
-    def custom_reports_names_to_ids(self):
-        """
-        Creates a bidirectional mapping of custom report names <-> UUID
-
-        example:
-          {
-             "Custom Report 1": "some UUID",
-             "some UUID":       "Custom Report 1",
-             "Custom Report 2": "another UUID",
-             "another UUID":    "Custom Report 2"
-          }
-        """
-        report_definitions = self.get_properties()['report_definitions']
-        name_and_id_bidirectional_map = {}
-        for definition in report_definitions:
-            name_and_id_bidirectional_map[definition.get('name')] = definition.get('id')
-            name_and_id_bidirectional_map[definition.get('id')] = definition.get('name')
-
-        return name_and_id_bidirectional_map
-
-    def get_stream_name(self, tap_stream_id):
-        """
-        Returns the stream_name given the tap_stream_id because synced_records
-        from the target output batches records by stream_name
-
-        Since the GA4 tap_stream_id is a UUID instead of the usual case of
-        tap_stream_id == stream_name, we need to get the stream_name that
-        maps to tap_stream_id
-
-        """
-        return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
-
-    def get_sync_start_time(self, stream, bookmark):
-        """
-        Calculates the sync start time, with respect to the lookback window
-        """
-        conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
-        bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
-        start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
-        return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
-
-    def get_bookmark_value(self, state, stream):
-        bookmark = state.get('bookmarks', {})
-        stream_bookmark = bookmark.get(stream)
-        if stream_bookmark:
-            return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
-        return None
+    # @classmethod
+    # def get_stream_name(cls, stream_id):
+    #     """
+    #     Returns the stream_name given the tap_stream_id because synced_records
+    #     from the target output batches records by stream_name
+    #
+    #     Since the GA4 tap_stream_id is a UUID instead of the usual case of
+    #     tap_stream_id == stream_name, we need to get the stream_name that
+    #     maps to tap_stream_id
+    #     """
+    #     stream_mapping = {
+    #         cls.custom_report_id_1: "Test Report 1",
+    #         cls.custom_report_id_2: "Test Report 2",
+    #     }
+    #     return stream_mapping.get(stream_id, stream_id)
+    #
+    # def get_sync_start_time(self, stream, bookmark):
+    #     """
+    #     Calculates the sync start time, with respect to the lookback window
+    #     """
+    #     conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
+    #     bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
+    #     start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
+    #     return min(bookmark_datetime, max(start_date_datetime, conversion_day))

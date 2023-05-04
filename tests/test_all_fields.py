@@ -19,11 +19,9 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     fields_1 = None
     fields_2 = None
 
-
     @staticmethod
     def name():
         return "tt_ga4_all_fields"
-
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
@@ -33,7 +31,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
             custom_id_1,
             custom_id_2
         }
-
 
     def streams_to_selected_fields(self):
         if not self.fields_1 and not self.fields_2:

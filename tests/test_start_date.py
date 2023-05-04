@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from tap_tester.base_suite_tests.start_date_test import StartDateTest
 
 from base import GA4Base
@@ -27,7 +27,5 @@ class GA4StartDateTest(StartDateTest, GA4Base):
     def __init__(self, test_run):
         super().__init__(test_run)
         # Set start_date to 4 days ago to reduce quota usage
-        self.start_date_1 = self.timedelta_formatted(
-            dt.now(), days=-4, date_format=self.START_DATE_FORMAT)
-        self.start_date_2 = self.timedelta_formatted(
-            self.start_date_1, days=2, date_format=self.START_DATE_FORMAT)
+        self.start_date_1 = self.timedelta_formatted(dt.now(), delta=timedelta(days=-4))
+        self.start_date_2 = self.timedelta_formatted(self.start_date_1, delta=timedelta(days=2))

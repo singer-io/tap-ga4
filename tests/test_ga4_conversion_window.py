@@ -57,14 +57,12 @@ class ConversionWindowBaseTest(GA4Base):
             return_value["request_window_size"] = self.request_window_size
         return return_value
 
-
     def streams_to_test(self):
         # testing all streams creates massive quota issues
         custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
         }
-
 
     def run_test(self):
         """

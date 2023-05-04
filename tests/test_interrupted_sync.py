@@ -1,5 +1,5 @@
 import os
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 
 from base import GA4Base
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
@@ -41,12 +41,9 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
     # set default values for test in init
     def __init__(self, test_run):
         super().__init__(test_run)
-        self.start_date = self.timedelta_formatted(dt.now(),
-                                                   days=-32,
-                                                   date_format=self.START_DATE_FORMAT)
-
+        self.start_date = self.timedelta_formatted(dt.now(), delta=timedelta(days=-32))
         self.interrupted_bookmark_date = self.timedelta_formatted(dt.now(),
-                                                                  days=-31,
+                                                                  delta=timedelta(days=-31),
                                                                   date_format=self.BOOKMARK_FORMAT)
 
         self.completed_bookmark_date = self.timedelta_formatted(dt.now(),
