@@ -89,7 +89,7 @@ class GA4Base(BaseCase):
             BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
             BaseCase.REPLICATION_KEYS: {"date"},
             BaseCase.RESPECTS_START_DATE: True,
-            BaseCase.LOOK_BACK_WINDOW: timedelta(days=GA4Base.CONVERSION_WINDOW),
+            BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW)),
         }
 
         return {
@@ -103,7 +103,7 @@ class GA4Base(BaseCase):
                 BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
                 BaseCase.REPLICATION_KEYS: {"date"},
                 BaseCase.RESPECTS_START_DATE: False,
-                BaseCase.LOOK_BACK_WINDOW: timedelta(days=GA4Base.CONVERSION_WINDOW)
+                BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW))
             },
             'content_group_report': default_expectations,
             'conversions_report': default_expectations,

@@ -23,7 +23,8 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
      <class 'object'>]
     """
 
-    start_date = GA4Base.timedelta_formatted(dt.utcnow(), delta=timedelta(days=-15))
+    # ensure first sync start_date is before the CONVERSION_WINDOW
+    start_date = GA4Base.timedelta_formatted(dt.utcnow(), delta=timedelta(days=(-int(GA4Base.CONVERSION_WINDOW)-5)))
 
     @staticmethod
     def streams_to_test():
@@ -97,32 +98,6 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     # Tap Specific Tests
     ##########################################################################
 
-    def test_bookmark_values_are_today(self):
-        """
-        For taps with a BOOKMARK_FORMAT of "%Y-%m-%d", these assertions are
-        valid.
-        """
-        today_datetime = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
-        for stream in self.streams_to_test():
-            with self.subTest(stream=stream):
-                # gather results
-                bookmark_value_1 = self.get_bookmark_value(self.state_1, stream)
-                bookmark_value_2 = self.get_bookmark_value(self.state_2, stream)
-
-                # Verify the bookmark is set based on sync end date (today) for sync 1
-                # (The tap replicates from the start date through to today)
-                parsed_bookmark_value_1 = self.parse_date(bookmark_value_1)
-                self.assertEqual(parsed_bookmark_value_1, today_datetime)
-
-                # Verify the bookmark is set based on sync execution time for sync 2
-                # (The tap replicates from the manipulated state through to today)
-                parsed_bookmark_value_2 = self.parse_date(bookmark_value_2)
-                self.assertEqual(parsed_bookmark_value_2, today_datetime)
-
-    ##########################################################################
-    # Tests To Skip
-    ##########################################################################
-
     # TODO - for some reason look_back windows set the bookmark to now
     #   and not to the last record.  Find out if this is correct and why?
     def test_first_sync_bookmark(self):
@@ -148,3 +123,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
                 # Verify the bookmark is set based on sync end date (today) for sync 2
                 # (The tap replicates from the start date through to today)
                 self.assertEqual(bookmark_value_2, today_datetime)
+
+    ##########################################################################
+    # Tests To Skip
+    ##########################################################################
