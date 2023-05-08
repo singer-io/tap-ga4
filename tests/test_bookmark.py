@@ -8,7 +8,20 @@ from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
 
 
 class GA4BookmarkTest(BookmarkTest, GA4Base):
-    """GA4 bookmark test implementation"""
+    """
+    GA4 bookmark test implementation
+
+    MRO for test
+    [<class 'test_bookmark.GA4BookmarkTest'>,
+     <class 'tap_tester.base_suite_tests.bookmark_test.BookmarkTest'>,
+     <class 'tap_tester.base_suite_tests.bookmark_test.BookmarkInterface'>,
+     <class 'tap_tester.base_suite_tests.base_case.TestInterface'>,
+     <class 'base.GA4Base'>,
+     <class 'tap_tester.base_suite_tests.base_case.BaseCase'>,
+     <class 'unittest.case.TestCase'>,
+     <class 'tap_tester.base_suite_tests.base_case.BaseInterface'>,
+     <class 'object'>]
+    """
 
     start_date = GA4Base.timedelta_formatted(dt.utcnow(), delta=timedelta(days=-15))
 
@@ -25,17 +38,6 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
 
     def INITIAL_BOOKMARKS(self):
         return dict()
-        # return {
-        #     'bookmarks': {
-        #         self.custom_reports_names_to_ids().get(stream, stream): {
-        #             os.getenv('TAP_GA4_PROPERTY_ID'): {
-        #                 'last_report_date':
-        #                     GA4Base.timedelta_formatted(dt.utcnow(),
-        #                                                 delta=timedelta(days=-40),
-        #                                                 date_format=self.BOOKMARK_FORMAT)}}
-        #         for stream in self.streams_to_test()
-        #     }
-        # }
 
     @staticmethod
     def name():
@@ -70,38 +72,9 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
             return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
         return None
 
-    def calculate_new_bookmarks(self):
-        new_bookmarks = dict()
-        for stream, records in BookmarkTest.synced_records_1.items():
-            replication_method = self.expected_replication_method()[stream]
-            if replication_method == self.INCREMENTAL:
-                look_back = self.expected_lookback_window()[stream]
-                replication_key = self.expected_replication_keys()[stream]
-                assert len(replication_key) == 1
-                replication_key = next(iter(replication_key))
-
-                # get the replication values that are prior to the lookback window
-                replication_values = sorted({
-                    message['data'][replication_key] for message in records['messages']
-                    if message['action'] == 'upsert'
-                       and self.parse_date(message['data'][replication_key]) <
-                       self.parse_date(self.get_bookmark_value(
-                           BookmarkTest.state_1, self.get_stream_id(stream))) - look_back})
-                print(f"unique replication values for stream {stream} are: {replication_values}")
-
-                # There should be 3 or more records (prior to the look back window)
-                # so we can set the bookmark to get the last 2 records (+ the look back)
-                # self.assertGreater(len(replication_values), 2,
-                #                    msg="We need to have more than two replication dates "
-                #                        "to test a stream")
-                new_bookmarks[self.get_stream_id(stream)] = {
-                    replication_key:
-                        self.timedelta_formatted(self.parse_date(replication_values[-2]),
-                                                 date_format=self.BOOKMARK_FORMAT)}
-        return new_bookmarks
-
     @staticmethod
     def streams_to_selected_fields():
+        # TODO - when selecting these fields I'm getting errors.
         return {
             "Test Report 1": {
                 "conversions",
@@ -119,37 +92,6 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
             #         "conversions",
             # },
         }
-
-    @classmethod
-    def get_stream_id(cls, stream_name):
-        """
-        Returns the stream_id given the stream_name because synced_records
-        from the target output batches records by stream_name
-
-        Since the GA4 tap_stream_id is a UUID instead of the usual case of
-        tap_stream_id == stream_name, we need to get the stream_name that
-        maps to tap_stream_id
-        """
-        stream_mapping = {
-            "Test Report 1": cls.custom_report_id_1,
-            "Test Report 2": cls.custom_report_id_2,
-        }
-        return stream_mapping.get(stream_name, stream_name)
-
-    @classmethod
-    def get_stream_name(cls, tap_stream_id):
-        """
-        Returns the stream_name given the stream_id because bookmarks uses stream_id
-
-        Since the GA4 tap_stream_id is a UUID instead of the usual case of
-        tap_stream_id == stream_name, we need to get the tap_stream_id that
-        maps to stream_name
-        """
-        stream_mapping = {
-            cls.custom_report_id_1: "Test Report 1",
-            cls.custom_report_id_2: "Test Report 2",
-        }
-        return stream_mapping.get(tap_stream_id, tap_stream_id)
 
     ##########################################################################
     # Tap Specific Tests
@@ -184,7 +126,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     # TODO - for some reason look_back windows set the bookmark to now
     #   and not to the last record.  Find out if this is correct and why?
     def test_first_sync_bookmark(self):
-        today_datetime = dt.utcnow().date()
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
                 # gather results
@@ -197,7 +139,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     # TODO - for some reason look_back windows set the bookmark to now
     #   and not to the last record.  Find out if this is correct and why?
     def test_second_sync_bookmark(self):
-        today_datetime = dt.utcnow().date()
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
                 # gather results

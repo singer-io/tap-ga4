@@ -246,22 +246,37 @@ class GA4Base(BaseCase):
     #     }
     #
 
-    # @classmethod
-    # def get_stream_name(cls, stream_id):
-    #     """
-    #     Returns the stream_name given the tap_stream_id because synced_records
-    #     from the target output batches records by stream_name
-    #
-    #     Since the GA4 tap_stream_id is a UUID instead of the usual case of
-    #     tap_stream_id == stream_name, we need to get the stream_name that
-    #     maps to tap_stream_id
-    #     """
-    #     stream_mapping = {
-    #         cls.custom_report_id_1: "Test Report 1",
-    #         cls.custom_report_id_2: "Test Report 2",
-    #     }
-    #     return stream_mapping.get(stream_id, stream_id)
-    #
+    @classmethod
+    def get_stream_id(cls, stream_name):
+        """
+        Returns the stream_id given the stream_name because synced_records
+        from the target output batches records by stream_name
+
+        Since the GA4 tap_stream_id is a UUID instead of the usual case of
+        tap_stream_id == stream_name, we need to get the stream_name that
+        maps to tap_stream_id
+        """
+        stream_mapping = {
+            "Test Report 1": cls.custom_report_id_1,
+            "Test Report 2": cls.custom_report_id_2,
+        }
+        return stream_mapping.get(stream_name, stream_name)
+
+    @classmethod
+    def get_stream_name(cls, tap_stream_id):
+        """
+        Returns the stream_name given the stream_id because bookmarks uses stream_id
+
+        Since the GA4 tap_stream_id is a UUID instead of the usual case of
+        tap_stream_id == stream_name, we need to get the tap_stream_id that
+        maps to stream_name
+        """
+        stream_mapping = {
+            cls.custom_report_id_1: "Test Report 1",
+            cls.custom_report_id_2: "Test Report 2",
+        }
+        return stream_mapping.get(tap_stream_id, tap_stream_id)
+
     # def get_sync_start_time(self, stream, bookmark):
     #     """
     #     Calculates the sync start time, with respect to the lookback window
