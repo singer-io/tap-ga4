@@ -1,7 +1,6 @@
 import os
 from copy import deepcopy
 from datetime import datetime as dt, timedelta
-from unittest import skip
 
 from base import GA4Base
 from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
@@ -14,25 +13,24 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     MRO for test
     [<class 'test_bookmark.GA4BookmarkTest'>,
      <class 'tap_tester.base_suite_tests.bookmark_test.BookmarkTest'>,
-     <class 'tap_tester.base_suite_tests.bookmark_test.BookmarkInterface'>,
-     <class 'tap_tester.base_suite_tests.base_case.TestInterface'>,
      <class 'base.GA4Base'>,
      <class 'tap_tester.base_suite_tests.base_case.BaseCase'>,
      <class 'unittest.case.TestCase'>,
-     <class 'tap_tester.base_suite_tests.base_case.BaseInterface'>,
      <class 'object'>]
     """
 
-    # ensure first sync start_date is before the CONVERSION_WINDOW
-    start_date = GA4Base.timedelta_formatted(dt.utcnow(), delta=timedelta(days=(-int(GA4Base.CONVERSION_WINDOW)-5)))
+    @property
+    def start_date(self):
+        """ensure first sync start_date is before the CONVERSION_WINDOW"""
+        return self.timedelta_formatted(
+            dt.utcnow(), delta=timedelta(days=(-int(GA4Base.CONVERSION_WINDOW)-5)))
 
     @staticmethod
     def streams_to_test():
         # testing all streams creates massive quota issues
-        # custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
-            'Test Report 1'  # TODO - net getting data for bookmarks
+            'Test Report 1'
         }
 
     BOOKMARK_FORMAT = "%Y-%m-%d"

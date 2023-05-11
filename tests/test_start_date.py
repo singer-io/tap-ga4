@@ -23,9 +23,10 @@ class GA4StartDateTest(StartDateTest, GA4Base):
                 # 'Test Report 2',
                 }  # TODO add stream that does not obey start date if one exists
 
-    # set default values for test in init
-    def __init__(self, test_run):
-        super().__init__(test_run)
-        # Set start_date to 4 days ago to reduce quota usage
-        self.start_date_1 = self.timedelta_formatted(dt.now(), delta=timedelta(days=-4))
-        self.start_date_2 = self.timedelta_formatted(self.start_date_1, delta=timedelta(days=2))
+    @property
+    def start_date_1(self):
+        return self.timedelta_formatted(dt.now(), delta=timedelta(days=-4))
+
+    @property
+    def start_date_2(self):
+        return self.timedelta_formatted(self.start_date_1, delta=timedelta(days=2))

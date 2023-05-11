@@ -15,12 +15,10 @@ class GA4PaginationTest(PaginationTest, GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        custom_id = self.custom_reports_names_to_ids()['Test Report 1']
-        return {
-            custom_id
-        }
+        return {self.get_stream_id('Test Report 1')}
 
-    def streams_to_selected_fields(self):
+    @staticmethod
+    def streams_to_selected_fields():
         return {
             "Test Report 1": {
                 "date_hour_minute",

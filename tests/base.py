@@ -21,14 +21,16 @@ class GA4Base(BaseCase):
     """
 
     HASHED_KEYS = "default-hashed-keys"
-    REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
-    BOOKMARK_FORMAT = "%Y-%m-%d"
-    CONVERSION_WINDOW = "30"
-    PAGE_SIZE = 100000
+    # REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
+    CONVERSION_WINDOW = 10
+    # PAGE_SIZE = 100000
 
     custom_report_id_1 = None
     custom_report_id_2 = None
     request_window_size = None
+
+    # set the default start date which can be overridden in the tests.
+    start_date = BaseCase.timedelta_formatted(dt.utcnow(), delta=timedelta(days=(-3)))
 
     @staticmethod
     def tap_name():
@@ -48,7 +50,7 @@ class GA4Base(BaseCase):
             GA4Base.custom_report_id_2 = str(uuid.uuid4())
 
         return_value = {
-            'start_date': (dt.utcnow() - timedelta(days=3)).strftime(BaseCase.START_DATE_FORMAT),
+            'start_date': self.start_date,
             'conversion_window': GA4Base.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',

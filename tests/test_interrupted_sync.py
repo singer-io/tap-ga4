@@ -2,17 +2,16 @@ import os
 from datetime import datetime as dt, timedelta
 
 from base import GA4Base
+from test_bookmarks import get_bookmark_value as gbmv
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
 
 
 class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
     """GA4 interrupted sync test implementation"""
 
-
     @staticmethod
     def name():
         return "tt_ga4_interrupted_sync"
-
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
@@ -22,7 +21,6 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
             'events_report',
             'tech_browser_report',
         }
-
 
     def manipulate_state(self):
         return {
@@ -37,6 +35,7 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
             }
         }
 
+    get_bookmark_value = gbmv
 
     # set default values for test in init
     def __init__(self, test_run):

@@ -1,13 +1,8 @@
-from collections import defaultdict
 from random import choice
-import json
-import os
 import unittest
 from tap_tester.base_suite_tests.all_fields_test import AllFieldsTest
 from tap_tester import menagerie, runner, connections
 from tap_tester.logger import LOGGER
-from datetime import datetime as dt
-from datetime import timedelta
 from base import GA4Base
 
 
@@ -25,11 +20,10 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        custom_id_1 = self.custom_reports_names_to_ids()['Test Report 1']
-        custom_id_2 = self.custom_reports_names_to_ids()['Test Report 2']
+        # TODO - change this to just stream name
         return {
-            custom_id_1,
-            custom_id_2
+            self.get_stream_id('Test Report 1'),
+            self.get_stream_id('Test Report 2'),
         }
 
     def streams_to_selected_fields(self):
@@ -41,11 +35,9 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
             "Test Report 2": self.fields_2
         }
 
-
     ##########################################################################
-    ### Overriden setup
+    # Overridden setup
     ##########################################################################
-
 
     # Set up requires and extra step to get catalogs for selecting random fields
     def setUp(self):
@@ -68,8 +60,9 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
                          if catalog.get('tap_stream_id') in self.streams_to_test()]
 
         # For taps that need random selection of fields
-        self.schemas = {catalog['stream_name']: menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
-                        for catalog in test_catalogs}
+        self.schemas = {
+            catalog['stream_name']: menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
+            for catalog in test_catalogs}
 
         self.select_streams_and_fields(conn_id, test_catalogs, self.streams_to_selected_fields())
         self.selected_fields = self.get_all_selected_fields_from_metadata(conn_id, test_catalogs)
@@ -81,7 +74,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     ##########################################################################
     # Helper methods
     ##########################################################################
-
 
     def get_field_exclusions(self):
         field_exclusions = {'DIMENSION': {}, 'METRIC': {}}
@@ -96,8 +88,8 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         self.field_exclusions = field_exclusions
 
-
-    def exclude_field(self, all_selectable_dimensions, all_selectable_metrics, selected_field, selected_field_type):
+    def exclude_field(self, all_selectable_dimensions, all_selectable_metrics,
+                      selected_field, selected_field_type):
         excluded_fields = self.field_exclusions[selected_field_type][selected_field]
 
         if selected_field_type == self.DIMENSION:
@@ -112,7 +104,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
                 all_selectable_metrics.remove(field)
         return all_selectable_dimensions, all_selectable_metrics
 
-
     def select_random_fields(self):
 
         selected_dimensions = set()
@@ -123,7 +114,8 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         all_selectable_metrics = list(self.field_exclusions['METRIC'].keys())
 
         # date is always selected, include its field_exclusions
-        all_selectable_dimensions, all_selectable_metrics = self.exclude_field(all_selectable_dimensions, all_selectable_metrics, 'date', self.DIMENSION)
+        all_selectable_dimensions, all_selectable_metrics = self.exclude_field(
+            all_selectable_dimensions, all_selectable_metrics, 'date', self.DIMENSION)
 
         # select fewer dimensions to increase chance of replicating data
         max_dimensions = 4
@@ -139,20 +131,21 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
             if all_selectable_dimensions and len(selected_dimensions) < max_dimensions:
                 random_dimension = choice(all_selectable_dimensions)
                 selected_dimensions.add(random_dimension)
-                all_selectable_dimensions, all_selectable_metrics = self.exclude_field(all_selectable_dimensions, all_selectable_metrics, random_dimension, self.DIMENSION)
+                all_selectable_dimensions, all_selectable_metrics = self.exclude_field(
+                    all_selectable_dimensions, all_selectable_metrics,
+                    random_dimension, self.DIMENSION)
 
             if all_selectable_metrics and len(selected_metrics) < max_metrics:
                 random_metric = choice(all_selectable_metrics)
                 selected_metrics.add(random_metric)
-                all_selectable_dimensions, all_selectable_metrics = self.exclude_field(all_selectable_dimensions, all_selectable_metrics, random_metric, self.METRIC)
+                all_selectable_dimensions, all_selectable_metrics = self.exclude_field(
+                    all_selectable_dimensions, all_selectable_metrics, random_metric, self.METRIC)
 
         return selected_dimensions | selected_metrics
 
-
     ##########################################################################
-    ### Overridden Methods
+    # Overridden Methods
     ##########################################################################
-
 
     # Removes assertion that each stream syncs records
     # No guarantee random selection will sync records
@@ -175,9 +168,8 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         return sync_record_count
 
-
     ##########################################################################
-    ### Overridden Tests
+    # Overridden Tests
     ##########################################################################
 
     # Tests are redefined because there is no guarantee a random field
@@ -192,7 +184,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         self.assertTrue(synced_stream_names.issubset(expected_streams))
 
-
     def test_all_fields_for_streams_are_replicated(self):
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
@@ -203,22 +194,17 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
                 if self.synced_records.get(stream_name):
                     # gather results
-                    actual_all_keys_per_record = [set(message['data'].keys()) for message in
-                                                  self.get_upsert_messages_for_stream(self.synced_records, stream_name)]
+                    actual_all_keys_per_record = [
+                        set(message['data'].keys()) for message in
+                        self.get_upsert_messages_for_stream(self.synced_records, stream_name)]
 
                     for actual_all_keys in actual_all_keys_per_record:
                         self.assertSetEqual(expected_all_keys, actual_all_keys)
 
-
     ##########################################################################
-    ### Tests To Skip
+    # Tests To Skip
     ##########################################################################
-
 
     @unittest.skip("Random selection doesn't always sync records")
     def test_all_streams_sync_records(self):
         pass
-
-
-    def __init__(self, test_run):
-        super().__init__(test_run)

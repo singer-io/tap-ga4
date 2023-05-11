@@ -59,7 +59,7 @@ class ConversionWindowBaseTest(GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        custom_id = self.custom_reports_names_to_ids()['Test Report 1']
+        # custom_id = self.custom_reports_names_to_ids()['Test Report 1']
         return {
             'content_group_report',
         }
