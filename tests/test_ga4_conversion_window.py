@@ -30,7 +30,7 @@ class ConversionWindowBaseTest(GA4Base):
     def name(cls):
         return f"tt_ga4_conv_window_{cls.conversion_window}"
 
-    def get_properties(self, original: bool = True):
+    def get_properties(self):
         # Use the same UUID for each custom report
         if not self.custom_report_id_1 and not self.custom_report_id_2:
             type(self).custom_report_id_1 = str(uuid.uuid4())
@@ -48,11 +48,7 @@ class ConversionWindowBaseTest(GA4Base):
                 {"id": self.custom_report_id_2, "name": "Test Report 2"},
             ]
         }
-        if original:
-            return return_value
 
-        if self.start_date:
-            return_value["start_date"] = self.start_date
         if self.request_window_size:
             return_value["request_window_size"] = self.request_window_size
         return return_value

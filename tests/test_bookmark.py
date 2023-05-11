@@ -33,10 +33,11 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
             'Test Report 1'
         }
 
-    BOOKMARK_FORMAT = "%Y-%m-%d"
+    bookmark_format = "%Y-%m-%d"
 
-    def INITIAL_BOOKMARKS(self):
-        return dict()
+    @staticmethod
+    def initial_bookmarks():
+        return {}
 
     @staticmethod
     def name():

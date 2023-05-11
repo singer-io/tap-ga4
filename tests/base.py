@@ -42,7 +42,7 @@ class GA4Base(BaseCase):
         """the expected url route ending"""
         return "platform.ga4"
 
-    def get_properties(self, original: bool = True):
+    def get_properties(self):
         """Configuration properties required for the tap."""
         # Use the same UUID for each custom report
         if not GA4Base.custom_report_id_1 or not GA4Base.custom_report_id_2:
@@ -62,11 +62,6 @@ class GA4Base(BaseCase):
             ]
         }
 
-        if original:
-            return return_value
-
-        if self.start_date:
-            return_value["start_date"] = self.start_date
         if GA4Base.request_window_size:
             return_value["request_window_size"] = GA4Base.request_window_size
         return return_value
