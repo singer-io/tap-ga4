@@ -6,7 +6,6 @@ import os
 import uuid
 from datetime import datetime as dt
 from datetime import timedelta
-from unittest import skip
 
 from tap_tester.base_suite_tests.base_case import BaseCase
 
@@ -23,14 +22,13 @@ class GA4Base(BaseCase):
     HASHED_KEYS = "default-hashed-keys"
     # REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
     CONVERSION_WINDOW = 10
-    # PAGE_SIZE = 100000
 
     custom_report_id_1 = None
     custom_report_id_2 = None
     request_window_size = None
 
     # set the default start date which can be overridden in the tests.
-    start_date = BaseCase.timedelta_formatted(dt.utcnow(), delta=timedelta(days=(-3)))
+    start_date = BaseCase.timedelta_formatted(dt.utcnow(), delta=timedelta(days=-3))
 
     @staticmethod
     def tap_name():
@@ -62,8 +60,8 @@ class GA4Base(BaseCase):
             ]
         }
 
-        if GA4Base.request_window_size:
-            return_value["request_window_size"] = GA4Base.request_window_size
+        if self.request_window_size:
+            return_value["request_window_size"] = self.request_window_size
         return return_value
 
     @staticmethod
@@ -87,6 +85,7 @@ class GA4Base(BaseCase):
             BaseCase.REPLICATION_KEYS: {"date"},
             BaseCase.RESPECTS_START_DATE: True,
             BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW)),
+            BaseCase.API_LIMIT: 100_000
         }
 
         return {
@@ -100,7 +99,8 @@ class GA4Base(BaseCase):
                 BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
                 BaseCase.REPLICATION_KEYS: {"date"},
                 BaseCase.RESPECTS_START_DATE: False,
-                BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW))
+                BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW)),
+                BaseCase.API_LIMIT: 100_000
             },
             'content_group_report': default_expectations,
             'conversions_report': default_expectations,
@@ -165,15 +165,16 @@ class GA4Base(BaseCase):
 
     def expected_automatic_fields(self):
         auto_fields = {}
-        for k, v in self.expected_metadata().items():
-            auto_fields[k] = v.get(self.PRIMARY_KEYS, set()) | v.get(self.REPLICATION_KEYS, set()) \
-                | v.get(self.HASHED_KEYS, set())
+        for table, properties in self.expected_metadata().items():
+            auto_fields[table] = properties.get(self.PRIMARY_KEYS, set()) \
+                | properties.get(self.REPLICATION_KEYS, set()) \
+                | properties.get(self.HASHED_KEYS, set())
 
         return auto_fields
 
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass(logging="Ensuring environment variables are sourced.")
+    def setUpClass(cls, logging="Ensuring environment variables are sourced."):
+        super().setUpClass(logging=logging)
         missing_envs = [
             x for x in [
                 'TAP_GA4_PROPERTY_ID',
@@ -186,7 +187,7 @@ class GA4Base(BaseCase):
         ]
 
         if len(missing_envs) != 0:
-            raise Exception("Missing environment variables: {}".format(missing_envs))
+            raise ValueError(f"Missing environment variables: {missing_envs}")
 
     ##########################################################################
     # Tap Specific Methods
@@ -260,7 +261,7 @@ class GA4Base(BaseCase):
         return stream_mapping.get(stream_name, stream_name)
 
     @classmethod
-    def get_stream_name(cls, tap_stream_id):
+    def get_stream_name(cls, stream_id):
         """
         Returns the stream_name given the stream_id because bookmarks uses stream_id
 
@@ -272,13 +273,4 @@ class GA4Base(BaseCase):
             cls.custom_report_id_1: "Test Report 1",
             cls.custom_report_id_2: "Test Report 2",
         }
-        return stream_mapping.get(tap_stream_id, tap_stream_id)
-
-    # def get_sync_start_time(self, stream, bookmark):
-    #     """
-    #     Calculates the sync start time, with respect to the lookback window
-    #     """
-    #     conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
-    #     bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
-    #     start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
-    #     return min(bookmark_datetime, max(start_date_datetime, conversion_day))
+        return stream_mapping.get(stream_id, stream_id)
