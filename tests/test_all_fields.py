@@ -20,56 +20,29 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
     def streams_to_test(self):
         # testing all streams creates massive quota issues
-        # TODO - change this to just stream name
-        return {
-            self.get_stream_id('Test Report 1'),
-            self.get_stream_id('Test Report 2'),
-        }
+        return {'Test Report 1', 'Test Report 2'}
 
     def streams_to_selected_fields(self):
         if not self.fields_1 and not self.fields_2:
             self.fields_1 = self.select_random_fields()
             self.fields_2 = self.select_random_fields()
         return {
-            "Test Report 1": self.fields_1,
-            "Test Report 2": self.fields_2
+            "Test Report 1": self.fields_1 | self.expected_automatic_fields()["Test Report 1"],
+            "Test Report 2": self.fields_2 | self.expected_automatic_fields()["Test Report 2"]
         }
+
+    @property
+    def schemas(self):
+        test_catalogs = [catalog for catalog in self.found_catalogs
+                         if catalog.get('stream_name') in self.streams_to_test()]
+        return {
+            catalog['stream_name']: menagerie.get_annotated_schema(
+                self.conn_id, catalog['stream_id'])
+            for catalog in test_catalogs}
 
     ##########################################################################
     # Overridden setup
     ##########################################################################
-
-    # Set up requires and extra step to get catalogs for selecting random fields
-    def setUp(self):
-        """
-        Setup for tests in this module.
-        """
-        cls = type(self)
-
-        if cls.synced_records:
-            return
-
-        # instantiate connection
-        conn_id = connections.ensure_connection(self, original_properties=True)
-
-        # run check mode
-        found_catalogs = self.run_and_verify_check_mode(conn_id)
-
-        # table and field selection
-        test_catalogs = [catalog for catalog in found_catalogs
-                         if catalog.get('tap_stream_id') in self.streams_to_test()]
-
-        # For taps that need random selection of fields
-        self.schemas = {
-            catalog['stream_name']: menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
-            for catalog in test_catalogs}
-
-        self.select_streams_and_fields(conn_id, test_catalogs, self.streams_to_selected_fields())
-        self.selected_fields = self.get_all_selected_fields_from_metadata(conn_id, test_catalogs)
-
-        # run initial sync
-        cls.record_count_by_stream = self.run_and_verify_sync_mode(conn_id)
-        cls.synced_records = runner.get_records_from_target_output()
 
     ##########################################################################
     # Helper methods
@@ -192,14 +165,19 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
                 # gather expectations
                 expected_all_keys = self.selected_fields.get(stream_name, set())
 
-                if self.synced_records.get(stream_name):
-                    # gather results
-                    actual_all_keys_per_record = [
-                        set(message['data'].keys()) for message in
-                        self.get_upsert_messages_for_stream(self.synced_records, stream_name)]
+                records = [
+                    record['data'] for record in
+                    self.synced_records.get(stream, {'messages': []}).get('messages', [])
+                    if record.get('action') == 'upsert']
 
-                    for actual_all_keys in actual_all_keys_per_record:
-                        self.assertSetEqual(expected_all_keys, actual_all_keys)
+                if records:
+                    fields_replicated = self.actual_fields.get(stream, set())
+
+                    # verify that all fields are sent to the target
+                    # test the combination of all records
+                    self.assertSetEqual(
+                        fields_replicated, expected_all_keys,
+                        logging=f"verify all fields are replicated for stream {stream}")
 
     ##########################################################################
     # Tests To Skip
