@@ -1,7 +1,7 @@
 from random import choice
 import unittest
 from tap_tester.base_suite_tests.all_fields_test import AllFieldsTest
-from tap_tester import menagerie, runner, connections
+from tap_tester import menagerie, runner
 from tap_tester.logger import LOGGER
 from base import GA4Base
 
@@ -13,6 +13,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     METRIC = 'METRIC'
     fields_1 = None
     fields_2 = None
+    field_exclusions = {}
 
     @staticmethod
     def name():
@@ -22,7 +23,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         # testing all streams creates massive quota issues
         return {'Test Report 1', 'Test Report 2'}
 
-    def streams_to_selected_fields(self):
+    def streams_to_selected_fields(self):  # pylint: disable=arguments-differ
         if not self.fields_1 and not self.fields_2:
             self.fields_1 = self.select_random_fields()
             self.fields_2 = self.select_random_fields()
@@ -53,7 +54,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         for field in self.schemas['Test Report 1']['metadata']:
             behavior = field['metadata'].get('behavior')
 
-            if field['breadcrumb'] == [] or (behavior != 'DIMENSION' and behavior != 'METRIC'):
+            if field['breadcrumb'] == [] or behavior not in ('DIMENSION', 'METRIC'):
                 continue
 
             field_name = field['breadcrumb'][1]
