@@ -52,13 +52,11 @@ class ConversionWindowInvalidTest(GA4Base):
             return_value["request_window_size"] = self.request_window_size
         return return_value
 
-
     def streams_to_test(self):
         # testing all streams creates massive quota issues
         return {
             'content_group_report',
         }
-
 
     def run_test(self):
         """

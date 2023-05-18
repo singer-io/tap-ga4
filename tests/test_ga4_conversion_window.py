@@ -25,7 +25,6 @@ class ConversionWindowBaseTest(GA4Base):
     """
     conversion_window = ''
 
-
     @classmethod
     def name(cls):
         return f"tt_ga4_conv_window_{cls.conversion_window}"
