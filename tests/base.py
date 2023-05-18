@@ -49,14 +49,14 @@ class GA4Base(BaseCase):
 
         return_value = {
             'start_date': self.start_date,
-            'conversion_window': GA4Base.CONVERSION_WINDOW,
+            'conversion_window': self.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
             'oauth_client_id': os.getenv('TAP_GA4_CLIENT_ID'),
             'user_id': os.getenv('TAP_GA4_USER_ID'),
             'report_definitions': [
-                {"id": GA4Base.custom_report_id_1, "name": "Test Report 1"},
-                {"id": GA4Base.custom_report_id_2, "name": "Test Report 2"},
+                {"id": self.custom_report_id_1, "name": "Test Report 1"},
+                {"id": self.custom_report_id_2, "name": "Test Report 2"},
             ]
         }
 
