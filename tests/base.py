@@ -193,56 +193,10 @@ class GA4Base(BaseCase):
     # Tap Specific Methods
     ##########################################################################
 
-    # @staticmethod
-    # def expected_default_fields():
-    #     """
-    #
     #     TODO setup a standard custom report to start iterating through tests
     #     TODO need to determine how to cover all metrics and dimensions via custom reports.
     #     TODO need to determine if there are any specific combinations that need to be covered
     #          (combinations that may later be used as pre-defiined reports?)
-    #
-    #     GA4 NOTES:
-    #       Segment are based on dimensions and metrics
-    #        - Users: People interact with your property (e.g., your website or app)
-    #        - Sessions: Interactions by a single user are grouped into sessions.
-    #        - Hits: Interactions during a session are referred to as hits. Hits include interactions like pageviews, events, and transactions.
-    #
-    #       Dimensions are data attributes like City, Browser, PAGE, etc.
-    #
-    #       Metrics are quantitative measures like Clicks, Sessions, Pages per Session, etc.
-    #
-    #
-    #
-    #     NOTE: See method in tap-google-analytics/tests/base.py
-    #     """
-    #     return {
-    #         "Test Report 1": {'date',
-    #                           'city',
-    #                           'browser',
-    #                           'bounceRate',
-    #                           'checkouts'},
-    #         "Test Report 2": {'source',
-    #                           'streamId',
-    #                           'conversions'},
-    #     }
-    #
-    # @staticmethod
-    # def expected_pagination_fields():  # TODO does this apply?
-    #     return {
-    #         "Test Report 1": set(),
-    #         "Audience Overview": {
-    #             "ga:users", "ga:newUsers", "ga:sessions", "ga:sessionsPerUser", "ga:pageviews",
-    #             "ga:pageviewsPerSession", "ga:sessionDuration", "ga:bounceRate", "ga:date",
-    #             # "ga:pageviews",
-    #         },
-    #         "Audience Geo Location": set(),
-    #         "Audience Technology": set(),
-    #         "Acquisition Overview": set(),
-    #         "Behavior Overview": set(),
-    #         "Ecommerce Overview": set(),
-    #     }
-    #
 
     @classmethod
     def get_stream_id(cls, stream_name):

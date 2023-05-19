@@ -23,7 +23,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     def start_date(self):
         """ensure first sync start_date is before the CONVERSION_WINDOW"""
         return self.timedelta_formatted(
-            dt.utcnow(), delta=timedelta(days=(-int(GA4Base.CONVERSION_WINDOW)-5)))
+            dt.utcnow(), delta=timedelta(days=-int(GA4Base.CONVERSION_WINDOW)-5))
 
     @staticmethod
     def streams_to_test():
@@ -34,10 +34,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         }
 
     bookmark_format = "%Y-%m-%d"
-
-    @staticmethod
-    def initial_bookmarks():
-        return {}
+    initial_bookmarks = {}
 
     @staticmethod
     def name():
@@ -51,18 +48,18 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
         """
         new_state = deepcopy(state)
         if new_state.get('bookmarks') is None:
-            new_state['bookmarks'] = dict()
+            new_state['bookmarks'] = {}
         for stream, rep in new_bookmarks.items():
             if new_state['bookmarks'].get(stream):
-                for k, v in rep.items():
+                for value in rep.values():
                     new_state['bookmarks'][stream][os.getenv('TAP_GA4_PROPERTY_ID')] = \
-                        {'last_report_date': v}
+                        {'last_report_date': value}
             else:
                 # It is expected there will be only one key value pair.
                 # if that is not the case this will only use the last value in the key value pair
-                for v in rep.values():
+                for value in rep.values():
                     new_state['bookmarks'][stream] = {
-                        os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': v}}
+                        os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': value}}
         return new_state
 
     def get_bookmark_value(self, state, stream):

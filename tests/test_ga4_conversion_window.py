@@ -3,7 +3,7 @@ import os
 from datetime import datetime as dt
 from datetime import timedelta
 
-from tap_tester import menagerie, connections, runner, LOGGER
+from tap_tester import menagerie, connections, runner
 
 from base import GA4Base
 
@@ -24,6 +24,7 @@ class ConversionWindowBaseTest(GA4Base):
     """
     conversion_window = ''
     bookmark_format = "%Y-%m-%d"
+    start_date = ''
 
     @classmethod
     def name(cls):

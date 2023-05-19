@@ -14,6 +14,7 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
         dt.now(), delta=timedelta(days=-20), date_format=bookmark_format)
     completed_bookmark_date = GA4Base.timedelta_formatted(dt.now(), delta=timedelta(days=-15),
                                                           date_format=bookmark_format)
+    expected_lookback_window = GA4Base.expected_lookback_window
 
     @staticmethod
     def name():

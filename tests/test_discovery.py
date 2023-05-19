@@ -26,11 +26,3 @@ class GA4DiscoveryTest(DiscoveryTest, GA4Base):
                 'ecommerce_purchases_item_category_5_report'})
         self.streams_to_test = naming_streams_to_test
         super().test_stream_naming()
-        """
-        This tap accepts user provided stream names in the config via the report_definitions field
-        and does not conform to the expectation that a stream's name must satisfy the condition:
-
-            re.fullmatch(r"[a-z_]+", name)
-
-        So this test case is skipped.
-        """

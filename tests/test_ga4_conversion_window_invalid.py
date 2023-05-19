@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime as dt
 from datetime import timedelta
 
-from tap_tester import menagerie, connections, runner, LOGGER
+from tap_tester import connections, LOGGER
 
 from base import GA4Base
 
@@ -71,9 +71,9 @@ class ConversionWindowInvalidTest(GA4Base):
             _ = connections.ensure_connection(self)
 
         # Verify connection cannot be made with invalid conversion_window
-        LOGGER.info(f"********** Validating error message contains {err_msg_1}")
+        LOGGER.info("********** Validating error message contains %s", err_msg_1)
         self.assertIn(err_msg_1, str(context.exception))
-        LOGGER.info(f"********** Validating error message contains {err_msg_2}")
+        LOGGER.info("********** Validating error message contains %s", err_msg_2)
         self.assertIn(err_msg_2, str(context.exception))
 
 
@@ -82,7 +82,8 @@ class ConversionWindowInvalidTest(GA4Base):
 
 #     # Fails (does not throw exception) with values 0, 1 as ints
 #     # actually used conversion window to back up one day when set to 1 but sync'd 0 records
-#     # actually used conversion window and made request for date range today to today  when set to 0 but sync'd 0 records
+#     # actually used conversion window and made request for date range today to today
+#     #     when set to 0 but sync'd 0 records
 
 #     conversion_window = 0
 #     conversion_window_type = 'int'

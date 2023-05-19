@@ -13,9 +13,3 @@ class GA4MinimumSelectionTest(MinimumSelectionTest, GA4Base):
     def streams_to_test(self):
         # We have no test data for the in_app_purchases stream
         return self.expected_stream_names().difference({'in_app_purchases'})
-
-    """
-    if stream == "traffic_acq_session_default_channel_grouping_report":
-        # TODO fill in JIRA informaiton here for BUG
-        continue
-    """
