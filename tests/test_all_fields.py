@@ -187,3 +187,17 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     @unittest.skip("Random selection doesn't always sync records")
     def test_all_streams_sync_records(self):
         pass
+
+#  TODO - Run failed, might have an issue with the way we expect data for some fields
+#  Traceback (most recent call last):
+#    File "/usr/local/share/virtualenvs/tap-ga4/bin/tap-ga4", line 11, in <module>
+#      load_entry_point('tap-ga4', 'console_scripts', 'tap-ga4')()
+#    File "/opt/code/tap-ga4/tap_ga4/__init__.py", line 47, in main                                                                  raise e                                                                                                                     File "/opt/code/tap-ga4/tap_ga4/__init__.py", line 43, in main                                                                  main_impl()                                                                                                                 File "/opt/code/tap-ga4/tap_ga4/__init__.py", line 35, in main_impl                                                             sync(client, config, catalog, state)                                                                                        File "/opt/code/tap-ga4/tap_ga4/sync.py", line 250, in sync                                                                     sync_report(client, schema, report, start_date, end_date, request_window_size, state)
+#    File "/opt/code/tap-ga4/tap_ga4/sync.py", line 196, in sync_report
+#      transformer.transform(
+#    File "/home/ubuntu/.virtualenvs/tap-ga4/lib/python3.8/site-packages/singer/transform.py", line 153, in transform
+#      raise SchemaMismatch(self.errors)
+#  singer.transform.SchemaMismatch: Errors during transform
+#   date_hour: data does not match {'type': ['string', 'null'], 'format': 'date-time'}
+#   date_hour_minute: data does not match {'type': ['string', 'null'], 'format': 'date-time'}
+#   nth_hour: data does not match {'selected': True, 'inclusion': 'available', 'type': ['integer', 'null']}
