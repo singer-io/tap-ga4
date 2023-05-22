@@ -67,14 +67,21 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
     def test_bookmarked_streams_start_date(self):
         # TODO - BUG - completed streams are not respecting the bookmark value
-        def override_lookback_window():
-            return {stream: timedelta(days=0) for stream in self.streams_to_test()}
+        def override_lookback_window(stream=None):
+            look_back = {stream: timedelta(days=0) for stream in self.streams_to_test()}
+            if stream:
+                return look_back[stream]
+            return look_back
+
         self.expected_lookback_window = override_lookback_window
         super().test_bookmarked_streams_start_date()
 
     def test_resuming_sync_records(self):
         # TODO - BUG - completed streams are not respecting the bookmark value
-        def override_lookback_window():
-            return {stream: timedelta(days=0) for stream in self.streams_to_test()}
+        def override_lookback_window(stream=None):
+            look_back = {stream: timedelta(days=0) for stream in self.streams_to_test()}
+            if stream:
+                return look_back[stream]
+            return look_back
         self.expected_lookback_window = override_lookback_window
         super().test_resuming_sync_records()

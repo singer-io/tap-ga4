@@ -163,13 +163,14 @@ class GA4Base(BaseCase):
                 for table, properties
                 in self.expected_metadata().items()}
 
-    def expected_automatic_fields(self):
+    def expected_automatic_fields(self, stream=None):
         auto_fields = {}
         for table, properties in self.expected_metadata().items():
             auto_fields[table] = properties.get(self.PRIMARY_KEYS, set()) \
                 | properties.get(self.REPLICATION_KEYS, set()) \
                 | properties.get(self.HASHED_KEYS, set())
-
+        if stream:
+            return auto_fields[stream]
         return auto_fields
 
     @classmethod
