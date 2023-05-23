@@ -168,7 +168,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
                 records = [
                     record['data'] for record in
-                    self.synced_records.get(stream, {'messages': []}).get('messages', [])
+                    self.synced_records.get(stream, {}).get('messages', [])
                     if record.get('action') == 'upsert']
 
                 if records:
