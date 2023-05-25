@@ -71,23 +71,9 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
 
     @staticmethod
     def streams_to_selected_fields():
-        # TODO - when selecting these fields I'm getting errors.
         return {
-            "Test Report 1": {
-                "conversions",
-                # "defaultChannelGrouping",  # Are these are valid selections?
-                # "eventName",
-                # "eventCount",
-                # "newUsers",
-                # "enagementRate",
-                # "engagedSessions",
-            },
-            'content_group_report': set()
-            #     {
-            #         "date",  # Are these are valid selections?
-            #         "browser",
-            #         "conversions",
-            # },
+            "Test Report 1": {"conversions"},
+            'content_group_report': {"date", "totalUsers"},
         }
 
     ##########################################################################

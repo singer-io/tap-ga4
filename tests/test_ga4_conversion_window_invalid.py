@@ -68,7 +68,7 @@ class ConversionWindowInvalidTest(GA4Base):
             err_msg_2 = "'bad_properties': ['conversion_window']"
 
             # Create a connection
-            _ = connections.ensure_connection(self)
+            connections.ensure_connection(self)
 
         # Verify connection cannot be made with invalid conversion_window
         LOGGER.info("********** Validating error message contains %s", err_msg_1)
