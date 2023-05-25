@@ -73,7 +73,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     def streams_to_selected_fields():
         return {
             "Test Report 1": {"conversions"},
-            'content_group_report': {"date", "totalUsers"},
+            'content_group_report': {"date"},
         }
 
     ##########################################################################
