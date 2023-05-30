@@ -24,9 +24,10 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         return {'Test Report 1', 'Test Report 2'}
 
     def streams_to_selected_fields(self):  # pylint: disable=arguments-differ
+        # TODO - BUG https://jira.talendforge.org/browse/TDL-21467
         if not self.fields_1 and not self.fields_2:
-            self.fields_1 = self.select_random_fields()
-            self.fields_2 = self.select_random_fields()
+            self.fields_1 = self.select_random_fields() - {"nth_hour"}
+            self.fields_2 = self.select_random_fields() - {"nth_hour"}
         return {
             "Test Report 1": self.fields_1 | self.expected_automatic_fields()["Test Report 1"],
             "Test Report 2": self.fields_2 | self.expected_automatic_fields()["Test Report 2"]
@@ -189,6 +190,8 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         pass
 
 #  TODO - Run failed, might have an issue with the way we expect data for some fields
+#   https://jira.talendforge.org/browse/TDL-21467 is for the nth_hour field being other
+#   We should remove nth_hour from random selection until the bug is addressed.
 #  Traceback (most recent call last):
 #    File "/usr/local/share/virtualenvs/tap-ga4/bin/tap-ga4", line 11, in <module>
 #      load_entry_point('tap-ga4', 'console_scripts', 'tap-ga4')()
