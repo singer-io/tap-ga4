@@ -36,7 +36,7 @@ class TestFieldExclusions(unittest.TestCase):
             for field in res.metric_compatibilities:
                 fields[metric.api_name].append(field.metric_metadata.api_name)
 
-        ### Used by CircleCi to automatically commit changes
+        # Used by CircleCi to automatically commit changes
         with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
             fields_json = json.dumps(fields, indent=4)
             outfile.write(fields_json)
