@@ -173,6 +173,15 @@ workflows:
             - tier-1-tap-user
           requires:
             - ensure_env
+            - run_field_exclusions_test
+      - run_field_exclusions_test:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+            - singer-bot-github-token
+          requires:
+            - run_pylint
+            - run_unit_tests
       - build:
           context:
             - circleci-user
@@ -181,6 +190,7 @@ workflows:
             - run_pylint
             - run_unit_tests
             - run_integration_tests
+            - run_field_exclusions_test
   build_daily:
     jobs:
       - ensure_env:
