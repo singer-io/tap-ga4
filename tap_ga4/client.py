@@ -61,7 +61,7 @@ class Client:
         has_more_rows = True
         dimension_filters = None
         # Dimension filters are hardcoded for premade reports
-        if report["name"] in ["conversions_report", "in_app_purchases"]:
+        if report["name"] in ["in_app_purchases"]:
             dimension_filters = self.get_premade_report_dimension_filter(report["name"])
 
         while has_more_rows:
