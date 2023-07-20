@@ -77,13 +77,7 @@ class ConversionWindowInvalidTest(GA4Base):
         self.assertIn(err_msg_2, str(context.exception))
 
 
-# BUG https://jira.talendforge.org/browse/TDL-21395
 class ConversionWindowTestZeroInteger(ConversionWindowInvalidTest):
-
-    # Fails (does not throw exception) with values 0, 1 as ints
-    # actually used conversion window to back up one day when set to 1 but sync'd 0 records
-    # actually used conversion window and made request for date range today to today
-    #     when set to 0 but sync'd 0 records
 
     conversion_window = 0
     conversion_window_type = 'int'
@@ -93,11 +87,6 @@ class ConversionWindowTestZeroInteger(ConversionWindowInvalidTest):
 
 
 class ConversionWindowTestTenInteger(ConversionWindowInvalidTest):
-
-    # Fails (does not throw exception) with values 0, 1 as ints
-    # actually used conversion window to back up one day when set to 1 but sync'd 0 records
-    # actually used conversion window and made request for date range today to today
-    #     when set to 0 but sync'd 0 records
 
     conversion_window = 10
     conversion_window_type = 'int'
