@@ -78,18 +78,32 @@ class ConversionWindowInvalidTest(GA4Base):
 
 
 # BUG https://jira.talendforge.org/browse/TDL-21395
-# class ConversionWindowTestZeroInteger(ConversionWindowInvalidTest):
+class ConversionWindowTestZeroInteger(ConversionWindowInvalidTest):
 
-#     # Fails (does not throw exception) with values 0, 1 as ints
-#     # actually used conversion window to back up one day when set to 1 but sync'd 0 records
-#     # actually used conversion window and made request for date range today to today
-#     #     when set to 0 but sync'd 0 records
+    # Fails (does not throw exception) with values 0, 1 as ints
+    # actually used conversion window to back up one day when set to 1 but sync'd 0 records
+    # actually used conversion window and made request for date range today to today
+    #     when set to 0 but sync'd 0 records
 
-#     conversion_window = 0
-#     conversion_window_type = 'int'
+    conversion_window = 0
+    conversion_window_type = 'int'
 
-#     def test_run(self):
-#         self.run_test()
+    def test_run(self):
+        self.run_test()
+
+
+class ConversionWindowTestTenInteger(ConversionWindowInvalidTest):
+
+    # Fails (does not throw exception) with values 0, 1 as ints
+    # actually used conversion window to back up one day when set to 1 but sync'd 0 records
+    # actually used conversion window and made request for date range today to today
+    #     when set to 0 but sync'd 0 records
+
+    conversion_window = 10
+    conversion_window_type = 'int'
+
+    def test_run(self):
+        self.run_test()
 
 
 class ConversionWindowTestZeroString(ConversionWindowInvalidTest):
