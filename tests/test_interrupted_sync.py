@@ -14,9 +14,7 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
         dt.now(), delta=timedelta(days=-20), date_format=bookmark_format)
     completed_bookmark_date = GA4Base.timedelta_formatted(dt.now(), delta=timedelta(days=-15),
                                                           date_format=bookmark_format)
-    # assign tap_tester.base_case function to GA4InterruptedSyncTest attribute for later use
-    expected_lookback_window = GA4Base.expected_lookback_window
-    jira_status = None
+    card_is_done = None
 
     @staticmethod
     def name():
@@ -70,13 +68,15 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
         # BUG override bookmark to use final state vs manipulate_state allowing test to pass
         done_status_list = [ "Closed", "Done", "Rejected" ]
-        if not GA4InterruptedSyncTest.jira_status:
-            GA4InterruptedSyncTest.jira_status = get_jira_card_status('TDL-23687')
-        self.assertNotIn(GA4InterruptedSyncTest.jira_status, done_status_list,
+        if GA4InterruptedSyncTest.card_is_done is None:
+            jira_status = get_jira_card_status('TDL-23687')
+            GA4InterruptedSyncTest.card_is_done = jira_status in done_status_list
+            self.assertFalse(GA4InterruptedSyncTest.card_is_done,
                          msg="JIRA BUG has transitioned to Done, remove work around")
         bookmark  = self.get_bookmark_value(self.resuming_sync_state, stream)
 
-        # The lookback window should be used for completed streams
+        # The lookback window should be used for all bookmarked streams
+        #   function inherited from tap_tester.base_case
         lookback = self.expected_lookback_window()
         if type(lookback) is dict:
             # lookback was retrieved from base_case or override all streams (dict)
