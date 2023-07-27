@@ -8,12 +8,12 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 from tap_tester.base_suite_tests.base_case import BaseCase
-from tap_tester.jira_client import JiraClient as jira_client
+from tap_tester.jira_client import JiraClient
 from tap_tester.jira_client import CONFIGURATION_ENVIRONMENT as jira_config
 
-JIRA_CLIENT = jira_client({ **jira_config })
+JIRA_CLIENT = JiraClient(jira_config)
 
-get_jira_card_status = JIRA_CLIENT.get_jira_issue_status
+get_jira_status_category = JIRA_CLIENT.get_status_category
 
 
 class GA4Base(BaseCase):

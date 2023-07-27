@@ -1,7 +1,7 @@
 import os
 from datetime import datetime as dt, timedelta
 
-from base import GA4Base, get_jira_card_status
+from base import GA4Base, get_jira_status_category
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
 
 
@@ -67,32 +67,16 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
         """This method is only for streams that have bookmarks and a sync has been started"""
 
         # BUG override bookmark to use final state vs manipulate_state allowing test to pass
-        done_status_list = [ "Closed", "Done", "Rejected" ]
         if GA4InterruptedSyncTest.card_is_done is None:
-            jira_status = get_jira_card_status('TDL-23687')
-            GA4InterruptedSyncTest.card_is_done = jira_status in done_status_list
+            jira_status = get_jira_status_category('TDL-23687')
+            GA4InterruptedSyncTest.card_is_done = jira_status == 'done'
             self.assertFalse(GA4InterruptedSyncTest.card_is_done,
                          msg="JIRA BUG has transitioned to Done, remove work around")
         bookmark  = self.get_bookmark_value(self.resuming_sync_state, stream)
 
         # The lookback window should be used for all bookmarked streams
         #   function inherited from tap_tester.base_case
-        lookback = self.expected_lookback_window()
-        if type(lookback) is dict:
-            # lookback was retrieved from base_case or override all streams (dict)
-            stream_lookback = lookback.get(stream)
-        elif type(lookback) is datetime.timedelta:
-            # lookback was retrieved from base_case or override single stream (timedelta)
-            stream_lookback = lookback
-        else:
-            raise TypeError
-
-        if not completed:
-            # The lookback window should not be used for the currently syncing stream
-            # Expect the sync to start where the last sync left off.
-            # return self.parse_date(bookmark) # expected behavior
-            # BUG after TDL-23687 is resolved delete the line below and uncomment line above
-            return self.parse_date(bookmark) - stream_lookback
+        stream_lookback = self.expected_lookback_window(stream)
 
         # Expect the sync to start where the last sync left off,
         #   expect to go back a lookback for completed streams
