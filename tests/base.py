@@ -31,7 +31,6 @@ class GA4Base(BaseCase):
 
     HASHED_KEYS = "default-hashed-keys"
     # REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
-    # CONVERSION_WINDOW = 10
     CONVERSION_WINDOW = 30
 
     custom_report_id_1 = None
