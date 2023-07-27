@@ -8,6 +8,12 @@ from datetime import datetime as dt
 from datetime import timedelta
 
 from tap_tester.base_suite_tests.base_case import BaseCase
+from tap_tester.jira_client import JiraClient
+from tap_tester.jira_client import CONFIGURATION_ENVIRONMENT as jira_config
+
+JIRA_CLIENT = JiraClient(jira_config)
+
+get_jira_status_category = JIRA_CLIENT.get_status_category
 
 
 class GA4Base(BaseCase):
@@ -21,7 +27,7 @@ class GA4Base(BaseCase):
 
     HASHED_KEYS = "default-hashed-keys"
     # REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
-    CONVERSION_WINDOW = 10
+    CONVERSION_WINDOW = 30
 
     custom_report_id_1 = None
     custom_report_id_2 = None
