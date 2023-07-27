@@ -13,10 +13,7 @@ from tap_tester.jira_client import CONFIGURATION_ENVIRONMENT as jira_config
 
 JIRA_CLIENT = jira_client({ **jira_config })
 
-def get_jira_card_status(jira_ticket):
-    """Get the status of a specified JIRA card"""
-    jira_status = JIRA_CLIENT.get_jira_issue_status(jira_ticket)
-    return jira_status
+get_jira_card_status = JIRA_CLIENT.get_jira_issue_status
 
 
 class GA4Base(BaseCase):
