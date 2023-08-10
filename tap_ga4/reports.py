@@ -437,14 +437,15 @@ PREMADE_REPORTS = [
         ],
     },
     {
-        "name": "in_app_purchases",
+        "name": "in_app_purchases_report",
         "metrics": [
-            "itemsPurchased",
-            "itemRevenue",
+            "quantity",
+            "productRevenue",
+            "averageProductRevenue",
         ],
         "dimensions": [
             "date",
-            "itemId",
+            "productID",
         ],
     },
     {
