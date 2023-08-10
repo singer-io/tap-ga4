@@ -338,7 +338,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -351,7 +351,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -364,7 +364,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -377,7 +377,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -390,7 +390,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -403,7 +403,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -416,7 +416,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
@@ -429,7 +429,7 @@ PREMADE_REPORTS = [
             "itemsAddedToCart",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed"
+            "itemsViewed",
         ],
         "dimensions": [
             "date",
