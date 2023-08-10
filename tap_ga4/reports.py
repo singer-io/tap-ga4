@@ -336,11 +336,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_name_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -351,11 +349,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_id_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -366,11 +362,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_category_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -381,11 +375,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_category_2_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -396,11 +388,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_category_3_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -411,11 +401,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_category_4_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -426,11 +414,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_category_5_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
@@ -441,11 +427,9 @@ PREMADE_REPORTS = [
         "name": "ecommerce_purchases_item_brand_report",
         "metrics": [
             "itemsAddedToCart",
-            "cartToViewRate",
             "itemsPurchased",
             "itemRevenue",
-            "itemsViewed",
-            "purchaseToViewRate",
+            "itemsViewed"
         ],
         "dimensions": [
             "date",
