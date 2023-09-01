@@ -97,10 +97,9 @@ class ConversionWindowBaseTest(GA4Base):
 
                 conversion_window_int = int(self.CONVERSION_WINDOW)
                 oldest_date = self.parse_date(min(replication_dates))
-                oldest_possible_date = (dt.utcnow().replace(
+                oldest_possible_date = (dt.now().replace(
                     hour=0, minute=0, second=0, microsecond=0) -
-                                        timedelta(days=conversion_window_int))
-                oldest_possible_date = oldest_possible_date.replace(tzinfo=pytz.utc)
+                        timedelta(days=conversion_window_int)).replace(tzinfo=pytz.utc)
                 start_date = self.parse_date(self.start_date)
 
                 # Verify start date is before the oldest replicated record per test set up
