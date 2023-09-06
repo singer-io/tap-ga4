@@ -1,7 +1,7 @@
 import os
 from copy import deepcopy
 from datetime import datetime as dt, timedelta
-
+import pytz
 from base import GA4Base
 from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
 
@@ -83,7 +83,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     # TODO - for some reason look_back windows set the bookmark to now
     #   and not to the last record.  Find out if this is correct and why?
     def test_first_sync_bookmark(self):
-        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).replace(tzinfo=pytz.utc)
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
                 # gather results
@@ -96,7 +96,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     # TODO - for some reason look_back windows set the bookmark to now
     #   and not to the last record.  Find out if this is correct and why?
     def test_second_sync_bookmark(self):
-        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).replace(tzinfo=pytz.utc)
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
                 # gather results
