@@ -2,7 +2,7 @@
 import os
 from datetime import datetime as dt
 from datetime import timedelta
-
+import pytz
 from tap_tester import menagerie, connections, runner
 
 from base import GA4Base
@@ -99,7 +99,7 @@ class ConversionWindowBaseTest(GA4Base):
                 oldest_date = self.parse_date(min(replication_dates))
                 oldest_possible_date = (dt.utcnow().replace(
                     hour=0, minute=0, second=0, microsecond=0) -
-                                        timedelta(days=conversion_window_int))
+                        timedelta(days=conversion_window_int)).replace(tzinfo=pytz.utc)
                 start_date = self.parse_date(self.start_date)
 
                 # Verify start date is before the oldest replicated record per test set up
