@@ -197,6 +197,8 @@ workflows:
             - circleci-user
             - tier-1-tap-user
             - singer-bot-github-token
+          requires:
+            - ensure_env
   build_daily:
     jobs:
       - ensure_env:
