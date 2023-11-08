@@ -161,7 +161,7 @@ jobs:
 
             mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
 
-            echo 'hi' >> tap_ga4/field_exclusions.json
+            echo 'hihi' >> tap_ga4/field_exclusions.json
 
             if git diff --quiet tap_ga4/field_exclusions.json;
             then
