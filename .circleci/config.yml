@@ -170,6 +170,13 @@ jobs:
                 # Commit 1: Schema changes
                 git commit -am "Update field exclusions"
                 git push -u origin "$branch_name"
+            fi
+
+            if [[ "Update field selection 2" == $(gh pr list --author "singer-bot" --json title --jq '.[].title') ]] ;
+            then
+                existing_pr_url=$(gh pr list --author "singer-bot" --json url --jq '.[].url)
+                echo "Found existing PR at $existing_pr_url, not opening another PR"
+            else
                 ./gh pr create --title "Update field selection" --body "Update cached field exclusions to match changes made in the GA4 Data API" -B main
                 # Commit 2: packaging stuff
 
