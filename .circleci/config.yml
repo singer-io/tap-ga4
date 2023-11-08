@@ -172,7 +172,7 @@ jobs:
                 git push -u origin "$branch_name"
             fi
 
-            if [[ "Update field selection 2" == $(gh pr list --author "singer-bot" --json title --jq '.[].title') ]] ;
+            if [[ "Update field selection" == $(gh pr list --author "singer-bot" --json title --jq '.[].title') ]] ;
             then
                 existing_pr_url=$(gh pr list --author "singer-bot" --json url --jq '.[].url')
                 echo "Found existing PR at $existing_pr_url, not opening another PR"
