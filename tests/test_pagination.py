@@ -8,7 +8,7 @@ from base import GA4Base
 class GA4PaginationTest(PaginationTest, GA4Base):
     """GA4 pagination test implementation """
 
-    start_date = GA4Base.timedelta_formatted(dt.now(), delta=timedelta(days=-250))
+    start_date = GA4Base.timedelta_formatted(dt.now(), delta=timedelta(days=-300))
     request_window_size = 100
 
     @staticmethod
