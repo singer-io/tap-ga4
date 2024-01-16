@@ -1,4 +1,6 @@
 # Changelog
+## v0.1.0
+  * Update libraries to run on python 3.11.7 [#99](https://github.com/singer-io/tap-ga4/pull/99)
 ## v0.0.32
   * Update cached field exclusions to match changes made in the GA4 Data API [#97](https://github.com/singer-io/tap-ga4/pull/97)
 ## v0.0.31
