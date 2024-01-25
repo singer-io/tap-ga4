@@ -115,8 +115,8 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
-            pip install nose
-            nosetests tests/field_exclusions
+            pip install nose2
+            nose2 -v -s tests/field_exclusions
       - run:
           name: 'Commit changes to git'
           when: on_fail
