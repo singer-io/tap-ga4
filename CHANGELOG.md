@@ -1,8 +1,11 @@
 # Changelog
-## v0.0.33
+
+## v0.1.1
   * Update cached field exclusions to match changes made in the GA4 Data API [#100](https://github.com/singer-io/tap-ga4/pull/100)
+## v0.1.0
+  * Update libraries to run on python 3.11.7 [#99](https://github.com/singer-io/tap-ga4/pull/99)
 ## v0.0.32
-  * Update cached field exclusions to match changes made in the GA4 Data API [#94](https://github.com/singer-io/tap-ga4/pull/94)
+  * Update cached field exclusions to match changes made in the GA4 Data API [#97](https://github.com/singer-io/tap-ga4/pull/97)
 ## v0.0.31
   * Update cached field exclusions to match changes made in the GA4 Data API [#92](https://github.com/singer-io/tap-ga4/pull/92)
 ## v0.0.30
@@ -11,7 +14,6 @@
   * Update cached field exclusions to match changes made in the GA4 Data API [#75](https://github.com/singer-io/tap-ga4/pull/75)
 ## v0.0.28
   * Update metric fields for the ecommerce report [#67](https://github.com/singer-io/tap-ga4/pull/71)
-
 ## v0.0.27
   * Update cached field exclusions to match changes made in the GA4 Data API [#67](https://github.com/singer-io/tap-ga4/pull/67)
 ## v0.0.26

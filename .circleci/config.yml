@@ -22,7 +22,7 @@ jobs:
           command: |
             python3 -mvenv /usr/local/share/virtualenvs/tap-ga4
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
-            pip install 'pip==21.1.3'
+            pip install 'pip==23.3.2'
             pip install 'setuptools==60.8.2'
             pip install .[dev]
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox /usr/local/share/virtualenvs/dev_env.sh
@@ -60,9 +60,8 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
-            pip install nose coverage
-            nosetests --with-coverage --cover-erase --cover-package=tap_ga4 --cover-html-dir=htmlcov tests/unittests
-            coverage html
+            pip install nose2
+            nose2 -v -s tests/unittests
       - store_test_results:
           path: test_output/report.xml
       - store_artifacts:
@@ -116,32 +115,76 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
-            pip install nose
-            nosetests tests/field_exclusions
+            pip install nose2
+            nose2 -v -s tests/field_exclusions
       - run:
           name: 'Commit changes to git'
           when: on_fail
           command: |
             echo "Committing to GitHub"
+
+            # Setup
             git config user.email "stitchintegrationdev@talend.com"
             git config user.name "CircleCI Job"
-            git checkout main
-            git checkout -b update-field-selection-$(date -I)
-            mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
-            OLD_VERSION=$(python setup.py --version)
-            apt install -y gawk
-            NEW_VERSION="$(python setup.py --version | gawk -F. '/[0-9]+/{$NF++;print}' OFS=.)"
-            sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
-            git commit -am "Update field exclusions"
-            git push -u origin update-field-selection-$(date -I)
+
             wget https://github.com/cli/cli/releases/download/v2.23.0/gh_2.23.0_linux_amd64.tar.gz
             tar xf gh_2.23.0_linux_amd64.tar.gz
-            cp /root/project/gh_2.23.0_linux_amd64/bin/gh .
-            ./gh pr create --title "Update field selection" --body "Update cached field exclusions to match changes made in the GA4 Data API" -B main
-            export PR_NUMBER=$(./gh pr list -L 1 --json number -q .[].number)
-            sed -i '1 a\## v'"$NEW_VERSION"'\n  * Update cached field exclusions to match changes made in the GA4 Data API [#'"$PR_NUMBER"'](https://github.com/singer-io/tap-ga4/pull/'"$PR_NUMBER"')' CHANGELOG.md
-            git commit -am "Update changelog [skip-ci]"
-            git push
+            cp /root/project/gh_2.23.0_linux_amd64/bin/gh /usr/local/bin/
+
+            apt install -y gawk
+
+            bash < <(curl -s https://raw.githubusercontent.com/babashka/babashka/master/install)
+            # End Setup
+
+            CLJ_SCRIPT='
+            (-> (mapv clojure.string/trim *input*)
+                sort
+                last
+                (clojure.string/split (re-pattern "remotes/origin/"))
+                last
+                println)
+            '
+            # Decide if we need to checkout a new branch
+            branch_name=''
+            if ! git branch -a | grep 'remotes/origin/update-field-selection.*' > /dev/null ;
+            then
+                echo 'No remote branches found that look like `update-field-selection*`'
+                branch_name="update-field-selection-$(date -I)"
+                git checkout main
+                git checkout -b "$branch_name"
+            else
+                echo 'Found remote branches'
+                branch_name=$(git branch -a | grep 'remotes/origin/update-field-selection.*' | bb -i -e "$CLJ_SCRIPT")
+                git checkout "$branch_name"
+            fi
+
+            mv /root/project/tap_ga4/new_field_exclusions.json /root/project/tap_ga4/field_exclusions.json
+
+            if git diff --quiet tap_ga4/field_exclusions.json;
+            then
+                echo 'No diff'
+            else
+                # Commit 1: Schema changes
+                git commit -am "Update field exclusions"
+                git push -u origin "$branch_name"
+            fi
+
+            if [[ "Update field selection" == $(gh pr list --author "singer-bot" --json title --jq '.[].title') ]] ;
+            then
+                existing_pr_url=$(gh pr list --author "singer-bot" --json url --jq '.[].url')
+                echo "Found existing PR at $existing_pr_url, not opening another PR"
+            else
+                gh pr create --title "Update field selection" --body "Update cached field exclusions to match changes made in the GA4 Data API" -B main
+                # Commit 2: packaging stuff
+
+                OLD_VERSION=$(python setup.py --version)
+                NEW_VERSION="$(python setup.py --version | gawk -F. '/[0-9]+/{$NF++;print}' OFS=.)"
+                PR_NUMBER=$(gh pr list -L 1 --json number -q .[].number)
+                sed -i 's/'"$OLD_VERSION"'/'"$NEW_VERSION"'/g' /root/project/setup.py
+                sed -i '1 a\## v'"$NEW_VERSION"'\n  * Update cached field exclusions to match changes made in the GA4 Data API [#'"$PR_NUMBER"'](https://github.com/singer-io/tap-ga4/pull/'"$PR_NUMBER"')' CHANGELOG.md
+                git commit -am "Bump version, Update changelog [skip-ci]"
+                git push
+            fi
       - slack/notify-on-failure:
           only_for_branches: main
       - store_artifacts:
@@ -173,6 +216,15 @@ workflows:
             - tier-1-tap-user
           requires:
             - ensure_env
+            - run_field_exclusions_test
+      - run_field_exclusions_test:
+          context:
+            - circleci-user
+            - tier-1-tap-user
+            - singer-bot-github-token
+          requires:
+            - run_pylint
+            - run_unit_tests
       - build:
           context:
             - circleci-user
@@ -181,6 +233,7 @@ workflows:
             - run_pylint
             - run_unit_tests
             - run_integration_tests
+            - run_field_exclusions_test
   build_daily:
     jobs:
       - ensure_env:

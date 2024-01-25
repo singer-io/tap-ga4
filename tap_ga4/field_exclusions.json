@@ -544,9 +544,14 @@
         "returnOnAdSpend"
     ],
     "dateHourMinute": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -1015,9 +1020,14 @@
         "organicGoogleSearchImpressions"
     ],
     "fullPageUrl": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -4015,9 +4025,14 @@
         "returnOnAdSpend"
     ],
     "minute": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -4143,9 +4158,14 @@
         "returnOnAdSpend"
     ],
     "nthMinute": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -4284,9 +4304,14 @@
         "returnOnAdSpend"
     ],
     "pageLocation": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -4318,9 +4343,14 @@
         "returnOnAdSpend"
     ],
     "pagePathPlusQueryString": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
@@ -5230,9 +5260,14 @@
         "returnOnAdSpend"
     ],
     "unifiedPageScreen": [
+        "brandingInterest",
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "firstUserGoogleAdsAdGroupId",
+        "language",
+        "sessionGoogleAdsAdGroupId",
+        "sessionSa360EngineAccountType",
         "advertiserAdClicks",
         "advertiserAdCost",
         "advertiserAdCostPerClick",
