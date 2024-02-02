@@ -517,6 +517,11 @@
         "cohortNthDay",
         "cohortNthMonth",
         "cohortNthWeek",
+        "advertiserAdClicks",
+        "advertiserAdCost",
+        "advertiserAdCostPerClick",
+        "advertiserAdCostPerConversion",
+        "advertiserAdImpressions",
         "cohortActiveUsers",
         "cohortTotalUsers",
         "returnOnAdSpend"
