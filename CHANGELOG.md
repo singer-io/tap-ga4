@@ -1,4 +1,43 @@
 # Changelog
+
+## v0.1.1
+  * Update cached field exclusions to match changes made in the GA4 Data API [#100](https://github.com/singer-io/tap-ga4/pull/100)
+## v0.1.0
+  * Update libraries to run on python 3.11.7 [#99](https://github.com/singer-io/tap-ga4/pull/99)
+## v0.0.32
+  * Update cached field exclusions to match changes made in the GA4 Data API [#97](https://github.com/singer-io/tap-ga4/pull/97)
+## v0.0.31
+  * Update cached field exclusions to match changes made in the GA4 Data API [#92](https://github.com/singer-io/tap-ga4/pull/92)
+## v0.0.30
+  * Update cached field exclusions to match changes made in the GA4 Data API [#77](https://github.com/singer-io/tap-ga4/pull/77)
+## v0.0.29
+  * Update cached field exclusions to match changes made in the GA4 Data API [#75](https://github.com/singer-io/tap-ga4/pull/75)
+## v0.0.28
+  * Update metric fields for the ecommerce report [#67](https://github.com/singer-io/tap-ga4/pull/71)
+## v0.0.27
+  * Update cached field exclusions to match changes made in the GA4 Data API [#67](https://github.com/singer-io/tap-ga4/pull/67)
+## v0.0.26
+  * Update cached field exclusions to match changes made in the GA4 Data API [#65](https://github.com/singer-io/tap-ga4/pull/65)
+## v0.0.25
+  * Update cached field exclusions to match changes made in the GA4 Data API [#62](https://github.com/singer-io/tap-ga4/pull/62)
+## v0.0.24
+  * Update cached field exclusions to match changes made in the GA4 Data API [#58](https://github.com/singer-io/tap-ga4/pull/58)
+## v0.0.23
+  * Update structure of replication method metadata for testing [#54](https://github.com/singer-io/tap-ga4/pull/54)
+## v0.0.22
+  * Update cached field exclusions to match changes made in the GA4 Data API [#49](https://github.com/singer-io/tap-ga4/pull/49)
+## v0.0.21
+  * Update cached field exclusions to match changes made in the GA4 Data API [#48](https://github.com/singer-io/tap-ga4/pull/48)
+## v0.0.20
+  * Update cached field exclusions to match changes made in the GA4 Data API [#44](https://github.com/singer-io/tap-ga4/pull/44)
+## v0.0.19
+  * Update wait time after quota limit is reached to one hour [#42](https://github.com/singer-io/tap-ga4/pull/42)
+## v0.0.18
+  * Update cached field exclusions to match changes made in the GA4 Data API [#41](https://github.com/singer-io/tap-ga4/pull/41)
+## v0.0.17
+  * Update cached field exclusions to match changes made in the GA4 Data API [#39](https://github.com/singer-io/tap-ga4/pull/39)
+## v0.0.16
+  * Update cached field exclusions to match changes made in the GA4 Data API [#38](https://github.com/singer-io/tap-ga4/pull/38)
 ## v0.0.15
   * Adds two premade reports with filters, conversions_report and in_app_purchases [#31](https://github.com/singer-io/tap-ga4/pull/31)
 ## v0.0.14

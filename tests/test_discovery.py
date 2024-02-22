@@ -1,6 +1,3 @@
-import unittest
-
-from tap_tester import menagerie, connections
 from tap_tester.base_suite_tests.discovery_test import DiscoveryTest
 
 from base import GA4Base
@@ -14,23 +11,18 @@ class GA4DiscoveryTest(DiscoveryTest, GA4Base):
         return "tt_ga4_discovery"
 
     def streams_to_test(self):
-        return set(self.expected_metadata().keys())
+        return self.expected_stream_names()
 
-    @unittest.skip("Does Not Apply")
     def test_stream_naming(self):
-        """
-        This tap accepts user provided stream names in the config via the report_definitions
-        field and does not conform to the expaction that a stream's name must satisfy the condition:
-
-
-            re.fullmatch(r"[a-z_]+", name)
-
-        So this test case is skipped.
-        """
-
-    @unittest.skip("TODO Known Failure. Waiting on tap implementation.")
-    def test_replication_metadata_by_streams(self):
-        """
-        Currently the replication key is not yet decided on, and the forced-replication-method
-        is missing from metadata.
-        """
+        def naming_streams_to_test():
+            # TODO - Why do we use numbers
+            #   and possibly have 5 of the same report for non custom reports
+            return self.expected_stream_names().difference({
+                'Test Report 1',
+                'Test Report 2',
+                'ecommerce_purchases_item_category_2_report',
+                'ecommerce_purchases_item_category_3_report',
+                'ecommerce_purchases_item_category_4_report',
+                'ecommerce_purchases_item_category_5_report'})
+        self.streams_to_test = naming_streams_to_test
+        super().test_stream_naming()

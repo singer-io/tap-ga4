@@ -7,8 +7,13 @@ import uuid
 from datetime import datetime as dt
 from datetime import timedelta
 
-from tap_tester import connections, menagerie, runner, LOGGER
 from tap_tester.base_suite_tests.base_case import BaseCase
+from tap_tester.jira_client import JiraClient
+from tap_tester.jira_client import CONFIGURATION_ENVIRONMENT as jira_config
+
+JIRA_CLIENT = JiraClient(jira_config)
+
+get_jira_status_category = JIRA_CLIENT.get_status_category
 
 
 class GA4Base(BaseCase):
@@ -20,40 +25,36 @@ class GA4Base(BaseCase):
     Shared tap-specific methods (as needed).
     """
 
-
     HASHED_KEYS = "default-hashed-keys"
-    REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
-    BOOKMARK_FORMAT = "%Y-%m-%d"
-    CONVERSION_WINDOW = "30"
-    PAGE_SIZE = 100000
+    # REPLICATION_KEY_FORMAT = "%Y-%m-%dT00:00:00.000000Z"
+    CONVERSION_WINDOW = 30
 
-    start_date = ""
     custom_report_id_1 = None
     custom_report_id_2 = None
     request_window_size = None
 
+    # set the default start date which can be overridden in the tests.
+    start_date = BaseCase.timedelta_formatted(dt.utcnow(), delta=timedelta(days=-3))
 
     @staticmethod
     def tap_name():
         """The name of the tap"""
         return "tap-ga4"
 
-
     @staticmethod
     def get_type():
         """the expected url route ending"""
         return "platform.ga4"
 
-
-    def get_properties(self, original: bool = True):
+    def get_properties(self):
         """Configuration properties required for the tap."""
         # Use the same UUID for each custom report
-        if not self.custom_report_id_1 and not self.custom_report_id_2:
-            type(self).custom_report_id_1 = str(uuid.uuid4())
-            type(self).custom_report_id_2 = str(uuid.uuid4())
+        if not GA4Base.custom_report_id_1 or not GA4Base.custom_report_id_2:
+            GA4Base.custom_report_id_1 = str(uuid.uuid4())
+            GA4Base.custom_report_id_2 = str(uuid.uuid4())
 
         return_value = {
-            'start_date': (dt.utcnow() - timedelta(days=3)).strftime(self.START_DATE_FORMAT),
+            'start_date': self.start_date,
             'conversion_window': self.CONVERSION_WINDOW,
             'property_id': os.getenv('TAP_GA4_PROPERTY_ID'),
             'account_id': '659787',
@@ -65,15 +66,9 @@ class GA4Base(BaseCase):
             ]
         }
 
-        if original:
-            return return_value
-
-        if self.start_date:
-            return_value["start_date"] = self.start_date
         if self.request_window_size:
             return_value["request_window_size"] = self.request_window_size
         return return_value
-
 
     @staticmethod
     def get_credentials():
@@ -83,31 +78,35 @@ class GA4Base(BaseCase):
             'refresh_token': os.getenv('TAP_GA4_REFRESH_TOKEN'),
         }
 
-
-    def expected_metadata(self):
+    @classmethod
+    def expected_metadata(cls):
         """The expected streams and metadata about the streams"""
         default_expectations = {
-            self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            GA4Base.HASHED_KEYS: {  # TODO also sorted dimensions and values...
                 'account_id',
                 'property_id',
             },
-            self.PRIMARY_KEYS: {"_sdc_record_hash"},
-            self.REPLICATION_METHOD: self.INCREMENTAL,
-            self.REPLICATION_KEYS: {"date"},
-            self.RESPECTS_START_DATE: True,
+            BaseCase.PRIMARY_KEYS: {"_sdc_record_hash"},
+            BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
+            BaseCase.REPLICATION_KEYS: {"date"},
+            BaseCase.RESPECTS_START_DATE: True,
+            BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW)),
+            BaseCase.API_LIMIT: 100_000
         }
 
         return {
-            'Test Report 1': default_expectations, # TODO stitch QA generated, necessary?
-            'Test Report 2': {      # TODO stitch QA generated, necessary?
-                self.HASHED_KEYS: { # TODO also sorted dimensions and values...
+            'Test Report 1': default_expectations,  # TODO stitch QA generated, necessary?
+            'Test Report 2': {       # TODO stitch QA generated, necessary?
+                GA4Base.HASHED_KEYS: {  # TODO also sorted dimensions and values...
                     'account_id',
                     'property_id',
                 },
-                self.PRIMARY_KEYS: {"_sdc_record_hash"},
-                self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"date"},
-                self.RESPECTS_START_DATE: False,
+                BaseCase.PRIMARY_KEYS: {"_sdc_record_hash"},
+                BaseCase.REPLICATION_METHOD: BaseCase.INCREMENTAL,
+                BaseCase.REPLICATION_KEYS: {"date"},
+                BaseCase.RESPECTS_START_DATE: False,
+                BaseCase.LOOK_BACK_WINDOW: timedelta(days=int(GA4Base.CONVERSION_WINDOW)),
+                BaseCase.API_LIMIT: 100_000
             },
             'content_group_report': default_expectations,
             'conversions_report': default_expectations,
@@ -161,7 +160,6 @@ class GA4Base(BaseCase):
             'user_acq_first_user_source_report': default_expectations,
         }
 
-
     def expected_hashed_keys(self):
         """
         return a dictionary with key of table name
@@ -171,19 +169,19 @@ class GA4Base(BaseCase):
                 for table, properties
                 in self.expected_metadata().items()}
 
-
-    def expected_automatic_fields(self):
+    def expected_automatic_fields(self, stream=None):
         auto_fields = {}
-        for k, v in self.expected_metadata().items():
-            auto_fields[k] = v.get(self.PRIMARY_KEYS, set()) | v.get(self.REPLICATION_KEYS, set()) \
-                | v.get(self.HASHED_KEYS, set())
-
+        for table, properties in self.expected_metadata().items():
+            auto_fields[table] = properties.get(self.PRIMARY_KEYS, set()) \
+                | properties.get(self.REPLICATION_KEYS, set()) \
+                | properties.get(self.HASHED_KEYS, set())
+        if stream:
+            return auto_fields[stream]
         return auto_fields
 
-
     @classmethod
-    def setUpClass(cls):
-        super().setUpClass(logging="Ensuring environment variables are sourced.")
+    def setUpClass(cls, logging="Ensuring environment variables are sourced."):
+        super().setUpClass(logging=logging)
         missing_envs = [
             x for x in [
                 'TAP_GA4_PROPERTY_ID',
@@ -196,184 +194,44 @@ class GA4Base(BaseCase):
         ]
 
         if len(missing_envs) != 0:
-            raise Exception("Missing environment variables: {}".format(missing_envs))
-
+            raise ValueError(f"Missing environment variables: {missing_envs}")
 
     ##########################################################################
-    ### Tap Specific Methods
+    # Tap Specific Methods
     ##########################################################################
 
+    #     TODO setup a standard custom report to start iterating through tests
+    #     TODO need to determine how to cover all metrics and dimensions via custom reports.
+    #     TODO need to determine if there are any specific combinations that need to be covered
+    #          (combinations that may later be used as pre-defiined reports?)
 
-    @staticmethod
-    def expected_default_fields():
+    @classmethod
+    def get_stream_id(cls, stream_name):
         """
-
-        TODO setup a standard custom report to start iterating through tests
-        TODO need to determine how to cover all metrics and dimensions via custom reports.
-        TODO need to determine if there are any specific combinations that need to be covered
-             (combinations that may later be used as pre-defiined reports?)
-
-        GA4 NOTES:
-          Segment are based on dimensions and metrics
-           - Users: People interact with your property (e.g., your website or app)
-           - Sessions: Interactions by a single user are grouped into sessions.
-           - Hits: Interactions during a session are referred to as hits. Hits include interactions like pageviews, events, and transactions.
-
-          Dimensions are data attributes like City, Browser, PAGE, etc.
-
-          Metrics are quantitative measures like Clicks, Sessions, Pages per Session, etc.
-
-
-
-        NOTE: See method in tap-google-analytics/tests/base.py
-        """
-        return {
-            "Test Report 1": {'date',
-                              'city',
-                              'browser',
-                              'bounceRate',
-                              'checkouts'},
-            "Test Report 2": {'source',
-                              'streamId',
-                              'conversions'},
-        }
-
-
-    @staticmethod
-    def expected_pagination_fields(): # TODO does this apply?
-        return {
-            "Test Report 1" : set(),
-            "Audience Overview": {
-                "ga:users", "ga:newUsers", "ga:sessions", "ga:sessionsPerUser", "ga:pageviews",
-                "ga:pageviewsPerSession", "ga:sessionDuration", "ga:bounceRate", "ga:date",
-                # "ga:pageviews",
-            },
-            "Audience Geo Location": set(),
-            "Audience Technology": set(),
-            "Acquisition Overview": set(),
-            "Behavior Overview": set(),
-            "Ecommerce Overview": set(),
-        }
-
-
-    def custom_reports_names_to_ids(self):
-        """
-        Creates a bidirectional mapping of custom report names <-> UUID
-
-        example:
-          {
-             "Custom Report 1": "some UUID",
-             "some UUID":       "Custom Report 1",
-             "Custom Report 2": "another UUID",
-             "another UUID":    "Custom Report 2"
-          }
-        """
-        report_definitions = self.get_properties()['report_definitions']
-        name_and_id_bidirectional_map = {}
-        for definition in report_definitions:
-            name_and_id_bidirectional_map[definition.get('name')] = definition.get('id')
-            name_and_id_bidirectional_map[definition.get('id')] = definition.get('name')
-
-        return name_and_id_bidirectional_map
-
-    # TODO update bookmark test to use this
-    def get_stream_name(self, tap_stream_id):
-        """
-        Returns the stream_name given the tap_stream_id because synced_records
+        Returns the stream_id given the stream_name because synced_records
         from the target output batches records by stream_name
 
         Since the GA4 tap_stream_id is a UUID instead of the usual case of
         tap_stream_id == stream_name, we need to get the stream_name that
         maps to tap_stream_id
-
         """
-        return self.custom_reports_names_to_ids().get(tap_stream_id, tap_stream_id)
+        stream_mapping = {
+            "Test Report 1": cls.custom_report_id_1,
+            "Test Report 2": cls.custom_report_id_2,
+        }
+        return stream_mapping.get(stream_name, stream_name)
 
-
-    @staticmethod
-    def select_all_streams_and_fields(conn_id, catalogs, select_all_fields: bool = True):
-        """Select all streams and all fields within streams"""
-        for catalog in catalogs:
-            schema = menagerie.get_annotated_schema(conn_id, catalog['stream_id'])
-
-            non_selected_properties = []
-            if not select_all_fields:
-                # get a list of all properties so that none are selected
-                non_selected_properties = schema.get('annotated-schema', {}).get(
-                    'properties', {}).keys()
-
-            connections.select_catalog_and_fields_via_metadata(
-                conn_id, catalog, schema, [], non_selected_properties)
-
-
-    def perform_and_verify_table_and_field_selection(self,
-                                                     conn_id,
-                                                     test_catalogs,
-                                                     select_all_fields=True):
+    @classmethod
+    def get_stream_name(cls, stream_id):
         """
-        Perform table and field selection based off of the streams to select
-        set and field selection parameters.
-        Verify this results in the expected streams selected and all or no
-        fields selected for those streams.
-        TODO update to account for field exclusions
+        Returns the stream_name given the stream_id because bookmarks uses stream_id
+
+        Since the GA4 tap_stream_id is a UUID instead of the usual case of
+        tap_stream_id == stream_name, we need to get the tap_stream_id that
+        maps to stream_name
         """
-
-        # Select all available fields or select no fields from all testable streams
-        self.select_all_streams_and_fields(
-            conn_id=conn_id, catalogs=test_catalogs, select_all_fields=select_all_fields
-        )
-
-        catalogs = menagerie.get_catalogs(conn_id)
-
-        # Ensure our selection affects the catalog
-        expected_selected = [tc.get('stream_name') for tc in test_catalogs]
-        for cat in catalogs:
-            catalog_entry = menagerie.get_annotated_schema(conn_id, cat['stream_id'])
-
-            # Verify all testable streams are selected
-            selected = catalog_entry.get('annotated-schema').get('selected')
-            print("Validating selection on {}: {}".format(cat['stream_name'], selected))
-            if cat['stream_name'] not in expected_selected:
-                self.assertFalse(selected, msg="Stream selected, but not testable.")
-                continue # Skip remaining assertions if we aren't selecting this stream
-            self.assertTrue(selected, msg="Stream not selected.")
-
-            if select_all_fields:
-                # Verify all fields within each selected stream are selected
-                for field, field_props in catalog_entry.get('annotated-schema').get('properties').items():
-                    field_selected = field_props.get('selected')
-                    print("\tValidating selection on {}.{}: {}".format(
-                        cat['stream_name'], field, field_selected))
-                    self.assertTrue(field_selected, msg="Field not selected.")
-            else:
-                # Verify only automatic fields are selected
-                expected_automatic_fields = self.expected_automatic_fields().get(cat['stream_name'])
-                selected_fields = self.get_selected_fields_from_metadata(catalog_entry['metadata'])
-                self.assertEqual(expected_automatic_fields, selected_fields)
-
-
-    def get_sync_start_time(self, stream, bookmark):
-        """
-        Calculates the sync start time, with respect to the lookback window
-        """
-        conversion_day = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None) - timedelta(days=self.lookback_window)
-        bookmark_datetime = dt.strptime(bookmark, self.BOOKMARK_FORMAT)
-        start_date_datetime = dt.strptime(self.start_date, self.START_DATE_FORMAT)
-        return  min(bookmark_datetime, max(start_date_datetime, conversion_day))
-
-
-    # TODO is this still useful now that we have get_stream_name?
-    def get_record_count_by_stream(self, record_count, stream):
-        count = record_count.get(stream)
-        if not count:
-            stream_name = self.custom_reports_names_to_ids().get(stream)
-            return record_count.get(stream_name)
-        return count
-
-
-    def get_bookmark_value(self, state, stream):
-        bookmark = state.get('bookmarks', {})
-        stream_bookmark = bookmark.get(stream)
-        if stream_bookmark:
-            return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
-        return None
+        stream_mapping = {
+            cls.custom_report_id_1: "Test Report 1",
+            cls.custom_report_id_2: "Test Report 2",
+        }
+        return stream_mapping.get(stream_id, stream_id)

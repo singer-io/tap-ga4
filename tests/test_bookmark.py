@@ -1,109 +1,111 @@
 import os
-import unittest
-from datetime import datetime as dt
-from datetime import timedelta
-
+from copy import deepcopy
+from datetime import datetime as dt, timedelta
+import pytz
 from base import GA4Base
 from tap_tester.base_suite_tests.bookmark_test import BookmarkTest
 
-class GA4BookmarkTest(BookmarkTest, GA4Base):
-    """GA4 bookmark test implementation"""
 
+class GA4BookmarkTest(BookmarkTest, GA4Base):
+    """
+    GA4 bookmark test implementation
+
+    MRO for test
+    [<class 'test_bookmark.GA4BookmarkTest'>,
+     <class 'tap_tester.base_suite_tests.bookmark_test.BookmarkTest'>,
+     <class 'base.GA4Base'>,
+     <class 'tap_tester.base_suite_tests.base_case.BaseCase'>,
+     <class 'unittest.case.TestCase'>,
+     <class 'object'>]
+    """
+
+    @property
+    def start_date(self):
+        """ensure first sync start_date is before the CONVERSION_WINDOW"""
+        return self.timedelta_formatted(
+            dt.utcnow(), delta=timedelta(days=-int(GA4Base.CONVERSION_WINDOW)-5))
+
+    @staticmethod
+    def streams_to_test():
+        # testing all streams creates massive quota issues
+        return {
+            'content_group_report',
+            'Test Report 1'
+        }
+
+    bookmark_format = "%Y-%m-%d"
+    initial_bookmarks = {}
 
     @staticmethod
     def name():
         return "tt_ga4_bookmark"
 
+    def manipulate_state(self, state: dict, new_bookmarks: dict):
+        """
+        This method will update the passed state with the new_bookmarks.
 
-    def streams_to_test(self):
-        # testing all streams creates massive quota issues
-        custom_id = self.custom_reports_names_to_ids()['Test Report 1']
+        new_bookmarks must be in the format { stream: {replication_key: replication_value}}
+        """
+        new_state = deepcopy(state)
+        if new_state.get('bookmarks') is None:
+            new_state['bookmarks'] = {}
+        for stream, rep in new_bookmarks.items():
+            if new_state['bookmarks'].get(stream):
+                for value in rep.values():
+                    new_state['bookmarks'][stream][os.getenv('TAP_GA4_PROPERTY_ID')] = \
+                        {'last_report_date': value}
+            else:
+                # It is expected there will be only one key value pair.
+                # if that is not the case this will only use the last value in the key value pair
+                for value in rep.values():
+                    new_state['bookmarks'][stream] = {
+                        os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': value}}
+        return new_state
+
+    def get_bookmark_value(self, state, stream):
+        bookmark = state.get('bookmarks', {})
+        stream_bookmark = bookmark.get(self.get_stream_id(stream))
+        if stream_bookmark:
+            return stream_bookmark.get(os.getenv('TAP_GA4_PROPERTY_ID')).get('last_report_date')
+        return None
+
+    @staticmethod
+    def streams_to_selected_fields():
         return {
-            'content_group_report',
-            custom_id
+            "Test Report 1": {"conversions"},
+            'content_group_report': {"date"},
         }
-
-
-    def manipulate_state(self, old_state):
-        manipulated_state = {
-            'bookmarks': {
-                stream_id: { os.getenv('TAP_GA4_PROPERTY_ID'): {'last_report_date': self.bookmark_date}}
-                for stream_id in old_state['bookmarks'].keys()
-            }
-        }
-
-        return manipulated_state
-
-
-    def streams_to_selected_fields(self):
-        return {
-            "Test Report 1": {
-                "conversions",
-                "defaultChannelGrouping",
-                "eventName",
-                "eventCount",
-                "newUsers",
-                "enagementRate",
-                "engagedSessions",
-            },
-            'content_group_report': {
-                "date",
-                "browser",
-                "conversions",
-            },
-        }
-
 
     ##########################################################################
-    ### Tap Specific Tests
+    # Tap Specific Tests
     ##########################################################################
 
-
-    def test_bookmark_values_are_today(self):
-        """
-        For taps with a BOOKMARK_FORMAT of "%Y-%m-%d", these assertions are
-        valid.
-        """
-        today_datetime = dt.now().replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=None)
+    # TODO - for some reason look_back windows set the bookmark to now
+    #   and not to the last record.  Find out if this is correct and why?
+    def test_first_sync_bookmark(self):
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).replace(tzinfo=pytz.utc)
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
                 # gather results
-                stream_bookmark_1 = self.bookmarks_1.get(stream)
-                stream_bookmark_2 = self.bookmarks_2.get(stream)
-
-                bookmark_value_1 = self.get_bookmark_value(self.state_1, stream)
-                bookmark_value_2 = self.get_bookmark_value(self.state_2, stream)
+                bookmark_value_1 = self.parse_date(self.get_bookmark_value(self.state_1, stream))
 
                 # Verify the bookmark is set based on sync end date (today) for sync 1
-                # (The tap replicaates from the start date through to today)
-                parsed_bookmark_value_1 = self.parse_date(bookmark_value_1)
-                self.assertEqual(parsed_bookmark_value_1, today_datetime)
+                # (The tap replicates from the start date through to today)
+                self.assertEqual(bookmark_value_1, today_datetime)
 
-                # Verify the bookmark is set based on sync execution time for sync 2
-                # (The tap replicaates from the manipulated state through to todayf)
-                parsed_bookmark_value_2 = self.parse_date(bookmark_value_2)
-                self.assertEqual(parsed_bookmark_value_2, today_datetime)
+    # TODO - for some reason look_back windows set the bookmark to now
+    #   and not to the last record.  Find out if this is correct and why?
+    def test_second_sync_bookmark(self):
+        today_datetime = dt.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).replace(tzinfo=pytz.utc)
+        for stream in self.streams_to_test():
+            with self.subTest(stream=stream):
+                # gather results
+                bookmark_value_2 = self.parse_date(self.get_bookmark_value(self.state_2, stream))
 
+                # Verify the bookmark is set based on sync end date (today) for sync 2
+                # (The tap replicates from the start date through to today)
+                self.assertEqual(bookmark_value_2, today_datetime)
 
     ##########################################################################
-    ### Tests To Skip
+    # Tests To Skip
     ##########################################################################
-
-
-    @unittest.skip("Second sync bookmark will almost never be greater than the first sync. Bookmark value truncates to the day.")
-    def test_sync_2_bookmark_greater_than_sync_1(self):
-        pass
-
-
-    # set default values for test in init
-    def __init__(self, test_run):
-        super().__init__(test_run)
-        self.start_date = self.timedelta_formatted(dt.now(),
-                                                   days=-40,
-                                                   date_format=self.START_DATE_FORMAT)
-
-        self.bookmark_date = self.timedelta_formatted(dt.now(),
-                                                      days=-1,
-                                                      date_format=self.BOOKMARK_FORMAT)
-
-        self.lookback_window = int(self.CONVERSION_WINDOW)
