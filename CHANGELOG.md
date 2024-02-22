@@ -1,5 +1,7 @@
 # Changelog
 
+## v0.1.2
+  * Integer dimensions are sometimes returned as the string (other) [#37](https://github.com/singer-io/tap-ga4/pull/37)
 ## v0.1.1
   * Update cached field exclusions to match changes made in the GA4 Data API [#100](https://github.com/singer-io/tap-ga4/pull/100)
 ## v0.1.0
