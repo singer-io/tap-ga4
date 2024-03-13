@@ -63,8 +63,10 @@ def add_metrics_to_schema(schema, metrics):
 
 def add_dimensions_to_schema(schema, dimensions):
     for dimension in dimensions.keys():
+        # integer dimensions are not always returned as integers
+        # https://support.google.com/analytics/answer/9309767
         if dimensions[dimension].api_name in DIMENSION_INTEGER_FIELD_OVERRIDES:
-            schema["properties"][dimension] = {"type": ["integer", "null"]}
+            schema["properties"][dimension] =  {"type": ["integer", "string", "null"]}
         elif dimensions[dimension].api_name in DIMENSION_DATETIME_FIELD_OVERRIDES:
             # datetime is not always a valid datetime string
             # https://support.google.com/analytics/answer/9309767
