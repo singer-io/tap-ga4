@@ -54,7 +54,7 @@ def add_metrics_to_schema(schema, metrics):
     for metric in metrics.keys():
         metric_type = metrics[metric].type_.name
         if metric_type == "TYPE_INTEGER":
-            schema["properties"][metric] = {"type": ["integer", "null"]}
+            schema["properties"][metric] = {"type": ["integer", "number", "null"]}
         elif metric_type in FLOAT_TYPES:
             schema["properties"][metric] = {"type": ["number", "null"]}
         else:
