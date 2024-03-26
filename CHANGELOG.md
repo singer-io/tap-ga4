@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.1.4
+  * Add `NUMBER` data type in the catalog for the `INTEGER` type metric field. [#102](https://github.com/singer-io/tap-ga4/pull/102)
+## v0.1.3
+  * Update cached field exclusions to match changes made in the GA4 Data API [#101](https://github.com/singer-io/tap-ga4/pull/101)
+
 ## v0.1.2
   * Integer dimensions are sometimes returned as the string (other) [#37](https://github.com/singer-io/tap-ga4/pull/37)
 ## v0.1.1
