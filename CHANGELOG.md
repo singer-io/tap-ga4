@@ -1,4 +1,6 @@
 # Changelog
+## v0.1.4
+  * Update cached field exclusions to match changes made in the GA4 Data API [#103](https://github.com/singer-io/tap-ga4/pull/103)
 ## v0.1.3
   * Update cached field exclusions to match changes made in the GA4 Data API [#101](https://github.com/singer-io/tap-ga4/pull/101)
 
