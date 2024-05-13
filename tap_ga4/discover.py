@@ -115,7 +115,6 @@ def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclus
     for dimension in dimensions.keys():
         mdata = metadata.write(mdata, ("properties", dimension), "tap_ga4.group", dimensions[dimension].category)
         mdata = metadata.write(mdata, ("properties", dimension), "behavior", "DIMENSION")
-        # mdata = metadata.write(mdata, ("properties", dimension), "fieldExclusions", field_exclusions[dimension])
         mdata = metadata.write(mdata, ("properties", dimension), "tap-ga4.api-field-names", dimensions[dimension].api_name)
         if is_premade:
             mdata = metadata.write(mdata, ("properties", dimension), "selected-by-default", True)
@@ -123,7 +122,6 @@ def generate_metadata(schema, dimensions, metrics, invalid_metrics, field_exclus
     for metric in metrics.keys():
         mdata = metadata.write(mdata, ("properties", metric), "tap_ga4.group", metrics[metric].category)
         mdata = metadata.write(mdata, ("properties", metric), "behavior", "METRIC")
-        # mdata = metadata.write(mdata, ("properties", metric), "fieldExclusions", field_exclusions[metric])
         mdata = metadata.write(mdata, ("properties", metric), "tap-ga4.api-field-names", metrics[metric].api_name)
         if is_premade:
             mdata = metadata.write(mdata, ("properties", metric), "selected-by-default", True)

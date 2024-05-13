@@ -59,7 +59,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
                 continue
 
             field_name = field['breadcrumb'][1]
-            field_exclusions[behavior][field_name] = set(field['metadata'].get('fieldExclusions'))
 
         self.field_exclusions = field_exclusions
 
@@ -87,10 +86,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         all_selectable_dimensions = list(self.field_exclusions['DIMENSION'].keys())
         all_selectable_metrics = list(self.field_exclusions['METRIC'].keys())
-
-        # date is always selected, include its field_exclusions
-        all_selectable_dimensions, all_selectable_metrics = self.exclude_field(
-            all_selectable_dimensions, all_selectable_metrics, 'date', self.DIMENSION)
 
         # select fewer dimensions to increase chance of replicating data
         max_dimensions = 4
