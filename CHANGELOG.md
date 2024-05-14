@@ -1,6 +1,6 @@
 # Changelog
 ## v0.1.5
-  * Fix `400 Cannot have filter_partition dimension without specifying filter-partitions in the request` error [#102](https://github.com/singer-io/tap-ga4/pull/104)
+  * Fix `400 Cannot have filter_partition dimension without specifying filter-partitions in the request` error [#104](https://github.com/singer-io/tap-ga4/pull/104)
 
 ## v0.1.4
   * Add `NUMBER` data type in the catalog for the `INTEGER` type metric field. [#102](https://github.com/singer-io/tap-ga4/pull/102)
