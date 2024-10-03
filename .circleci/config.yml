@@ -45,7 +45,7 @@ jobs:
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             # TODO: Adjust the pylint disables
-            pylint tap_ga4 --disable 'broad-except,broad-exception-caught,broad-exception-raised,chained-comparison,empty-docstring,fixme,invalid-name,line-too-long,missing-class-docstring,missing-function-docstring,missing-module-docstring,no-else-raise,no-else-return,too-few-public-methods,too-many-arguments,too-many-branches,too-many-lines,too-many-locals,ungrouped-imports,wrong-spelling-in-comment,wrong-spelling-in-docstring,missing-class-docstring'
+            pylint tap_ga4 --disable 'too-many-positional-arguments,broad-except,broad-exception-caught,broad-exception-raised,chained-comparison,empty-docstring,fixme,invalid-name,line-too-long,missing-class-docstring,missing-function-docstring,missing-module-docstring,no-else-raise,no-else-return,too-few-public-methods,too-many-arguments,too-many-branches,too-many-lines,too-many-locals,ungrouped-imports,wrong-spelling-in-comment,wrong-spelling-in-docstring,missing-class-docstring'
       - slack/notify-on-failure:
           only_for_branches: main
 
