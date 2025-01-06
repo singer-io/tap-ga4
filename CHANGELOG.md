@@ -1,4 +1,8 @@
 # Changelog
+## v0.1.6
+  * Fix `400 The dimensions and metrics are incompatible` error [#106](https://github.com/singer-io/tap-ga4/pull/106)
+  * Update pylint exclusions [#105](https://github.com/singer-io/tap-ga4/pull/105)
+
 ## v0.1.5
   * Fix `400 Cannot have filter_partition dimension without specifying filter-partitions in the request` error [#104](https://github.com/singer-io/tap-ga4/pull/104)
 
