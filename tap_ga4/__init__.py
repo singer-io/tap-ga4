@@ -1,4 +1,5 @@
 import singer
+import json
 from singer import utils
 from singer.catalog import Catalog
 from tap_ga4.client import Client
@@ -17,12 +18,21 @@ REQUIRED_CONFIG_KEYS = [
     "report_definitions",
 ]
 
+def handle_report_definitions_type(config):
+    """Converts report_definitions into a list if it is a JSON-encoded string."""
+    if isinstance(config["report_definitions"], str):
+        try:
+            config.update(report_definitions = json.loads(config["report_definitions"]))
+        except json.JSONDecodeError:
+            raise
 
 def main_impl():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
-    config = args.config
     catalog = args.catalog or Catalog([])
     state = {}
+
+    config = args.config
+    handle_report_definitions_type(config)
 
     client = Client(config)
 
