@@ -18,7 +18,7 @@ REQUIRED_CONFIG_KEYS = [
     "report_definitions",
 ]
 
-def handle_report_definitions_type(config):
+def maybe_parse_report_definitions(config):
     """Converts report_definitions into a list if it is a JSON-encoded string."""
     if isinstance(config["report_definitions"], str):
         try:
@@ -32,7 +32,7 @@ def main_impl():
     state = {}
 
     config = args.config
-    handle_report_definitions_type(config)
+    maybe_parse_report_definitions(config)
 
     client = Client(config)
 

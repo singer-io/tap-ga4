@@ -1,4 +1,7 @@
 # Changelog
+## v0.2.0
+  * Allow `report_definitions` config property to be input as a list or json-encoded string [#107](https://github.com/singer-io/tap-ga4/pull/107)
+
 ## v0.1.6
   * Fix `400 The dimensions and metrics are incompatible` error [#106](https://github.com/singer-io/tap-ga4/pull/106)
   * Update pylint exclusions [#105](https://github.com/singer-io/tap-ga4/pull/105)
