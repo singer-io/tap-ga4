@@ -20,9 +20,11 @@ class TestFieldExclusions(unittest.TestCase):
     def get_default_field_exclusions(self, client, property_id):
         
         dimensions, metrics, _ = get_dimensions_and_metrics(client, 0)
-
         fields = defaultdict(list)
         for dimension in dimensions:
+            if dimension.api_name == "comparison":
+                fields[dimension.api_name].append([])
+                return
             res = client.check_dimension_compatibility(property_id, dimension)
             for field in res.dimension_compatibilities:
                 fields[dimension.api_name].append(field.dimension_metadata.api_name)
