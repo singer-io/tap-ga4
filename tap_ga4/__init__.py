@@ -23,8 +23,8 @@ def maybe_parse_report_definitions(config):
     if isinstance(config["report_definitions"], str):
         try:
             config.update(report_definitions = json.loads(config["report_definitions"]))
-        except json.JSONDecodeError:
-            raise
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error parsing report_definitions string: {e}")
 
 def main_impl():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
