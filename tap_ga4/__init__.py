@@ -1,5 +1,5 @@
-import singer
 import json
+import singer
 from singer import utils
 from singer.catalog import Catalog
 from tap_ga4.client import Client
