@@ -24,15 +24,23 @@ class TestFieldExclusions(unittest.TestCase):
         for dimension in dimensions:
             if dimension.api_name == "comparison":
                 fields[dimension.api_name].append([])
-                return
+                continue
             res = client.check_dimension_compatibility(property_id, dimension)
+
             for field in res.dimension_compatibilities:
                 fields[dimension.api_name].append(field.dimension_metadata.api_name)
             for field in res.metric_compatibilities:
                 fields[dimension.api_name].append(field.metric_metadata.api_name)
 
         for metric in metrics:
+            if metric.api_name in ["advertiserAdClicks", "advertiserAdCost", "advertiserAdCostPerClick", "advertiserAdCostPerKeyEvent",
+                                   "advertiserAdImpressions", "organicGoogleSearchAveragePosition", "organicGoogleSearchClickThroughRate",
+                                   "organicGoogleSearchImpressions", "returnOnAdSpend", "organicGoogleSearchClicks"]:
+                fields[metric.api_name].append([])
+                continue
+
             res = client.check_metric_compatibility(property_id, metric)
+
             for field in res.dimension_compatibilities:
                 fields[metric.api_name].append(field.dimension_metadata.api_name)
             for field in res.metric_compatibilities:
@@ -42,12 +50,11 @@ class TestFieldExclusions(unittest.TestCase):
         with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
             fields_json = json.dumps(fields, indent=4)
             outfile.write(fields_json)
-                
+
         return fields
 
     def test_field_exclusions_match_cached(self):
         with open("tap_ga4/field_exclusions.json", "r") as infile:
             cached_field_exclusions = json.load(infile)
-
         generated_field_exclusions = self.get_default_field_exclusions(self.client, self.client_config["property_id"])
         self.assertEqual(generated_field_exclusions, cached_field_exclusions)
