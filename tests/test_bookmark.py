@@ -72,7 +72,7 @@ class GA4BookmarkTest(BookmarkTest, GA4Base):
     @staticmethod
     def streams_to_selected_fields():
         return {
-            "Test Report 1": {"conversions"},
+            "Test Report 1": {"total_users"},
             'content_group_report': {"date"},
         }
 

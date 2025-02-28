@@ -1,3 +1,4 @@
+import json
 import singer
 from singer import utils
 from singer.catalog import Catalog
@@ -17,12 +18,21 @@ REQUIRED_CONFIG_KEYS = [
     "report_definitions",
 ]
 
+def maybe_parse_report_definitions(config):
+    """Converts report_definitions into a list if it is a JSON-encoded string."""
+    if isinstance(config["report_definitions"], str):
+        try:
+            config.update(report_definitions = json.loads(config["report_definitions"]))
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Error parsing report_definitions string: {e}") from e
 
 def main_impl():
     args = utils.parse_args(REQUIRED_CONFIG_KEYS)
-    config = args.config
     catalog = args.catalog or Catalog([])
     state = {}
+
+    config = args.config
+    maybe_parse_report_definitions(config)
 
     client = Client(config)
 
