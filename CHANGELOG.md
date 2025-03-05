@@ -1,4 +1,7 @@
 # Changelog
+## v0.3.0
+  * Make `report_definitions` config property optional [#109](https://github.com/singer-io/tap-ga4/pull/109)
+
 ## v0.2.0
   * Allow `report_definitions` config property to be input as a list or json-encoded string [#107](https://github.com/singer-io/tap-ga4/pull/107)
 
