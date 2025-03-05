@@ -15,12 +15,11 @@ REQUIRED_CONFIG_KEYS = [
     "refresh_token",
     "property_id",
     "account_id",
-    "report_definitions",
 ]
 
 def maybe_parse_report_definitions(config):
     """Converts report_definitions into a list if it is a JSON-encoded string."""
-    if isinstance(config["report_definitions"], str):
+    if isinstance(config.get("report_definitions", []), str):
         try:
             config.update(report_definitions = json.loads(config["report_definitions"]))
         except json.JSONDecodeError as e:
@@ -39,7 +38,7 @@ def main_impl():
     if args.state:
         state.update(args.state)
     if args.discover:
-        discover(client, config["report_definitions"], config["property_id"])
+        discover(client, config.get("report_definitions", []), config["property_id"])
         LOGGER.info("Discovery complete")
     elif args.catalog:
         sync(client, config, catalog, state)
