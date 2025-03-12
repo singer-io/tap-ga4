@@ -6,7 +6,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -23,7 +23,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -40,7 +40,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -57,7 +57,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -74,7 +74,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -91,7 +91,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -108,7 +108,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -125,7 +125,7 @@ PREMADE_REPORTS = [
             "engagedSessions",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "totalUsers",
             "userEngagementDuration",
@@ -144,7 +144,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -162,7 +162,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -180,7 +180,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -198,7 +198,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -216,7 +216,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -234,7 +234,7 @@ PREMADE_REPORTS = [
             "eventsPerSession",
             "engagementRate",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -259,7 +259,7 @@ PREMADE_REPORTS = [
     {
         "name": "conversions_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "totalUsers",
             "totalRevenue",
         ],
@@ -275,7 +275,7 @@ PREMADE_REPORTS = [
             "totalUsers",
             "newUsers",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -291,7 +291,7 @@ PREMADE_REPORTS = [
             "totalUsers",
             "newUsers",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -307,7 +307,7 @@ PREMADE_REPORTS = [
             "totalUsers",
             "newUsers",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -323,7 +323,7 @@ PREMADE_REPORTS = [
             "totalUsers",
             "newUsers",
             "eventCount",
-            "conversions",
+            "keyEvents",
             "totalRevenue",
             "userEngagementDuration",
         ],
@@ -502,7 +502,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_country_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount"
@@ -519,7 +519,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_region_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -536,7 +536,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_city_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -553,7 +553,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_language_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -570,7 +570,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_age_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -587,7 +587,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_gender_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -604,7 +604,7 @@ PREMADE_REPORTS = [
     {
         "name": "demographic_interests_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -621,7 +621,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_browser_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -638,7 +638,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_device_category_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -655,7 +655,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_device_model_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -672,7 +672,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_screen_resolution_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -689,7 +689,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_app_version_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -706,7 +706,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_platform_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -723,7 +723,7 @@ PREMADE_REPORTS = [
         {
         "name": "tech_os_version_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -740,7 +740,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_platform_and_device_category_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -757,7 +757,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_operating_system_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
@@ -774,7 +774,7 @@ PREMADE_REPORTS = [
     {
         "name": "tech_os_with_version_report",
         "metrics": [
-            "conversions",
+            "keyEvents",
             "engagedSessions",
             "engagementRate",
             "eventCount",
