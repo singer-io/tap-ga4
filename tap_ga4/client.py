@@ -119,7 +119,7 @@ class Client:
         if report_name == "conversions_report":
             return FilterExpression(
                 filter=Filter(
-                    field_name="isConversionEvent",
+                    field_name="isKeyEvent",
                     string_filter=Filter.StringFilter(value="true")
                 )
             )
