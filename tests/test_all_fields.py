@@ -159,6 +159,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         self.assertTrue(synced_stream_names.issubset(expected_streams))
 
+    @unittest.skip("skip until fixed in: https://qlik-dev.atlassian.net/browse/TDL-27149")
     def test_all_fields_for_streams_are_replicated(self):
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
@@ -187,11 +188,6 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
     @unittest.skip("Random selection doesn't always sync records")
     def test_all_streams_sync_records(self):
-        pass
-
-    #TODO: Field selection is currently broken. Remove this skip to re-enable the test once it has been fixed.
-    @unittest.skip("skip until fixed in: https://qlik-dev.atlassian.net/browse/TDL-27149")
-    def setUp(self):
         pass
 
 #  TODO - Run failed, might have an issue with the way we expect data for some fields
