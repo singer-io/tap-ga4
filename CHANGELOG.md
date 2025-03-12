@@ -1,4 +1,8 @@
 # Changelog
+
+## v0.3.1
+  * Update deprecated metrics in premade reports [#110](https://github.com/singer-io/tap-ga4/pull/110)
+
 ## v0.3.0
   * Make `report_definitions` config property optional [#109](https://github.com/singer-io/tap-ga4/pull/109)
 
