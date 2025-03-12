@@ -189,6 +189,14 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
     def test_all_streams_sync_records(self):
         pass
 
+    #TODO: Field selection is currently broken. Remove these skips once it has been fixed.
+    @unittest.skip("skip until fixed in: https://qlik-dev.atlassian.net/browse/TDL-27149")
+    def setUp(self):
+        pass
+    @unittest.skip("skip until fixed in: https://qlik-dev.atlassian.net/browse/TDL-27149")
+    def test_all_fields_for_streams_are_replicated(self):
+        pass
+
 #  TODO - Run failed, might have an issue with the way we expect data for some fields
 #   https://jira.talendforge.org/browse/TDL-21467 is for the nth_hour field being other
 #   We should remove nth_hour from random selection until the bug is addressed.
