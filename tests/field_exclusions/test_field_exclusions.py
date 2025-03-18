@@ -25,7 +25,7 @@ class TestFieldExclusions(unittest.TestCase):
             # checkCompatibility fails for the "comparison" dimension. Leave its
             # exclusions empty to not block the user.
             if dimension.api_name == "comparison":
-                fields[dimension.api_name].append([])
+                fields[dimension.api_name] = []
             else:
                 res = client.check_dimension_compatibility(property_id, dimension)
 
@@ -41,7 +41,7 @@ class TestFieldExclusions(unittest.TestCase):
             if metric.api_name in ["advertiserAdClicks", "advertiserAdCost", "advertiserAdCostPerClick", "advertiserAdCostPerKeyEvent",
                                    "advertiserAdImpressions", "organicGoogleSearchAveragePosition", "organicGoogleSearchClickThroughRate",
                                    "organicGoogleSearchImpressions", "returnOnAdSpend", "organicGoogleSearchClicks"]:
-                fields[metric.api_name].append([])
+                fields[metric.api_name] = []
             else:
                 res = client.check_metric_compatibility(property_id, metric)
 
