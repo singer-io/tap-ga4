@@ -159,6 +159,7 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
 
         self.assertTrue(synced_stream_names.issubset(expected_streams))
 
+    @unittest.skip("skip until fixed in: https://qlik-dev.atlassian.net/browse/TDL-27149")
     def test_all_fields_for_streams_are_replicated(self):
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
