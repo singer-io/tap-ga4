@@ -31,8 +31,8 @@ class TestFieldExclusions(unittest.TestCase):
 
                 for field in res.dimension_compatibilities:
                     fields[dimension.api_name].append(field.dimension_metadata.api_name)
-                    for field in res.metric_compatibilities:
-                        fields[dimension.api_name].append(field.metric_metadata.api_name)
+                for field in res.metric_compatibilities:
+                    fields[dimension.api_name].append(field.metric_metadata.api_name)
 
         for metric in metrics:
             # The checkCompatibility request fails for the following metrics.
@@ -47,8 +47,8 @@ class TestFieldExclusions(unittest.TestCase):
 
                 for field in res.dimension_compatibilities:
                     fields[metric.api_name].append(field.dimension_metadata.api_name)
-                    for field in res.metric_compatibilities:
-                        fields[metric.api_name].append(field.metric_metadata.api_name)
+                for field in res.metric_compatibilities:
+                    fields[metric.api_name].append(field.metric_metadata.api_name)
 
         # Used by CircleCi to automatically commit changes
         with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
