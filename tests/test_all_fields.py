@@ -85,8 +85,13 @@ class GA4AllFieldsTest(AllFieldsTest, GA4Base):
         selected_metrics = set()
         self.get_field_exclusions()
 
-        all_selectable_dimensions = list(self.field_exclusions['DIMENSION'].keys())
-        all_selectable_metrics = list(self.field_exclusions['METRIC'].keys())
+        # exclude metrics/dimensions whose field exclusions are empty sets. That
+        # indicates we are unable to know their field exclusions so we can't
+        # randomly pair them with other fields.
+        all_selectable_dimensions = list(field for field in self.field_exclusions['DIMENSION'].keys()
+                                         if self.field_exclusions['DIMENSION'][field] != set())
+        all_selectable_metrics = list(field for field in self.field_exclusions['METRIC'].keys()
+                                      if self.field_exclusions['METRIC'][field] != set())
 
         # date is always selected, include its field_exclusions
         all_selectable_dimensions, all_selectable_metrics = self.exclude_field(

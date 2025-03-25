@@ -1,4 +1,16 @@
 # Changelog
+## v0.3.2
+  * Update cached field exclusions to match changes made in the GA4 Data API [#108](https://github.com/singer-io/tap-ga4/pull/108)
+  
+## v0.3.1
+  * Update deprecated metrics in premade reports [#110](https://github.com/singer-io/tap-ga4/pull/110)
+
+## v0.3.0
+  * Make `report_definitions` config property optional [#109](https://github.com/singer-io/tap-ga4/pull/109)
+
+## v0.2.0
+  * Allow `report_definitions` config property to be input as a list or json-encoded string [#107](https://github.com/singer-io/tap-ga4/pull/107)
+
 ## v0.1.6
   * Fix `400 The dimensions and metrics are incompatible` error [#106](https://github.com/singer-io/tap-ga4/pull/106)
   * Update pylint exclusions [#105](https://github.com/singer-io/tap-ga4/pull/105)
