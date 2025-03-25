@@ -202,12 +202,6 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     for metric in metrics:
         if metric.api_name in field_exclusions:
             continue
-
-        if metric.api_name in {"advertiserAdCostPerKeyEvent"}:
-            # 2025-01-06: This started failing and we don't know why. There
-            # seems to be no code change from Google and no recent tap
-            # updates. Setting this to no exclusions for compatibility reasons.
-            field_exclusions[metric.api_name] = []
         res = client.check_metric_compatibility(property_id, metric)
         for field in res.dimension_compatibilities:
             field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
