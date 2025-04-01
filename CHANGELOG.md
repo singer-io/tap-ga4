@@ -1,7 +1,11 @@
 # Changelog
+
+## v0.3.3
+  * Dependabot update [#112](https://github.com/singer-io/tap-ga4/pull/112)
+
 ## v0.3.2
   * Update cached field exclusions to match changes made in the GA4 Data API [#108](https://github.com/singer-io/tap-ga4/pull/108)
-  
+
 ## v0.3.1
   * Update deprecated metrics in premade reports [#110](https://github.com/singer-io/tap-ga4/pull/110)
 
