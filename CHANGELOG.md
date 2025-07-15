@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.3.4
+  * Bump dependency versions for twistlock compliance [#113](https://github.com/singer-io/tap-ga4/pull/113)
+
 ## v0.3.3
   * Dependabot update [#112](https://github.com/singer-io/tap-ga4/pull/112)
 
