@@ -62,7 +62,7 @@ jobs:
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
             uv pip install nose2 coverage
-            nose2 --with-coverage --cover-erase --cover-package=tap_ga4 --cover-html-dir=htmlcov tests/unittests
+            nose2 --verbose --with-coverage --coverage-report html --coverage tap_ga4 --start-dir tests/unittests
             coverage html
       - store_test_results:
           path: test_output/report.xml
