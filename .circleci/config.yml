@@ -5,7 +5,7 @@ orbs:
 executors:
   docker-executor:
     docker:
-      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:stitch-tap-tester
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:stitch-tap-tester-uv
 
 jobs:
   build:
@@ -20,26 +20,27 @@ jobs:
       - run:
           name: 'Setup virtual env'
           command: |
-            python3 -mvenv /usr/local/share/virtualenvs/tap-ga4
+            uv venv --python 3.9 /usr/local/share/virtualenvs/tap-ga4
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
-            pip install 'pip==23.3.2'
-            pip install 'setuptools==60.8.2'
-            pip install .[dev]
+            uv pip install 'pip==23.3.2'
+            uv pip install 'setuptools==60.8.2'
+            uv pip install .[dev]
+            uv pip install awscli --upgrade
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox /usr/local/share/virtualenvs/dev_env.sh
       - slack/notify-on-failure:
           only_for_branches: main
       - persist_to_workspace:
-          root: /usr/local/share/virtualenvs
+          root: /
           paths:
-            - tap-ga4
-            - dev_env.sh
+            - root/.local/share/uv/python
+            - usr/local/share/virtualenvs
 
   run_pylint:
     executor: docker-executor
     steps:
       - checkout
       - attach_workspace:
-          at: /usr/local/share/virtualenvs
+          at: /
       - run:
           name: 'pylint'
           command: |
@@ -54,14 +55,15 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /usr/local/share/virtualenvs
+          at: /
       - run:
           name: 'Unit Tests'
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
-            pip install nose2
-            nose2 -v -s tests/unittests
+            uv pip install nose2 coverage
+            nose2 --verbose --with-coverage --coverage-report html --coverage tap_ga4 --start-dir tests/unittests
+            coverage html
       - store_test_results:
           path: test_output/report.xml
       - store_artifacts:
@@ -78,7 +80,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /usr/local/share/virtualenvs
+          at: /
       - run:
           name: 'Run Integration Tests'
           no_output_timeout: 70m
@@ -108,14 +110,14 @@ jobs:
           fingerprints:
             - "cf:fb:a9:64:e1:34:ee:2b:74:9c:88:b0:bf:f8:0f:99"
       - attach_workspace:
-          at: /usr/local/share/virtualenvs
+          at: /
       - run:
           name: 'Run Field Exclusion Test'
           no_output_timeout: 70m
           command: |
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
             source /usr/local/share/virtualenvs/dev_env.sh
-            pip install nose2
+            uv pip install nose2 coverage
             nose2 -v -s tests/field_exclusions
       - run:
           name: 'Commit changes to git'
