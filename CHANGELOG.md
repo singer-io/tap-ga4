@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.3.5
+  * Update cached field exclusions to match changes made in the GA4 Data API [#117](https://github.com/singer-io/tap-ga4/pull/117)
+
 ## v0.3.4
   * Bump dependency versions for twistlock compliance [#113](https://github.com/singer-io/tap-ga4/pull/113)
 
@@ -92,7 +95,7 @@
   * Fixes error reading field_exclusions.json [#17](https://github.com/singer-io/tap-ga4/pull/17)
 ## v0.0.5
   * Adds pre-made reports [#14](https://github.com/singer-io/tap-ga4/pull/14)
-  * Converts field names to lowecase and snake_case to match destination formatting [#16](https://github.com/singer-io/tap-ga4/pull/16) 
+  * Converts field names to lowecase and snake_case to match destination formatting [#16](https://github.com/singer-io/tap-ga4/pull/16)
 ## v0.0.4
   * Update cached field exclusions for acheivementId [#15](https://github.com/singer-io/tap-ga4/pull/15)
 ## v0.0.3
