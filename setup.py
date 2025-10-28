@@ -11,7 +11,7 @@ setup(
     py_modules=["tap_ga4"],
     install_requires=[
         "google-analytics-data==0.14.0",
-        "singer-python==6.0.1",
+        "singer-python==6.3.0",
         "requests==2.32.4",
         "backoff==2.2.1",
     ],
