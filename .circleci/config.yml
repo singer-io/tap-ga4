@@ -74,6 +74,7 @@ jobs:
 
   run_integration_tests:
     executor: docker-executor
+    parallelism: 5
     steps:
       - checkout
       - attach_workspace:
