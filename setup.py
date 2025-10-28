@@ -17,7 +17,7 @@ setup(
     ],
     extras_require={
         'dev': [
-            'setuptools'
+            'setuptools',
             'ipdb',
             'pylint',
         ]
