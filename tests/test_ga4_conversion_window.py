@@ -80,6 +80,11 @@ class ConversionWindowBaseTest(GA4Base):
         self.assertDictEqual(final_state, initial_state)
 
         # Verify converstion window is used
+        record_count_by_stream = runner.examine_target_output_file(
+            self, conn_id, self.streams_to_test(), self.expected_primary_keys()
+        )
+        for stream in self.streams_to_test():
+            assert record_count_by_stream.get(stream, 0) > 0
         synced_messages_by_stream = runner.get_records_from_target_output()
         for stream in self.streams_to_test():
             with self.subTest(stream=stream):
