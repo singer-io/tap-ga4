@@ -20,10 +20,8 @@ jobs:
       - run:
           name: 'Setup virtual env'
           command: |
-            uv venv --python 3.9 /usr/local/share/virtualenvs/tap-ga4
+            uv venv --python 3.12 /usr/local/share/virtualenvs/tap-ga4
             source /usr/local/share/virtualenvs/tap-ga4/bin/activate
-            uv pip install 'pip==23.3.2'
-            uv pip install 'setuptools==60.8.2'
             uv pip install .[dev]
             uv pip install awscli --upgrade
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox /usr/local/share/virtualenvs/dev_env.sh
