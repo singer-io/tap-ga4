@@ -78,6 +78,12 @@ class GA4Base(BaseCase):
             'refresh_token': os.getenv('TAP_GA4_REFRESH_TOKEN'),
         }
 
+    @staticmethod
+    def expected_tap_behavior():
+        return {
+            'primary_keys_are_unique': True
+        }
+
     @classmethod
     def expected_metadata(cls):
         """The expected streams and metadata about the streams"""
