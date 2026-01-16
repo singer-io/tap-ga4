@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.3.6
+  * Update `google-analytics-data` library from `0.14.0` to `0.20.0` [#122](https://github.com/singer-io/tap-ga4/pull/122)
+
 ## v0.3.5
   * Update cached field exclusions to match changes made in the GA4 Data API [#117](https://github.com/singer-io/tap-ga4/pull/117)
 
