@@ -10,7 +10,7 @@ setup(
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_ga4"],
     install_requires=[
-        "google-analytics-data==0.14.0",
+        "google-analytics-data==0.20.0",
         "singer-python==6.3.0",
         "requests==2.32.4",
         "backoff==2.2.1",
