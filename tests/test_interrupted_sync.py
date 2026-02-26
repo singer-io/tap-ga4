@@ -1,5 +1,5 @@
 import os
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt, timedelta, timezone
 
 from base import GA4Base, get_jira_status_category
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
@@ -82,7 +82,7 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
         conversion_window = int(self.get_properties().get('conversion_window', GA4Base.CONVERSION_WINDOW))
         conversion_day = self.parse_date(
             GA4Base.timedelta_formatted(
-                dt.utcnow(),
+                dt.now(timezone.utc),
                 delta=timedelta(days=-conversion_window),
                 date_format=self.bookmark_format
             )
