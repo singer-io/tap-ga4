@@ -80,11 +80,5 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
 
         bookmark = self.parse_date(bookmark)
         conversion_window = int(self.get_properties().get('conversion_window', GA4Base.CONVERSION_WINDOW))
-        conversion_day = self.parse_date(
-            GA4Base.timedelta_formatted(
-                dt.now(timezone.utc),
-                delta=timedelta(days=-conversion_window),
-                date_format=self.bookmark_format
-            )
-        )
+        conversion_day = dt.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=conversion_window)
         return min(bookmark, max(start_date, conversion_day))
