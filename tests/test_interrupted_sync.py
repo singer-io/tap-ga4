@@ -1,5 +1,5 @@
 import os
-from datetime import datetime as dt, timedelta
+from datetime import datetime as dt, timedelta, timezone
 
 from base import GA4Base, get_jira_status_category
 from tap_tester.base_suite_tests.interrupted_sync_test import InterruptedSyncTest
@@ -66,25 +66,13 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
     def calculate_expected_sync_start_time(self, bookmark, stream, completed=True):
         """This method is only for streams that have bookmarks and a sync has been started"""
 
-        # BUG override bookmark to use final state vs manipulate_state allowing test to pass
-        if GA4InterruptedSyncTest.card_is_done is None:
-            jira_status = get_jira_status_category('TDL-23687')
-            GA4InterruptedSyncTest.card_is_done = jira_status == 'done'
-            self.assertFalse(GA4InterruptedSyncTest.card_is_done,
-                         msg="JIRA BUG has transitioned to Done, remove work around")
-        bookmark  = self.get_bookmark_value(self.resuming_sync_state, stream)
+        bookmark = self.get_bookmark_value(self.resuming_sync_state, stream)
+        start_date = self.parse_date(self.start_date)
 
-        # The lookback window should be used for all bookmarked streams
-        #   function inherited from tap_tester.base_case
-        stream_lookback = self.expected_lookback_window(stream)
+        if not bookmark:
+            return start_date
 
-        # Expect the sync to start where the last sync left off,
-        #   expect to go back a lookback for completed streams
-        #   but don't go back before the start date.
-        if self.expected_start_date_behavior(stream):
-            return max(
-                self.parse_date(bookmark) - stream_lookback,
-                self.parse_date(self.start_date))
-
-        # if we don't respect the start date
-        return self.parse_date(bookmark) - stream_lookback
+        bookmark = self.parse_date(bookmark)
+        conversion_window = int(self.get_properties().get('conversion_window', GA4Base.CONVERSION_WINDOW))
+        conversion_day = dt.now(timezone.utc).replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=conversion_window)
+        return min(bookmark, max(start_date, conversion_day))
