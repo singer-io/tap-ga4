@@ -66,12 +66,6 @@ class GA4InterruptedSyncTest(InterruptedSyncTest, GA4Base):
     def calculate_expected_sync_start_time(self, bookmark, stream, completed=True):
         """This method is only for streams that have bookmarks and a sync has been started"""
 
-        # # BUG override bookmark to use final state vs manipulate_state allowing test to pass
-        # if GA4InterruptedSyncTest.card_is_done is None:
-        #     jira_status = get_jira_status_category('TDL-23687')
-        #     GA4InterruptedSyncTest.card_is_done = jira_status == 'done'
-        #     self.assertFalse(GA4InterruptedSyncTest.card_is_done,
-        #                  msg="JIRA BUG has transitioned to Done, remove work around")
         bookmark = self.get_bookmark_value(self.resuming_sync_state, stream)
         start_date = self.parse_date(self.start_date)
 
