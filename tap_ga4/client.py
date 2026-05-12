@@ -1,3 +1,5 @@
+import json
+import os
 import time
 import backoff
 import singer
@@ -26,14 +28,52 @@ class Client:
 
     PAGE_SIZE = 100000
 
-    def __init__(self, config):
-        credentials = Credentials(None,
-                              refresh_token=config["refresh_token"],
-                              token_uri='https://www.googleapis.com/oauth2/v4/token',
-                              client_id=config["oauth_client_id"],
-                              client_secret=config["oauth_client_secret"])
+    def __init__(self, config, auth_type='oauth'):
+        """
+        Initialize the GA4 client with either OAuth or service account credentials.
 
-        self.client = BetaAnalyticsDataClient(credentials=credentials)
+        Args:
+            config: Configuration dictionary containing credentials
+            auth_type: Either 'oauth' or 'service_account'
+        """
+        if auth_type == 'oauth':
+            self.client = self._create_oauth_client(config)
+        elif auth_type == 'service_account':
+            self.client = self._create_service_account_client(config)
+        else:
+            raise ValueError(f"Unknown auth_type: {auth_type}")
+
+    def _create_oauth_client(self, config):
+        """Create a BetaAnalyticsDataClient using OAuth credentials."""
+        credentials = Credentials(
+            None,
+            refresh_token=config["refresh_token"],
+            token_uri='https://www.googleapis.com/oauth2/v4/token',
+            client_id=config["oauth_client_id"],
+            client_secret=config["oauth_client_secret"]
+        )
+        return BetaAnalyticsDataClient(credentials=credentials)
+
+    def _create_service_account_client(self, config):
+        """Create a BetaAnalyticsDataClient using service account credentials."""
+        if config.get('service_account_json'):
+            sa_info = config['service_account_json']
+            if isinstance(sa_info, str):
+                sa_info = json.loads(sa_info)
+            return BetaAnalyticsDataClient.from_service_account_info(sa_info)
+
+        if config.get('service_account_json_path'):
+            file_path = config['service_account_json_path']
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(
+                    f"Service account JSON file not found: {file_path}"
+                )
+            return BetaAnalyticsDataClient.from_service_account_file(file_path)
+
+        raise ValueError(
+            "Service account authentication requires either "
+            "'service_account_json' or 'service_account_json_path'"
+        )
 
 
     @backoff.on_exception(backoff.expo,
