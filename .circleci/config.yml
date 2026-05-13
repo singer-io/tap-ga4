@@ -124,14 +124,14 @@ jobs:
             echo "Committing to GitHub"
 
             # Setup
+            apt install -y gawk git
+
             git config user.email "stitchintegrationdev@talend.com"
             git config user.name "CircleCI Job"
 
             wget https://github.com/cli/cli/releases/download/v2.23.0/gh_2.23.0_linux_amd64.tar.gz
             tar xf gh_2.23.0_linux_amd64.tar.gz
             cp /root/project/gh_2.23.0_linux_amd64/bin/gh /usr/local/bin/
-
-            apt install -y gawk
 
             bash < <(curl -s https://raw.githubusercontent.com/babashka/babashka/master/install)
             # End Setup
