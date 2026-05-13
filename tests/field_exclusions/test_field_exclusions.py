@@ -2,7 +2,7 @@ import json
 import os
 from collections import defaultdict
 import unittest
-from google.api_core.exceptions import BadRequest
+from google.api_core.exceptions import GoogleAPICallError
 from tap_ga4.discover import get_dimensions_and_metrics
 from tap_ga4.client import Client
 
@@ -22,47 +22,48 @@ class TestFieldExclusions(unittest.TestCase):
         
         dimensions, metrics, _ = get_dimensions_and_metrics(client, 0)
         fields = defaultdict(list)
-        for dimension in dimensions:
-            # checkCompatibility fails for the "comparison" dimension. Leave its
-            # exclusions empty to not block the user.
-            if dimension.api_name == "comparison":
-                fields[dimension.api_name] = []
-            else:
-                try:
-                    res = client.check_dimension_compatibility(property_id, dimension)
-                    for field in res.dimension_compatibilities:
-                        fields[dimension.api_name].append(field.dimension_metadata.api_name)
-                    for field in res.metric_compatibilities:
-                        fields[dimension.api_name].append(field.metric_metadata.api_name)
-                except BadRequest:
-                    # Leave exclusions empty for dimensions whose CheckCompatibility
-                    # request returns 400 — their compatibility is context-dependent.
+        try:
+            for dimension in dimensions:
+                # checkCompatibility fails for the "comparison" dimension. Leave its
+                # exclusions empty to not block the user.
+                if dimension.api_name == "comparison":
                     fields[dimension.api_name] = []
+                else:
+                    try:
+                        res = client.check_dimension_compatibility(property_id, dimension)
+                        for field in res.dimension_compatibilities:
+                            fields[dimension.api_name].append(field.dimension_metadata.api_name)
+                        for field in res.metric_compatibilities:
+                            fields[dimension.api_name].append(field.metric_metadata.api_name)
+                    except GoogleAPICallError:
+                        # Leave exclusions empty for dimensions whose CheckCompatibility
+                        # request fails — their compatibility is context-dependent.
+                        fields[dimension.api_name] = []
 
-        for metric in metrics:
-            # The checkCompatibility request fails for the following metrics.
-            # Their compatibility changes depending on what is selected with
-            # them. Leave their exclusions empty to not block the user.
-            if metric.api_name in ["advertiserAdClicks", "advertiserAdCost", "advertiserAdCostPerClick", "advertiserAdCostPerKeyEvent",
-                                   "advertiserAdImpressions", "organicGoogleSearchAveragePosition", "organicGoogleSearchClickThroughRate",
-                                   "organicGoogleSearchImpressions", "returnOnAdSpend", "organicGoogleSearchClicks"]:
-                fields[metric.api_name] = []
-            else:
-                try:
-                    res = client.check_metric_compatibility(property_id, metric)
-                    for field in res.dimension_compatibilities:
-                        fields[metric.api_name].append(field.dimension_metadata.api_name)
-                    for field in res.metric_compatibilities:
-                        fields[metric.api_name].append(field.metric_metadata.api_name)
-                except BadRequest:
-                    # Leave exclusions empty for metrics whose CheckCompatibility
-                    # request returns 400 — their compatibility is context-dependent.
+            for metric in metrics:
+                # The checkCompatibility request fails for the following metrics.
+                # Their compatibility changes depending on what is selected with
+                # them. Leave their exclusions empty to not block the user.
+                if metric.api_name in ["advertiserAdClicks", "advertiserAdCost", "advertiserAdCostPerClick", "advertiserAdCostPerKeyEvent",
+                                       "advertiserAdImpressions", "organicGoogleSearchAveragePosition", "organicGoogleSearchClickThroughRate",
+                                       "organicGoogleSearchImpressions", "returnOnAdSpend", "organicGoogleSearchClicks"]:
                     fields[metric.api_name] = []
-
-        # Used by CircleCi to automatically commit changes
-        with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
-            fields_json = json.dumps(fields, indent=4)
-            outfile.write(fields_json)
+                else:
+                    try:
+                        res = client.check_metric_compatibility(property_id, metric)
+                        for field in res.dimension_compatibilities:
+                            fields[metric.api_name].append(field.dimension_metadata.api_name)
+                        for field in res.metric_compatibilities:
+                            fields[metric.api_name].append(field.metric_metadata.api_name)
+                    except GoogleAPICallError:
+                        # Leave exclusions empty for metrics whose CheckCompatibility
+                        # request fails — their compatibility is context-dependent.
+                        fields[metric.api_name] = []
+        finally:
+            # Always write the output file so the CI commit step can mv it,
+            # even if an unexpected exception cut the loop short.
+            with open("tap_ga4/new_field_exclusions.json", "w", encoding="utf-8") as outfile:
+                outfile.write(json.dumps(fields, indent=4))
 
         return fields
 

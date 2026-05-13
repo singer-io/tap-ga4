@@ -4,7 +4,7 @@ import json
 import re
 import os
 import singer
-from google.api_core.exceptions import BadRequest
+from google.api_core.exceptions import GoogleAPICallError
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 from tap_ga4.reports import PREMADE_REPORTS
@@ -199,8 +199,8 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
             for field in res.metric_compatibilities:
                 field_exclusions[dimension.api_name].append(
                     field.metric_metadata.api_name)
-        except BadRequest:
-            LOGGER.warning("CheckCompatibility returned 400 for dimension '%s'; leaving exclusions empty.",
+        except GoogleAPICallError:
+            LOGGER.warning("CheckCompatibility failed for dimension '%s'; leaving exclusions empty.",
                            dimension.api_name)
             field_exclusions[dimension.api_name] = []
 
@@ -214,8 +214,8 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
                 field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
             for field in res.metric_compatibilities:
                 field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
-        except BadRequest:
-            LOGGER.warning("CheckCompatibility returned 400 for metric '%s'; leaving exclusions empty.",
+        except GoogleAPICallError:
+            LOGGER.warning("CheckCompatibility failed for metric '%s'; leaving exclusions empty.",
                            metric.api_name)
             field_exclusions[metric.api_name] = []
 
