@@ -4,6 +4,7 @@ import json
 import re
 import os
 import singer
+from google.api_core.exceptions import BadRequest
 from singer import Catalog, CatalogEntry, Schema, metadata
 from singer.catalog import write_catalog
 from tap_ga4.reports import PREMADE_REPORTS
@@ -190,23 +191,33 @@ def get_field_exclusions(client, property_id, dimensions, metrics):
     for dimension in dimensions:
         if dimension.api_name in field_exclusions:
             continue
-        res = client.check_dimension_compatibility(property_id, dimension)
-        for field in res.dimension_compatibilities:
-            field_exclusions[dimension.api_name].append(
-                field.dimension_metadata.api_name)
-        for field in res.metric_compatibilities:
-            field_exclusions[dimension.api_name].append(
-                field.metric_metadata.api_name)
+        try:
+            res = client.check_dimension_compatibility(property_id, dimension)
+            for field in res.dimension_compatibilities:
+                field_exclusions[dimension.api_name].append(
+                    field.dimension_metadata.api_name)
+            for field in res.metric_compatibilities:
+                field_exclusions[dimension.api_name].append(
+                    field.metric_metadata.api_name)
+        except BadRequest:
+            LOGGER.warning("CheckCompatibility returned 400 for dimension '%s'; leaving exclusions empty.",
+                           dimension.api_name)
+            field_exclusions[dimension.api_name] = []
 
     LOGGER.info("Discovering metric field exclusions")
     for metric in metrics:
         if metric.api_name in field_exclusions:
             continue
-        res = client.check_metric_compatibility(property_id, metric)
-        for field in res.dimension_compatibilities:
-            field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
-        for field in res.metric_compatibilities:
-            field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
+        try:
+            res = client.check_metric_compatibility(property_id, metric)
+            for field in res.dimension_compatibilities:
+                field_exclusions[metric.api_name].append(field.dimension_metadata.api_name)
+            for field in res.metric_compatibilities:
+                field_exclusions[metric.api_name].append(field.metric_metadata.api_name)
+        except BadRequest:
+            LOGGER.warning("CheckCompatibility returned 400 for metric '%s'; leaving exclusions empty.",
+                           metric.api_name)
+            field_exclusions[metric.api_name] = []
 
     field_exclusions = {to_snake_case(key):[to_snake_case(v) for v in value] for (key,value) in field_exclusions.items()}
     return field_exclusions
