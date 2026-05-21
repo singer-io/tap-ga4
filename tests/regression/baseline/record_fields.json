@@ -1,0 +1,16 @@
+{
+  "demographic_gender_report": [
+    "_sdc_record_hash",
+    "account_id",
+    "date",
+    "engaged_sessions",
+    "engagement_rate",
+    "event_count",
+    "new_users",
+    "property_id",
+    "total_revenue",
+    "total_users",
+    "user_engagement_duration",
+    "user_gender"
+  ]
+}

@@ -57,7 +57,7 @@ def discover_catalog(config_path):
     return json.loads(result.stdout)
 
 
-def select_streams(catalog, stream_names=["test_report", "demographic_gender_report"]):
+def select_streams(catalog, stream_names=["demographic_gender_report"]):
     """Mark only specific streams and their fields as selected."""
     for stream in catalog.get("streams", []):
         is_selected = stream.get("tap_stream_id") in stream_names
@@ -86,7 +86,7 @@ def config_file():
 @pytest.fixture(scope="session")
 def catalog_file(config_file):
     catalog = discover_catalog(config_file)
-    select_all_streams(catalog)
+    select_streams(catalog)
     path = write_catalog(catalog)
     yield path
     os.unlink(path)

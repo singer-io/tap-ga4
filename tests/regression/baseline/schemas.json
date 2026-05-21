@@ -1,0 +1,85 @@
+{
+  "demographic_gender_report": {
+    "properties": {
+      "_sdc_record_hash": {
+        "type": "string"
+      },
+      "account_id": {
+        "type": "string"
+      },
+      "date": {
+        "anyOf": [
+          {
+            "format": "date-time",
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        ]
+      },
+      "engaged_sessions": {
+        "type": [
+          "integer",
+          "number",
+          "null"
+        ]
+      },
+      "engagement_rate": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "event_count": {
+        "type": [
+          "integer",
+          "number",
+          "null"
+        ]
+      },
+      "new_users": {
+        "type": [
+          "integer",
+          "number",
+          "null"
+        ]
+      },
+      "property_id": {
+        "type": "string"
+      },
+      "total_revenue": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "total_users": {
+        "type": [
+          "integer",
+          "number",
+          "null"
+        ]
+      },
+      "user_engagement_duration": {
+        "type": [
+          "number",
+          "null"
+        ]
+      },
+      "user_gender": {
+        "type": [
+          "string",
+          "null"
+        ]
+      }
+    },
+    "type": "object"
+  }
+}
