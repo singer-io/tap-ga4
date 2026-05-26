@@ -18,7 +18,7 @@ class TestFieldExclusions(unittest.TestCase):
         self.client = Client(self.client_config)
 
     def get_default_field_exclusions(self, client, property_id):
-        
+
         dimensions, metrics, _ = get_dimensions_and_metrics(client, 0)
         fields = defaultdict(list)
         for dimension in dimensions:
