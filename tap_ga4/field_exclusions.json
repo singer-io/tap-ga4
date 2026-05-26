@@ -375,6 +375,23 @@
         "organicGoogleSearchImpressions",
         "returnOnAdSpend"
     ],
+    "browserVersion": [
+        "cohortNthDay",
+        "cohortNthMonth",
+        "cohortNthWeek",
+        "advertiserAdClicks",
+        "advertiserAdCost",
+        "advertiserAdCostPerClick",
+        "advertiserAdCostPerKeyEvent",
+        "advertiserAdImpressions",
+        "cohortActiveUsers",
+        "cohortTotalUsers",
+        "organicGoogleSearchAveragePosition",
+        "organicGoogleSearchClicks",
+        "organicGoogleSearchClickThroughRate",
+        "organicGoogleSearchImpressions",
+        "returnOnAdSpend"
+    ],
     "campaignId": [
         "brandingInterest",
         "cohortNthDay",

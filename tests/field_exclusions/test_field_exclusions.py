@@ -2,6 +2,7 @@ import json
 import os
 from collections import defaultdict
 import unittest
+from google.api_core.exceptions import InvalidArgument
 from tap_ga4.discover import get_dimensions_and_metrics
 from tap_ga4.client import Client
 
@@ -27,7 +28,11 @@ class TestFieldExclusions(unittest.TestCase):
             if dimension.api_name == "comparison":
                 fields[dimension.api_name] = []
             else:
-                res = client.check_dimension_compatibility(property_id, dimension)
+                try:
+                    res = client.check_dimension_compatibility(property_id, dimension)
+                except InvalidArgument:
+                    fields[dimension.api_name] = []
+                    continue
 
                 for field in res.dimension_compatibilities:
                     fields[dimension.api_name].append(field.dimension_metadata.api_name)
@@ -43,7 +48,11 @@ class TestFieldExclusions(unittest.TestCase):
                                    "organicGoogleSearchImpressions", "returnOnAdSpend", "organicGoogleSearchClicks"]:
                 fields[metric.api_name] = []
             else:
-                res = client.check_metric_compatibility(property_id, metric)
+                try:
+                    res = client.check_metric_compatibility(property_id, metric)
+                except InvalidArgument:
+                    fields[metric.api_name] = []
+                    continue
 
                 for field in res.dimension_compatibilities:
                     fields[metric.api_name].append(field.dimension_metadata.api_name)

@@ -1,5 +1,8 @@
 # Changelog
 
+## v0.4.0
+  * Handle 400 InvalidArgument during checkCompatibility [#126](https://github.com/singer-io/tap-ga4/pull/126)
+
 ## v0.3.6
   * Update `google-analytics-data` library from `0.14.0` to `0.20.0` [#122](https://github.com/singer-io/tap-ga4/pull/122)
 
