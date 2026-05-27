@@ -2,6 +2,7 @@
 
 ## v0.4.0
   * Handle 400 InvalidArgument during checkCompatibility [#126](https://github.com/singer-io/tap-ga4/pull/126)
+  * Bump requests from 2.32.4 to 2.33.0 [#127](https://github.com/singer-io/tap-ga4/pull/127)
 
 ## v0.3.6
   * Update `google-analytics-data` library from `0.14.0` to `0.20.0` [#122](https://github.com/singer-io/tap-ga4/pull/122)

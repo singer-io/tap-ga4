@@ -12,7 +12,7 @@ setup(
     install_requires=[
         "google-analytics-data==0.20.0",
         "singer-python==6.3.0",
-        "requests==2.32.4",
+        "requests==2.33.0",
         "backoff==2.2.1",
     ],
     extras_require={
