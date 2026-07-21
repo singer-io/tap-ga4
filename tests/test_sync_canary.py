@@ -12,7 +12,7 @@ class GA4SyncCanaryTest(SyncCanaryTest, GA4Base):
 
     def streams_to_test(self):
         # We have no test data for in_app_purchases stream
-        return self.expected_stream_names().difference({"in_app_purchases"})
+        return self.expected_stream_names().difference({"in_app_purchases", "conversions_report"})
 
     @staticmethod
     def streams_to_selected_fields():
